@@ -898,19 +898,125 @@ async function simulateKhawarizmiResponse(userMsg) {
     }
 
     // Fallback if API fails or simulation is forced
-    fallbackKhawarizmi(userMsg, exercise);
+    localKhawarizmiEngine(userMsg, exercise);
 }
 
-function fallbackKhawarizmi(userMsg, exercise) {
-    let response = "";
-    if (userMsg.includes("نعم") || userMsg.includes("اشرح") || userMsg.includes("تلميح") || userMsg.includes("مساعدة")) {
-        const hintPiece = exercise.solution ? exercise.solution : "راجع القاعدة الأساسية للدرس.";
-        response = `تلميح للحل: ${hintPiece}. دقق في هذه المعلومة وحاول مجدداً.`;
-    } else if (userMsg.includes("شكرا") || userMsg.includes("فهمت")) {
-        response = "العفو! شجاعتك في المحاولة هي مفتاح النجاح. 🚀 يمكنك إعادة المحاولة الآن.";
-    } else {
-        response = `يبدو أن الاتصال بالذكاء الاصطناعي مقطوع مؤقتاً، يمكنني القول فقط: ${exercise.solution ? exercise.solution : "فكر بتبسيط المشكلة."} هل فهمت؟`;
+// ============================================================
+// محرك المحاكاة الذكية المحلية لخوارزمي (بدون API خارجي)
+// ============================================================
+function localKhawarizmiEngine(userMsg, exercise) {
+    const msg = userMsg.trim().toLowerCase();
+
+    // --- ردود الشكر والتحية ---
+    if (/شكرا|شكراً|مرسي|عاشت|والله|فهمت|ممتاز/.test(msg)) {
+        const encouragements = [
+            "العفو! لقد أبليت حسناً. 🌟 ثق بنفسك وحاول مجدداً!",
+            "أشجعك على المحاولة دائماً! 💪 المخطئ الوحيد هو من لا يحاول.",
+            "بالتوفيق! العقول الذكية لا تيأس أبداً. 🚀"
+        ];
+        addKhawarizmiMessage(encouragements[Math.floor(Math.random() * encouragements.length)], false);
+        return;
     }
 
-    addKhawarizmiMessage(response, false);
+    // --- ردود السلام والتحية ---
+    if (/مرحبا|أهلا|السلام|صباح|مساء/.test(msg)) {
+        addKhawarizmiMessage("أهلاً بك! 😊 أنا هنا لمساعدتك في حل هذا التمرين. هل تريد تلميحاً للبداية؟", false);
+        return;
+    }
+
+    // --- استخراج سياق الدرس من بيانات التمرين ---
+    const question = exercise.question ? exercise.question.replace(/<[^>]*>/g, '') : '';
+    const answer = exercise.answer || '';
+    const solution = exercise.solution ? exercise.solution.replace(/<[^>]*>/g, '') : '';
+    const options = exercise.options || [];
+
+    // --- توليد تلميح مرحلي ذكي ---
+    const hint = generateSmartHint(question, answer, solution, options, msg);
+    addKhawarizmiMessage(hint, false);
+}
+
+function generateSmartHint(question, answer, solution, options, userMsg) {
+    // تحليل نوع السؤال من الكلمات المفتاحية
+    const q = question.toLowerCase();
+    const a = answer.toString().toLowerCase();
+
+    // --- طلب شرح صريح ---
+    const wantsExplanation = /تلميح|اشرح|ساعد|مساعدة|لا أفهم|لا أعرف|صعب|كيف|نعم/.test(userMsg);
+    const wantsRule = /قاعدة|قانون|نظرية|تعريف|ماذا يعني|ما هو|ما هي/.test(userMsg);
+    const wantsStep = /خطوة|خطوات|كيف أحل|طريقة/.test(userMsg);
+
+    // --- إذا كان هناك solution مفصّل → استعمله أساساً للتلميح ---
+    if (solution && solution.length > 10) {
+        if (wantsStep) {
+            // إخفاء جزء من الحل وإعطاء نصفه الأول فقط
+            const solParts = solution.split('.');
+            const hint = solParts.slice(0, Math.ceil(solParts.length / 2)).join('.');
+            return `🔍 إليك بداية طريقة الحل: ${hint}... الآن حاول إكمال الباقي بنفسك! 💡`;
+        }
+        if (wantsExplanation) {
+            // استخراج أول جملة مفيدة من الحل
+            const firstSentence = solution.split(/\.|،/)[0];
+            return `💡 تلميح: ${firstSentence}. انطلق من هذه الفكرة وستجد الإجابة!`;
+        }
+    }
+
+    // --- تحليل نوع السؤال وتوليد تلميح مناسب ---
+
+    // أسئلة المقارنة
+    if (/أكبر|أصغر|مقارنة|ترتيب|>|</.test(q)) {
+        const hints = [
+            "💡 فكّر: الرقم الأكبر على خط الأعداد يكون دائماً على اليمين.",
+            "🔢 قارن الأعداد خانة خانة من اليسار: الآحاد، ثم العشرات، ثم المئات...",
+            "📏 الرقم الأكبر هو الذي يحتاج لفراغ أكبر على خط الأعداد."
+        ];
+        return hints[Math.floor(Math.random() * hints.length)];
+    }
+
+    // أسئلة الضرب
+    if (/ضرب|×|حاصل ضرب/.test(q)) {
+        return `✖️ تذكّر: الضرب هو جمع متكرر. مثلاً 3×4 يعني 3+3+3+3. جرّب تطبيق هذه الفكرة على السؤال!`;
+    }
+
+    // أسئلة القسمة
+    if (/قسمة|قسّم|حاصل القسمة/.test(q)) {
+        return `➗ تأكد أنك تقسم الرقم الأكبر على الأصغر. والباقي يجب أن يكون أصغر من المقسوم عليه دائماً!`;
+    }
+
+    // أسئلة الجمع والطرح
+    if (/مجموع|جمع|أضف|طرح|الفرق|ناقص/.test(q)) {
+        return `➕ راجع خانات الآحاد أولاً، ثم العشرات، ثم المئات. لا تنسَ الاحتفاظ إن وُجد!`;
+    }
+
+    // أسئلة الكسور
+    if (/كسر|بسط|مقام|نسبة/.test(q)) {
+        return `🍕 تخيّل الكسر كقطعة من البيتزا: البسط هو عدد القطع التي تأخذها، والمقام هو عدد القطع الكلي. ما القطعة الأكبر؟`;
+    }
+
+    // أسئلة الهندسة
+    if (/مثلث|مستطيل|مربع|دائرة|محيط|مساحة|زاوية/.test(q)) {
+        const geoHints = [
+            "📐 محيط الشكل = مجموع أطوال جميع أضلاعه.",
+            "📏 مساحة المستطيل = الطول × العرض.",
+            "🔺 مجموع زوايا أي مثلث = 180 درجة دائماً!"
+        ];
+        return geoHints[Math.floor(Math.random() * geoHints.length)];
+    }
+
+    // أسئلة المعادلات
+    if (/معادلة|x =|y =|أوجد|حل المعادلة/.test(q)) {
+        return `⚖️ تذكّر مبدأ التوازن: ما تفعله على طرف المعادلة، اصنع نفسه على الطرف الآخر!`;
+    }
+
+    // أسئلة الأعداد النسبية
+    if (/سالب|موجب|نسبي|أعداد نسبية/.test(q)) {
+        return `🌡️ تخيّل درجات الحرارة: درجات تحت الصفر هي أعداد سالبة، وفوقه موجبة. وكلما ابتعدنا عن الصفر ازداد العدد!`;
+    }
+
+    // --- رد عام ذكي إذا لم يُعرَف نوع السؤال ---
+    const generalHints = [
+        `🤔 تأمّل في السؤال مجدداً: "${question.substring(0, 60)}..."، هل لاحظت الكلمة المفتاحية؟`,
+        `📚 راجع درسك في هذا الموضوع. الإجابة الصحيحة موجودة في القاعدة الأساسية!`,
+        `💪 أنت قادر! جرّب كل الخيارات المتبقية واحداً واحداً وفكّر أيها منطقي أكثر.`
+    ];
+    return generalHints[Math.floor(Math.random() * generalHints.length)];
 }
