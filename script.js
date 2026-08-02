@@ -11,6 +11,74 @@ function awardXP(amount) {
     }
 }
 
+// ============================================================
+// نظام حفظ التقدم (Progress System) - localStorage
+// ============================================================
+const PROGRESS_KEY = 'mathspace_progress';
+
+function getProgress() {
+    try {
+        return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {};
+    } catch { return {}; }
+}
+
+function saveProgress(level, lesson, exerciseIndex) {
+    const progress = getProgress();
+    if (!progress[level]) progress[level] = {};
+    progress[level][lesson] = { lastIndex: exerciseIndex, updatedAt: Date.now() };
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function markLessonComplete(level, lesson) {
+    const progress = getProgress();
+    if (!progress[level]) progress[level] = {};
+    progress[level][lesson] = { completed: true, completedAt: Date.now() };
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function getLessonProgress(level, lesson) {
+    const progress = getProgress();
+    return progress[level] && progress[level][lesson] ? progress[level][lesson] : null;
+}
+
+function getLevelStats(level) {
+    const progress = getProgress();
+    const levelData = progress[level] || {};
+    const completed = Object.values(levelData).filter(l => l.completed).length;
+    return { completed };
+}
+
+// ============================================================
+// تتبع الأخطاء في Firestore لإحصائيات لوحة الأستاذ
+// ============================================================
+async function trackWrongAnswer(exercise) {
+    try {
+        const db = window.firebaseDB;
+        const auth = window.firebaseAuth;
+        const setDoc = window.firebaseSetDoc;
+        const doc = window.firebaseDoc;
+        if (!db || !auth || !setDoc || !doc) return;
+
+        const user = auth.currentUser;
+        const uid = user ? user.uid : 'anonymous';
+        const timestamp = Date.now();
+
+        // مفتاح فريد لكل خطأ
+        const errorId = `${uid}_${timestamp}`;
+        await setDoc(doc(db, 'wrong_answers', errorId), {
+            uid,
+            question: exercise.question ? exercise.question.replace(/<[^>]*>/g, '').substring(0, 120) : '',
+            lesson: currentLesson || 'غير محدد',
+            level: currentLevel || 0,
+            answer: exercise.answer || '',
+            timestamp
+        });
+    } catch (e) {
+        // الفشل هنا لا يؤثر على تجربة التلميذ
+        console.warn('Error tracking failed (offline?)');
+    }
+}
+
 // Dynamic Curriculum Data Structure
 let curriculum = {};
 
@@ -140,11 +208,21 @@ function populateLessons(level) {
     Object.keys(lessons).forEach(lessonKey => {
         const lesson = lessons[lessonKey];
         const lessonCard = document.createElement('div');
-        lessonCard.className = 'lesson-card';
+        const lp = getLessonProgress(level, lessonKey);
+        const isCompleted = lp && lp.completed;
+        const isInProgress = lp && !lp.completed && lp.lastIndex > 0;
+
+        lessonCard.className = 'lesson-card' + (isCompleted ? ' lesson-completed' : '') + (isInProgress ? ' lesson-in-progress' : '');
         lessonCard.setAttribute('data-lesson', lessonKey);
 
+        const statusBadge = isCompleted
+            ? `<span class="lesson-badge badge-done">✅ مكتمل</span>`
+            : isInProgress
+                ? `<span class="lesson-badge badge-progress">🔄 جارٍ (${lp.lastIndex}/${lesson.exercises.length})</span>`
+                : `<span class="lesson-badge badge-new">🆕 جديد</span>`;
+
         lessonCard.innerHTML = `
-            <h3>${lesson.title}</h3>
+            <h3>${lesson.title} ${statusBadge}</h3>
             <p>${lesson.description}</p>
             <small>${lesson.exercises.length} تمرين</small>
         `;
@@ -164,7 +242,13 @@ function selectLesson(lessonKey) {
     }
 
     currentLesson = lessonKey;
-    currentExerciseIndex = 0;
+    // استعادة آخر موضع إذا كان الدرس في منتصفه
+    const savedProgress = getLessonProgress(currentLevel, lessonKey);
+    if (savedProgress && !savedProgress.completed && savedProgress.lastIndex > 0) {
+        currentExerciseIndex = savedProgress.lastIndex;
+    } else {
+        currentExerciseIndex = 0;
+    }
 
     // استعادة الهيكل الأساسي لقسم التمارين
     const exerciseContent = document.getElementById('exerciseContent');
@@ -371,14 +455,16 @@ function checkAnswer(selectedOptionIndex, correctAnswer, btnElement) {
     if (!isCorrect) {
         // الإجابة خاطئة
         btnElement.classList.add('incorrect');
-        btnElement.disabled = true; // تعطيل الزر الخاطئ فقط لتفادي تخمينه مجدداً
+        btnElement.disabled = true;
 
-        // استدعاء خوارزمي للتوجيه بناءً على المحاولة الفاشلة
+        // تتبع الخطأ في Firestore لإحصائيات الأستاذ
+        trackWrongAnswer(exercise);
+
+        // استدعاء خوارزمي للتوجيه
         if (typeof triggerKhawarizmiWrongAnswer === 'function') {
             triggerKhawarizmiWrongAnswer();
         }
 
-        // منع إكمال العملية حتى لا يتم كشف الجواب ولا يظهر زر المتابعة
         return;
     }
 
@@ -493,8 +579,12 @@ function toggleSolution() {
 function nextExercise() {
     currentExerciseIndex++;
 
+    // حفظ التقدم بعد كل سؤال
+    if (currentLevel && currentLesson) {
+        saveProgress(currentLevel, currentLesson, currentExerciseIndex);
+    }
+
     if (currentExerciseIndex >= exercises.length) {
-        // All exercises completed
         showCompletionMessage();
     } else {
         loadExercise();
@@ -503,31 +593,44 @@ function nextExercise() {
 
 function showCompletionMessage() {
     const exerciseContent = document.querySelector('.exercise-content');
-    if (!exerciseContent) {
-        console.error('Exercise content not found for completion message');
-        return;
-    }
+    if (!exerciseContent) return;
+
+    // استخراج بيانات الدرس
+    const lessonTitle = curriculum[currentLevel].lessons[currentLesson].title;
+    const totalEx = curriculum[currentLevel].lessons[currentLesson].exercises.length;
 
     exerciseContent.innerHTML = `
-        <div style="text-align: center; padding: 40px;">
-            <i class="fas fa-trophy" style="font-size: 4rem; color: #ffd700; margin-bottom: 20px;"></i>
-            <h2 style="color: #48bb78; margin-bottom: 20px;">أحسنت! 🎉</h2>
-            <p style="font-size: 1.2rem; color: #4a5568; margin-bottom: 30px;">
-                لقد أكملت جميع تمارين درس "${curriculum[currentLevel].lessons[currentLesson].title}"
+        <div style="text-align: center; padding: 40px; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <div style="position: relative; display: inline-block; margin-bottom: 25px;">
+                <i class="fas fa-certificate" style="font-size: 6rem; color: #f6ad55; text-shadow: 0 4px 15px rgba(246,173,85,0.4);"></i>
+                <i class="fas fa-star" style="position: absolute; top: -10px; right: -15px; font-size: 2rem; color: #ffd700; animation: bounce 2s infinite;"></i>
+                <i class="fas fa-medal" style="position: absolute; bottom: 0; left: -10px; font-size: 2.5rem; color: #48bb78;"></i>
+            </div>
+            <h2 style="color: #2b6cb0; font-size: 2.2rem; font-weight: 900; margin-bottom: 10px;">عمل رائع يابطل! 🎉</h2>
+            <p style="font-size: 1.2rem; color: #4a5568; margin-bottom: 25px;">
+                لقد أنجزت جميع تمارين <b>${lessonTitle}</b> (${totalEx}/${totalEx})
             </p>
+            
+            <div style="background: rgba(72, 187, 120, 0.1); border: 2px dashed #48bb78; border-radius: 15px; padding: 15px; max-width: 300px; margin: 0 auto 30px;">
+                <p style="color: #2f855a; font-weight: bold; margin: 0;">🎁 مكافأة الإكمال: <span style="font-size: 1.4rem;">+50 XP</span></p>
+            </div>
+
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="showLessonSelection()" class="btn btn-primary">
-                    <i class="fas fa-arrow-right"></i> العودة لاختيار الدرس
+                <button onclick="showLessonSelection()" class="btn btn-primary" style="background: linear-gradient(135deg, #4299e1, #3182ce); border: none; padding: 12px 25px; font-size: 1.1rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(66,153,225,0.4);">
+                    <i class="fas fa-book-open"></i> درس جديد
                 </button>
-                <button onclick="showLevelSelection()" class="btn btn-success">
-                    <i class="fas fa-star"></i> العودة لاختيار المستوى
-                </button>
-                <button onclick="showMainMenu()" class="btn btn-info">
-                    <i class="fas fa-home"></i> العودة للقائمة الرئيسية
+                <button onclick="window.location.href='index.html'" class="btn btn-success" style="background: linear-gradient(135deg, #48bb78, #38a169); border: none; padding: 12px 25px; font-size: 1.1rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(72,187,120,0.4);">
+                    <i class="fas fa-tachometer-alt"></i> لوحة القيادة
                 </button>
             </div>
         </div>
     `;
+
+    // تسجيل اكتمال الدرس ومنح نقاط إضافية
+    if (currentLevel && currentLesson) {
+        markLessonComplete(currentLevel, currentLesson);
+        awardXP(50); // مكافأة إكمال الدرس
+    }
 
     updateProgress(100);
 }
@@ -575,6 +678,45 @@ function showLevelSelection() {
         exerciseSection.style.display = 'none';
     }
 
+    // البحث عن درس غير مكتمل لاقتراح إكماله
+    const progress = getProgress();
+    let resumeTarget = null;
+    for (let lvl in progress) {
+        for (let lsn in progress[lvl]) {
+            if (!progress[lvl][lsn].completed && progress[lvl][lsn].lastIndex > 0) {
+                resumeTarget = { level: lvl, lesson: lsn, index: progress[lvl][lsn].lastIndex };
+                break;
+            }
+        }
+        if (resumeTarget) break;
+    }
+
+    // إزالة الإشعار القديم إن وجد
+    const oldResumeBox = document.getElementById('resume-lesson-box');
+    if (oldResumeBox) oldResumeBox.remove();
+
+    if (resumeTarget) {
+        const title = curriculum[resumeTarget.level]?.lessons[resumeTarget.lesson]?.title || resumeTarget.lesson;
+        const resumeBox = document.createElement('div');
+        resumeBox.id = 'resume-lesson-box';
+        resumeBox.style.cssText = `
+            background: linear-gradient(135deg, rgba(237,137,54,0.1), rgba(221,107,32,0.1));
+            border: 2px dashed #ed8936; border-radius: 15px; padding: 15px 20px;
+            margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 15px; animation: fadeInUp 0.5s ease;
+        `;
+        resumeBox.innerHTML = `
+            <div>
+                <h3 style="color: #dd6b20; font-size: 1.1rem; margin-bottom: 5px;"><i class="fas fa-history"></i> استكمل تحديك!</h3>
+                <p style="color: #4a5568; font-size: 0.9rem;">لقد توقفت في منتصف <b>${title}</b>. هل تكمل الآن؟</p>
+            </div>
+            <button class="btn btn-warning" onclick="resumeLesson(${resumeTarget.level}, '${resumeTarget.lesson}')" style="background: linear-gradient(135deg, #ed8936, #dd6b20); color: white; border: none; font-weight: bold;">
+                <i class="fas fa-play"></i> نعم، أكمل
+            </button>
+        `;
+        levelSelection.insertBefore(resumeBox, levelSelection.firstChild);
+    }
+
     // Reset variables
     currentLevel = null;
     currentLesson = null;
@@ -583,6 +725,12 @@ function showLevelSelection() {
 
     updateProgress(0);
 }
+
+// دالة مساعدة للانتقال فوراً للدرس الناقص
+window.resumeLesson = function (level, lesson) {
+    selectLevel(level);
+    setTimeout(() => selectLesson(lesson), 300); // إعطاء واجهة الدروس وقتاً للظهور
+};
 
 function showLessonSelection() {
     if (currentLevel) {

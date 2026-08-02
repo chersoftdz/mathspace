@@ -4511,6 +4511,42 @@ body {
     font-weight: bold;
 }
 
+/* ===== شارات تقدم الدروس (Progress Badges) ===== */
+.lesson-badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-right: 6px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.badge-done {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+}
+
+.badge-progress {
+    background: linear-gradient(135deg, #ed8936, #dd6b20);
+    color: white;
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.lesson-completed {
+    border: 2px solid #48bb78 !important;
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.08), rgba(56, 161, 105, 0.04)) !important;
+}
+
+.lesson-in-progress {
+    border: 2px solid #ed8936 !important;
+    background: linear-gradient(135deg, rgba(237, 137, 54, 0.08), rgba(221, 107, 32, 0.04)) !important;
+}
+
 /* ===== Khawarizmi AI Widget ===== */
 .khawarizmi-container {
     position: fixed;
