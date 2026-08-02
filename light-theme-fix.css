@@ -1,0 +1,42 @@
+/* Light Menu Card Styles */
+.menu-card.light-card {
+    background: white !important;
+    background-image: none !important;
+}
+
+.menu-card.light-card h3 {
+    color: #2d3748;
+}
+
+.menu-card.light-card p {
+    color: #718096;
+}
+
+.menu-card.light-card .menu-features span {
+    color: #4a5568 !important;
+}
+
+.menu-card.light-card .menu-features i {
+    color: #d69e2e !important;
+    /* Darker Gold for visibility */
+}
+
+/* Header Button Contrast Fix */
+.header-buttons .btn {
+    font-weight: 700;
+    color: #2d3748 !important;
+    /* Dark text */
+    background: white !important;
+    border: 2px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.header-buttons .btn:hover {
+    background: #f7fafc !important;
+    transform: translateY(-2px);
+}
+
+.header-buttons .btn i {
+    color: #667eea !important;
+    /* Icon color */
+}

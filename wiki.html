@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القاموس الرياضي - منصة الرياضيات التفاعلية</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/css/cairo.css">
+    <link rel="stylesheet" href="assets/css/all.min.css">
+    <link rel="stylesheet" href="light-theme-fix.css">
+    <style>
+        .wiki-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 1.2rem;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cat-btn {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .cat-btn:hover,
+        .cat-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .term-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px normal #e2e8f0;
+            /* CSS lint fix: 'normal' is not valid for border-style usually, but 'solid' */
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .term-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .term-title {
+            color: #2d3748;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .term-category {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #ebf8ff;
+            color: #3182ce;
+        }
+
+        .term-def {
+            color: #718096;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Modal specific styles */
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            padding: 30px;
+            position: relative;
+        }
+
+        .modal-header {
+            border-bottom: 2px solid #f7fafc;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            color: #4a5568;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .example-box {
+            background: #f0fff4;
+            border-right: 4px solid #48bb78;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wiki-container">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <a href="index.html" class="btn"
+                style="background: white; color: #4a5568; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold;">
+                <i class="fas fa-arrow-right"></i> القائمة الرئيسية
+            </a>
+            <h1 style="color: #2d3748; margin: 0; font-size: 1.8rem;">📘 القاموس الرياضي</h1>
+        </header>
+
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput"
+                    placeholder="ابحث عن مصطلح (مثلاً: القسمة، الزاوية، العدد الأولي...)">
+            </div>
+            <div class="categories" id="categoryFilters">
+                <button class="cat-btn active" data-cat="all">الكل</button>
+                <button class="cat-btn" data-cat="numbers">أعداد وحساب</button>
+                <button class="cat-btn" data-cat="geometry">هندسة</button>
+                <button class="cat-btn" data-cat="algebra">جبر وتناسب</button>
+                <button class="cat-btn" data-cat="stats">إحصاء</button>
+            </div>
+        </div>
+
+        <div class="terms-grid" id="termsGrid">
+            <!-- Terms will be injected here -->
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="termModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content">
+            <button onclick="closeModal()"
+                style="position: absolute; left: 20px; top: 20px; background: none; border: none; font-size: 1.5rem; color: #a0aec0; cursor: pointer;">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle" style="margin: 0; color: #2d3748;"></h2>
+                <span id="modalCategory" class="term-category" style="margin-top: 10px; display: inline-block;"></span>
+            </div>
+            <div class="modal-body">
+                <p id="modalDef"></p>
+                <div id="modalExample" class="example-box" style="display: none;">
+                    <strong>مثال:</strong> <span id="exampleText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="wiki.js"></script>
+</body>
+
+</html>

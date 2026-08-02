@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الرياضيات التفاعلية - التعليم المتوسط</title>
+    <link rel="stylesheet" href="styles.css?v=103">
+    <link rel="stylesheet" href="assets/css/cairo-font.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.css">
+    <link rel="stylesheet" href="light-theme-fix.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-calculator"></i> منصة الرياضيات التفاعلية</h1>
+                <p>تعلم الرياضيات بطريقة سهلة وممتعة</p>
+
+            </div>
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </header>
+
+        <!-- Main Menu -->
+        <section class="main-menu" id="mainMenu">
+            <h2>مرحباً بك في منصة الرياضيات التفاعلية</h2>
+            <p>اختر القسم الذي تريد التعلم منه</p>
+            <div class="welcome-stats">
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span>منصة تعليمية متكاملة</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span>متاحة 24/7</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>متوافقة مع جميع الأجهزة</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>مصممة للتعليم المتوسط</span>
+                </div>
+            </div>
+            <div class="welcome-message">
+                <p><i class="fas fa-heart"></i> نتمنى لك رحلة تعليمية ممتعة ومفيدة!</p>
+            </div>
+
+            <div class="quick-actions-info">
+                <p><i class="fas fa-info-circle"></i> يمكنك أيضاً استخدام الاختصارات: <kbd>Home</kbd> للعودة للقائمة
+                    الرئيسية، <kbd>Esc</kbd> للرجوع</p>
+            </div>
+
+            <div class="menu-grid">
+
+
+                <div class="menu-card exercises-card" onclick="showLevelSelection()">
+                    <div class="menu-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>التمارين التفاعلية</h3>
+                    <p>تعلم الرياضيات من خلال تمارين تفاعلية منظمة حسب المستوى والدرس</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-star"></i> 4 مستويات دراسية</span>
+                        <span><i class="fas fa-book"></i> دروس منظمة</span>
+                        <span><i class="fas fa-check-circle"></i> حلول مفصلة</span>
+                        <span><i class="fas fa-list-ol"></i> <span id="totalExercises">0</span> تمرين متاح</span>
+                    </div>
+                    <div class="menu-action">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>ابدأ التعلم</span>
+                    </div>
+                </div>
+
+                <div class="menu-card games-card" onclick="showGames()">
+                    <div class="menu-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3>الألعاب التعليمية</h3>
+                    <p>تعلم الرياضيات بطريقة ممتعة من خلال ألعاب تفاعلية متنوعة</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-puzzle-piece"></i> 14 لعبة مختلفة</span>
+                        <span><i class="fas fa-trophy"></i> نظام نقاط</span>
+                        <span><i class="fas fa-brain"></i> تطوير المهارات</span>
+                        <span><i class="fas fa-gamepad"></i> ألعاب تفاعلية</span>
+                    </div>
+                    <div class="menu-action">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>ابدأ اللعب</span>
+                    </div>
+                </div>
+
+                <div class="menu-card situations-card" onclick="showSituations()">
+                    <div class="menu-icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h3>الوضعيات المركبة</h3>
+                    <p>حل مسائل معقدة تتطلب تطبيق عدة مفاهيم رياضية معاً</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-lightbulb"></i> مسائل ذكية</span>
+                        <span><i class="fas fa-steps"></i> حلول خطوة بخطوة</span>
+                        <span><i class="fas fa-chart-line"></i> تطوير التفكير</span>
+                        <span><i class="fas fa-puzzle-piece"></i> مسائل معقدة</span>
+                    </div>
+                    <div class="menu-action">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>ابدأ التحدي</span>
+                    </div>
+                </div>
+
+                <div class="menu-card calculator-card" onclick="showCalculator()">
+                    <div class="menu-icon">
+                        <i id="calcIcon" class="fas fa-calculator"
+                            style="color: #1a365d !important; font-size: 3.5rem;"></i>
+                    </div>
+                    <h3>الأدوات الحاسبة</h3>
+                    <p>أدوات رياضية متقدمة للحسابات والتحويلات والهندسة</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-calculator"></i> آلة حاسبة علمية</span>
+                        <span><i class="fas fa-table"></i> جداول رياضية</span>
+                        <span><i class="fas fa-exchange-alt"></i> محولات الوحدات</span>
+                        <span><i class="fas fa-shapes"></i> أدوات هندسية</span>
+                    </div>
+                    <div class="menu-action">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>ابدأ الحساب</span>
+                    </div>
+                </div>
+
+                <div class="menu-card graphing-card light-card" style="border: 2px solid #4299e1;">
+                    <div class="menu-icon" style="background: rgba(66, 153, 225, 0.1); color: #4299e1;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>الرسم البياني</h3>
+                    <p>رسم بياني دقيق ومتقدم للدوال الرياضية</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-chart-line" style="color: #4299e1;"></i> رسم دقيق</span>
+                        <span><i class="fas fa-search-plus" style="color: #4299e1;"></i> تكبير وتصغير</span>
+                        <span><i class="fas fa-mouse-pointer" style="color: #4299e1;"></i> تفاعلي</span>
+                        <span><i class="fas fa-function" style="color: #4299e1;"></i> دوال متقدمة</span>
+                    </div>
+                    <div class="graphing-buttons">
+                        <button class="btn btn-primary" onclick="window.location.href='graphing.html'"
+                            style="width: 100%; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); border: none;">
+                            <i class="fas fa-chart-line"></i> ابدأ الرسم البياني
+                        </button>
+                    </div>
+                </div>
+                <div class="menu-card exams-card light-card" onclick="window.location.href='exams.html'"
+                    style="border: 2px solid #e53e3e;">
+                    <div class="menu-icon" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e;">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3>فضاء الفروض والاختبارات</h3>
+                    <p>اختبر معلوماتك في ظروف امتحان حقيقية مع تصحيح فوري</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-clock"></i> توقيت حقيقي</span>
+                        <span><i class="fas fa-check-double"></i> تصحيح آلي</span>
+                        <span><i class="fas fa-certificate"></i> شهادات تجريبية</span>
+                        <span><i class="fas fa-poll"></i> تقييم المستوى</span>
+                    </div>
+                    <div class="menu-action">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>ابدأ الاختبار</span>
+                    </div>
+                </div>
+
+                <div class="menu-card light-card" onclick="window.location.href='dashboard.html'"
+                    style="border: 2px solid #ed8936;">
+                    <div class="menu-icon" style="background: rgba(237, 137, 54, 0.1); color: #ed8936;">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>لوحة القيادة</h3>
+                    <p>تابع تقدمك، واجمع النقاط، وافتح الأوسمة!</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-star" style="color: #ed8936;"></i> إحصائيات</span>
+                        <span><i class="fas fa-medal" style="color: #ed8936;"></i> أوسمة</span>
+                        <span><i class="fas fa-chart-bar" style="color: #ed8936;"></i> متابعة المستوى</span>
+                    </div>
+                    <div class="menu-action"
+                        style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white;">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>عرض الملف</span>
+                    </div>
+                </div>
+
+                <div class="menu-card light-card" onclick="window.location.href='geometry.html'"
+                    style="border: 2px solid #3182ce;">
+                    <div class="menu-icon" style="background: rgba(49, 130, 206, 0.1); color: #3182ce;">
+                        <i class="fas fa-drafting-compass"></i>
+                    </div>
+                    <h3>المختبر الهندسي</h3>
+                    <p>ارسم الأشكال الهندسية، وحرّكها، واكتشف الخواص بنفسك!</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-bezier-curve" style="color: #3182ce;"></i> رسم حر</span>
+                        <span><i class="fas fa-ruler-combined" style="color: #3182ce;"></i> قياسات</span>
+                        <span><i class="fas fa-vector-square" style="color: #3182ce;"></i> هندسة ديناميكية</span>
+                    </div>
+                    <div class="menu-action"
+                        style="background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%); color: white;">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>دخول المختبر</span>
+                    </div>
+                </div>
+
+                <div class="menu-card light-card" onclick="window.location.href='wiki.html'"
+                    style="border: 2px solid #805ad5;">
+                    <div class="menu-icon" style="background: rgba(128, 90, 213, 0.1); color: #805ad5;">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3>القاموس الرياضي</h3>
+                    <p>ابحث عن تعريفات، قوانين، وأمثلة مشروحة لكل المصطلحات!</p>
+                    <div class="menu-features">
+                        <span><i class="fas fa-search" style="color: #805ad5;"></i> بحث فوري</span>
+                        <span><i class="fas fa-filter" style="color: #805ad5;"></i> تصنيف حسب الميدان</span>
+                        <span><i class="fas fa-lightbulb" style="color: #805ad5;"></i> أمثلة توضيحية</span>
+                    </div>
+                    <div class="menu-action"
+                        style="background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%); color: white;">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>تصفح القاموس</span>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Level Selection -->
+        <section class="level-selection" id="levelSelection" style="display: none;">
+            <button onclick="showMainMenu()" class="btn btn-secondary back-btn">
+                <i class="fas fa-arrow-right"></i> العودة للقائمة الرئيسية
+            </button>
+            <h2>اختر المستوى الدراسي</h2>
+            <div class="levels-grid">
+                <div class="level-card" data-level="1">
+                    <div class="level-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>السنة الأولى متوسط</h3>
+                    <p>الرياضيات الأساسية</p>
+                </div>
+                <div class="level-card" data-level="2">
+                    <div class="level-icon">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>السنة الثانية متوسط</h3>
+                    <p>مفاهيم متقدمة</p>
+                </div>
+                <div class="level-card" data-level="3">
+                    <div class="level-icon">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>السنة الثالثة متوسط</h3>
+                    <p>الجبر والهندسة</p>
+                </div>
+                <div class="level-card" data-level="4">
+                    <div class="level-icon">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>السنة الرابعة متوسط</h3>
+                    <p>التحضير لشهادة التعليم المتوسط</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lesson Selection -->
+        <section class="lesson-selection" id="lessonSelection" style="display: none;">
+            <button id="backToLevels" class="btn btn-secondary back-btn">
+                <i class="fas fa-arrow-right"></i> العودة لاختيار المستوى
+            </button>
+            <button onclick="showMainMenu()" class="btn btn-info back-btn">
+                <i class="fas fa-home"></i> العودة للقائمة الرئيسية
+            </button>
+            <h2 id="lessonTitle">اختر الدرس</h2>
+            <div class="lessons-grid" id="lessonsGrid">
+                <!-- Lessons will be populated here -->
+            </div>
+        </section>
+
+        <!-- Exercise Section -->
+        <section class="exercise-section" id="exerciseSection" style="display: none;">
+            <div class="completion-message" id="completionMessage" style="display: none;">
+                <h2><i class="fas fa-check-circle"></i> أحسنت! لقد أكملت هذا الدرس بنجاح.</h2>
+                <p>يمكنك الآن اختيار درس آخر أو العودة لاختيار مستوى جديد.</p>
+                <button id="backToLessons" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> العودة لاختيار الدرس
+                </button>
+            </div>
+            <div class="exercise-container">
+                <div class="exercise-header">
+                    <h2 id="exerciseTitle">التمرين</h2>
+                    <div class="exercise-controls">
+                        <button id="showSolutionBtn" class="btn btn-primary">
+                            <i class="fas fa-lightbulb"></i> عرض الحل
+                        </button>
+                        <button id="nextExerciseBtn" class="btn btn-success">
+                            <i class="fas fa-forward"></i> التمرين التالي
+                        </button>
+                        <button onclick="showMainMenu()" class="btn btn-info">
+                            <i class="fas fa-home"></i> العودة للقائمة الرئيسية
+                        </button>
+                    </div>
+                </div>
+                <div class="exercise-content" id="exerciseContent">
+                    <div class="exercise-question" id="exerciseQuestion">
+                        <!-- Exercise content will be loaded here -->
+                    </div>
+                    <div class="exercise-options" id="exerciseOptions">
+                        <!-- Options will be loaded here -->
+                    </div>
+                    <div class="exercise-solution" id="exerciseSolution" style="display: none;">
+                        <h3><i class="fas fa-check-circle"></i> الحل:</h3>
+                        <div id="solutionContent">
+                            <!-- Solution content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Khawarizmi AI Widget -->
+    <div id="khawarizmi-widget" class="khawarizmi-container" style="display: none;">
+        <!-- Floating Chat Icon -->
+        <div id="k-icon" class="k-floating-icon" onclick="toggleKhawarizmiChat()">
+            <div class="k-icon-inner">
+                <i class="fas fa-robot"></i>
+                <span>💡 اطلب مساعدة خوارزمي</span>
+                <span id="k-badge" class="k-notification-badge" style="display: none;">1</span>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div id="k-chat-window" class="k-chat-window" style="display: none;">
+            <div class="k-chat-header">
+                <div class="k-header-info">
+                    <div class="k-avatar"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <h4 style="margin:0; font-size:16px;">المساعد الذكي "خوارزمي"</h4>
+                        <span style="font-size:12px; opacity:0.8;">متصل للرد على أسئلتك</span>
+                    </div>
+                </div>
+                <button class="k-close-btn" onclick="toggleKhawarizmiChat()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="k-chat-messages" class="k-chat-messages">
+                <!-- Messages will be injected here -->
+            </div>
+
+            <div class="k-chat-input-area">
+                <input type="text" id="k-chat-input" placeholder="اطلب شرحاً للقاعدة..."
+                    onkeypress="if(event.key==='Enter') sendKhawarizmiMessage()">
+                <button id="k-send-btn" onclick="sendKhawarizmiMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>عن المنصة</h4>
+                <p>منصة رياضيات تفاعلية مصممة خصيصاً لطلاب التعليم المتوسط</p>
+                <p>المنصة مصممة وفق المنهاج الجزائري</p>
+            </div>
+            <div class="footer-section">
+                <h4>الميزات</h4>
+                <ul>
+                    <li>تمارين تفاعلية</li>
+                    <li>ألعاب تعليمية</li>
+                    <li>وضعيات مركبة</li>
+                    <li>تتبع التقدم</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>معلومات التواصل</h4>
+                <p>إعداد وتقديم الأستاذة شريفي</p>
+                <p>البريد الإلكتروني: math2020amir@gmail.com</p>
+                <p>جميع الحقوق محفوظة 2025</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="dashboard.js"></script>
+    <script src="exercises.js"></script>
+    <script src="features.js"></script>
+    <script src="ai_config.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+    <script>
+        // Force unregister SW to fix caching issues
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+    </script>
+
+    <!-- ===== فتح القسم المناسب مباشرة عبر URL parameter ===== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            const start = params.get('start');
+            if (!start) return;
+
+            // انتظار تحميل السكريبتات وتهيئة المتغيرات
+            setTimeout(function () {
+                switch (start) {
+                    case 'exercises':
+                        if (typeof showLevelSelection === 'function') showLevelSelection();
+                        break;
+                    case 'games':
+                        if (typeof showGames === 'function') showGames();
+                        break;
+                    case 'calculator':
+                        if (typeof showCalculator === 'function') showCalculator();
+                        break;
+                    case 'situations':
+                        if (typeof showSituations === 'function') showSituations();
+                        break;
+                }
+            }, 200);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرسم البياني - منصة الرياضيات التفاعلية</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="assets/css/cairo.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+    <!-- Fallback if local assets missing -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #ffd700;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .graph-app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-height: 100vh;
+        }
+
+        /* Header */
+        .graph-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .graph-header h1 {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .graph-header .home-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.2s;
+        }
+
+        .graph-header .home-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Workspace */
+        .graph-workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar (Functions & Settings) */
+        .graph-sidebar {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 90;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .function-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-right: 4px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .function-card.f1 {
+            border-right-color: #e74c3c;
+        }
+
+        .function-card.f2 {
+            border-right-color: #3498db;
+        }
+
+        .function-card.f3 {
+            border-right-color: #2ecc71;
+        }
+
+        .function-card:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .func-input {
+            width: 100%;
+            border: none;
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            direction: ltr;
+            /* Formulas are LTR */
+        }
+
+        .func-input:focus {
+            outline: 2px solid #667eea;
+            background: white;
+        }
+
+        .visibility-btn {
+            background: none;
+            border: none;
+            color: #cbd5e0;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .visibility-btn.active {
+            color: #718096;
+        }
+
+        /* Canvas Area */
+        .graph-canvas-area {
+            flex: 1;
+            position: relative;
+            background: white;
+            /* Fallback */
+            cursor: crosshair;
+        }
+
+        #graphCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Overlay Controls (Zoom, Reset) */
+        .canvas-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            /* RTL switch: left on screen, but right via CSS? Let's fix for RTL */
+            /* In RTL, right is right. We want it on the left side commonly or bottom right? 
+               Usually tools are on the right in LTR. In RTL maybe left? Let's put bottom-left. */
+            left: 20px;
+            right: auto;
+            display: flex;
+            gap: 10px;
+            z-index: 80;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: #4a5568;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            background: #667eea;
+            color: white;
+        }
+
+        /* Virtual Keypad (Bottom Sheet) */
+        .virtual-keypad {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .virtual-keypad.visible {
+            transform: translateY(0);
+        }
+
+        .keypad-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .keypad-toggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            /* Floating button to show keypad */
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            z-index: 95;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .keys-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .key-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: background 0.1s;
+        }
+
+        .key-btn:active {
+            background: #edf2f7;
+            transform: scale(0.95);
+        }
+
+        .key-btn.op {
+            color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .key-btn.num {
+            color: #2d3748;
+        }
+
+        .key-btn.var {
+            color: #e74c3c;
+            font-style: italic;
+        }
+
+        .key-btn.action {
+            background: #cbd5e0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .graph-workspace {
+                flex-direction: column;
+            }
+
+            .graph-sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+                /* Collapsible? */
+                border-left: none;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+
+            .sidebar-content {
+                padding: 10px;
+            }
+
+            .function-card {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .keys-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .graph-header h1 span {
+                display: none;
+                /* Hide text on small screens, simplify */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="graph-header">
+        <h1>
+            <i class="fas fa-chart-line" style="color: #667eea;"></i>
+            <span>الرسم البياني</span>
+        </h1>
+        <button onclick="window.location.href='index.html'" class="home-btn">
+            <i class="fas fa-home"></i> خروج
+        </button>
+    </header>
+
+    <div class="graph-app-container">
+
+        <!-- Main Workspace -->
+        <div class="graph-workspace">
+
+            <!-- Sidebar: Functions -->
+            <div class="graph-sidebar">
+                <div class="sidebar-content">
+                    <h3 style="margin-top: 0; color: #4a5568;">الدوال</h3>
+
+                    <!-- Function 1 -->
+                    <div class="function-card f1">
+                        <div class="input-group">
+                            <div class="color-indicator" style="background: #e74c3c;"></div>
+                            <span style="font-family: 'Courier New';">f(x)=</span>
+                            <input type="text" class="func-input" id="func1" value="x^2" data-color="#e74c3c"
+                                onfocus="setActiveInput('func1')">
+                            <button class="visibility-btn active" onclick="toggleVisibility(1, this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Function 2 -->
+                    <div class="function-card f2">
+                        <div class="input-group">
+                            <div class="color-indicator" style="background: #3498db;"></div>
+                            <span style="font-family: 'Courier New';">g(x)=</span>
+                            <input type="text" class="func-input" id="func2" placeholder="" data-color="#3498db"
+                                onfocus="setActiveInput('func2')">
+                            <button class="visibility-btn active" onclick="toggleVisibility(2, this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Function 3 -->
+                    <div class="function-card f3">
+                        <div class="input-group">
+                            <div class="color-indicator" style="background: #2ecc71;"></div>
+                            <span style="font-family: 'Courier New';">h(x)=</span>
+                            <input type="text" class="func-input" id="func3" placeholder="" data-color="#2ecc71"
+                                onfocus="setActiveInput('func3')">
+                            <button class="visibility-btn active" onclick="toggleVisibility(3, this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button onclick="plotAll()" class="btn btn-primary"
+                            style="width: 100%; background: var(--primary-gradient); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                            <i class="fas fa-sync-alt"></i> تحديث الرسم
+                        </button>
+                    </div>
+
+                    <h4 style="margin-top: 20px; color: #718096;">الإعدادات</h4>
+                    <div class="input-group" style="justify-content: space-between;">
+                        <label>الشبكة:</label>
+                        <select id="gridType" onchange="updateSettings()" style="padding: 5px; border-radius: 5px;">
+                            <option value="unified">مربعة (موحدة)</option>
+                            <option value="separate">مستطيلة</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="graph-canvas-area">
+                <canvas id="graphCanvas"></canvas>
+
+                <!-- On-Canvas Controls -->
+                <div class="canvas-controls">
+                    <button class="control-btn" onclick="resetView()" title="إعادة تعيين">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                    </button>
+                    <button class="control-btn" onclick="zoomIn()" title="تكبير">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="control-btn" onclick="zoomOut()" title="تصغير">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+
+                <!-- Floating Keypad Toggle -->
+                <button class="keypad-toggle" onclick="toggleKeypad()">
+                    <i class="fas fa-keyboard"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Virtual Keypad -->
+    <div class="virtual-keypad" id="virtualKeypad">
+        <div class="keypad-header">
+            <span style="color: #4a5568; font-weight: bold;">لوحة المفاتيح الرياضية</span>
+            <button onclick="toggleKeypad()"
+                style="background:none; border:none; font-size: 1.2rem; cursor: pointer; color: #e74c3c;">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="keys-grid">
+            <!-- Row 1 -->
+            <button class="key-btn var" onclick="insertKey('x')">x</button>
+            <button class="key-btn var" onclick="insertKey('y')">y</button>
+            <button class="key-btn op" onclick="insertKey('^')">^</button>
+            <button class="key-btn op" onclick="insertKey('(')">(</button>
+            <button class="key-btn op" onclick="insertKey(')')">)</button>
+            <button class="key-btn action" onclick="backspace()"><i class="fas fa-backspace"></i></button>
+
+            <!-- Row 2 -->
+            <button class="key-btn num" onclick="insertKey('7')">7</button>
+            <button class="key-btn num" onclick="insertKey('8')">8</button>
+            <button class="key-btn num" onclick="insertKey('9')">9</button>
+            <button class="key-btn op" onclick="insertKey('/')">÷</button>
+            <button class="key-btn op" onclick="insertKey('sqrt(')">√</button>
+            <button class="key-btn op" onclick="insertKey('sin(')">sin</button>
+
+            <!-- Row 3 -->
+            <button class="key-btn num" onclick="insertKey('4')">4</button>
+            <button class="key-btn num" onclick="insertKey('5')">5</button>
+            <button class="key-btn num" onclick="insertKey('6')">6</button>
+            <button class="key-btn op" onclick="insertKey('*')">×</button>
+            <button class="key-btn op" onclick="insertKey('pi')">π</button>
+            <button class="key-btn op" onclick="insertKey('cos(')">cos</button>
+
+            <!-- Row 4 -->
+            <button class="key-btn num" onclick="insertKey('1')">1</button>
+            <button class="key-btn num" onclick="insertKey('2')">2</button>
+            <button class="key-btn num" onclick="insertKey('3')">3</button>
+            <button class="key-btn op" onclick="insertKey('-')">-</button>
+            <button class="key-btn op" onclick="insertKey('e')">e</button>
+            <button class="key-btn op" onclick="insertKey('tan(')">tan</button>
+
+            <!-- Row 5 -->
+            <button class="key-btn num" onclick="insertKey('0')">0</button>
+            <button class="key-btn num" onclick="insertKey('.')">.</button>
+            <button class="key-btn op" onclick="insertKey('=')">=</button>
+            <button class="key-btn op" onclick="insertKey('+')">+</button>
+            <button class="key-btn op" onclick="insertKey('log(')">log</button>
+            <button class="key-btn op" onclick="insertKey('ln(')">ln</button>
+        </div>
+    </div>
+
+    <script src="graphing.js"></script>
+</body>
+
+</html>

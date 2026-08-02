@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأدوات الحاسبة - منصة الرياضيات التفاعلية</title>
+    <link rel="stylesheet" href="styles.css?v=103">
+    <link rel="stylesheet" href="assets/css/cairo-font.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-calculator"></i> الأدوات الحاسبة</h1>
+            <p>أدوات رياضية متقدمة لمساعدتك في الحسابات والرسوم البيانية</p>
+        </div>
+        <button onclick="window.location.href='index.html'" class="btn btn-primary back-home-btn">
+            <i class="fas fa-home"></i> العودة للرئيسية
+        </button>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="calculator-nav">
+        <button class="nav-tab active" data-tab="scientific">
+            <i class="fas fa-calculator"></i> آلة حاسبة علمية
+        </button>
+
+        <button class="nav-tab" data-tab="tables">
+            <i class="fas fa-table"></i> جداول رياضية
+        </button>
+        <button class="nav-tab" data-tab="converter">
+            <i class="fas fa-exchange-alt"></i> محولات الوحدات
+        </button>
+        <button class="nav-tab" data-tab="geometry">
+            <i class="fas fa-shapes"></i> أدوات هندسية
+        </button>
+        <button class="nav-tab" data-tab="solvers">
+            <i class="fas fa-brain"></i> حلول مفصلة
+        </button>
+    </nav>
+
+    <!-- Calculator Content -->
+    <main class="calculator-content">
+        <!-- Scientific Calculator Tab -->
+        <div class="tab-content active" id="scientific">
+            <div class="calculator-container">
+                <div class="calculator-display">
+                    <div class="display-history" id="displayHistory"></div>
+                    <div class="display-current" id="displayCurrent">0</div>
+                </div>
+                <div class="calculator-buttons">
+                    <!-- Scientific Functions Row -->
+                    <div class="button-row">
+                        <button class="calc-btn function-btn" onclick="clearAll()">AC</button>
+                        <button class="calc-btn function-btn" onclick="clearEntry()">CE</button>
+                        <button class="calc-btn function-btn" onclick="backspace()">⌫</button>
+                        <button class="calc-btn operator-btn" onclick="setOperator('/')">÷</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="calc-btn function-btn" onclick="calculateFunction('sin')">sin</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('cos')">cos</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('tan')">tan</button>
+                        <button class="calc-btn operator-btn" onclick="setOperator('*')">×</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="calc-btn function-btn" onclick="calculateFunction('log')">log</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('ln')">ln</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('sqrt')">√</button>
+                        <button class="calc-btn operator-btn" onclick="setOperator('-')">−</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="calc-btn function-btn" onclick="calculateFunction('pow')">x²</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('pow3')">x³</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('factorial')">x!</button>
+                        <button class="calc-btn operator-btn" onclick="setOperator('+')">+</button>
+                    </div>
+                    <!-- Number Pad -->
+                    <div class="button-row">
+                        <button class="calc-btn number-btn" onclick="appendNumber('7')">7</button>
+                        <button class="calc-btn number-btn" onclick="appendNumber('8')">8</button>
+                        <button class="calc-btn number-btn" onclick="appendNumber('9')">9</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('percent')">%</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="calc-btn number-btn" onclick="appendNumber('4')">4</button>
+                        <button class="calc-btn number-btn" onclick="appendNumber('5')">5</button>
+                        <button class="calc-btn number-btn" onclick="appendNumber('6')">6</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('inverse')">1/x</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="calc-btn number-btn" onclick="appendNumber('1')">1</button>
+                        <button class="calc-btn number-btn" onclick="appendNumber('2')">2</button>
+                        <button class="calc-btn number-btn" onclick="appendNumber('3')">3</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('exp')">eˣ</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="calc-btn number-btn" onclick="appendNumber('0')">0</button>
+                        <button class="calc-btn number-btn" onclick="appendDecimal()">.</button>
+                        <button class="calc-btn function-btn" onclick="calculateFunction('pi')">π</button>
+                        <button class="calc-btn equals-btn" onclick="calculate()">=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Tables Tab -->
+        <div class="tab-content" id="tables">
+            <div class="tables-container">
+                <div class="table-selector">
+                    <button class="table-btn active" data-table="multiplication">جدول الضرب</button>
+                    <button class="table-btn" data-table="powers">قوى الأعداد</button>
+                    <button class="table-btn" data-table="roots">جذور الأعداد</button>
+                    <button class="table-btn" data-table="trigonometry">قيم مثلثية</button>
+                </div>
+                <div class="table-content" id="tableContent">
+                    <!-- Tables will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Converter Tab -->
+        <div class="tab-content" id="converter">
+            <div class="converter-container">
+                <div class="converter-selector">
+                    <button class="converter-btn active" data-converter="length">الطول</button>
+                    <button class="converter-btn" data-converter="area">المساحة</button>
+                    <button class="converter-btn" data-converter="volume">الحجم</button>
+                    <button class="converter-btn" data-converter="weight">الوزن</button>
+                    <button class="converter-btn" data-converter="temperature">درجة الحرارة</button>
+                </div>
+                <div class="converter-content" id="converterContent">
+                    <!-- Converters will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Geometry Tab -->
+        <div class="tab-content" id="geometry">
+            <div class="geometry-container">
+                <div class="shape-selector">
+                    <button class="shape-btn active" data-shape="square">مربع</button>
+                    <button class="shape-btn" data-shape="rectangle">مستطيل</button>
+                    <button class="shape-btn" data-shape="triangle">مثلث</button>
+                    <button class="shape-btn" data-shape="circle">دائرة</button>
+                    <button class="shape-btn" data-shape="trapezoid">شبه منحرف</button>
+                </div>
+                <div class="geometry-content" id="geometryContent">
+                    <!-- Geometry calculators will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Solvers Tab -->
+        <div class="tab-content" id="solvers">
+            <div class="solvers-container">
+                <div class="solver-selector">
+                    <button class="solver-btn active" data-solver="pgcd">القاسم المشترك (PGCD)</button>
+                    <button class="solver-btn" data-solver="linear-system">جملة معادلتين</button>
+                    <button class="solver-btn" data-solver="fractions">الكسور</button>
+                    <button class="solver-btn" data-solver="pythagoras">فيثاغورس</button>
+                </div>
+                <div class="solver-content" id="solverContent">
+                    <!-- Solvers will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>عن المنصة</h3>
+                <p>منصة رياضيات تفاعلية مصممة خصيصاً لطلاب التعليم المتوسط</p>
+                <p>المنصة مصممة وفق المنهاج الجزائري</p>
+            </div>
+            <div class="footer-section">
+                <h3>معلومات التواصل</h3>
+                <p><i class="fas fa-envelope"></i> math2020amir@gmail.com</p>
+                <p><i class="fas fa-phone"></i> متاحة 24/7</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 منصة الرياضيات التفاعلية. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="calculator.js"></script>
+</body>
+
+</html>

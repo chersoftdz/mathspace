@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المختبر الهندسي - منصة الرياضيات التفاعلية</title>
+    <link rel="stylesheet" href="styles.css?v=103">
+    <link rel="stylesheet" href="assets/css/cairo-font.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.css">
+    <style>
+        body {
+            overflow: hidden;
+            /* Prevent scrolling for full-screen app feel */
+            background-color: #f0f4f8;
+        }
+
+        /* Toolbar (Top) */
+        .toolbar {
+            background: #2d3748;
+            /* Dark Background */
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            position: relative;
+            color: white;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 5px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            /* Semi-transparent light */
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-btn {
+            width: 45px;
+            height: 45px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #e2e8f0;
+            /* Light text */
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn i {
+            color: white !important;
+            font-size: 1.2rem;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-btn:hover i {
+            color: #fff !important;
+        }
+
+        .tool-btn.active {
+            background: #3182ce;
+            border: 1px solid #4299e1;
+        }
+
+        .tool-btn.active i {
+            color: white !important;
+        }
+
+        /* Canvas Area */
+        .canvas-container {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 70px);
+            /* Subtract toolbar height */
+            background-image:
+                linear-gradient(#e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: center center;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Properties Panel (Floating) */
+        .properties-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            /* RTL means this is on the left side visually */
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: none;
+            /* Hidden by default until selection */
+        }
+
+        .prop-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .prop-value {
+            font-weight: bold;
+            color: #2d3748;
+            font-family: monospace;
+            direction: ltr;
+        }
+
+        /* Home Button */
+        .home-btn {
+            margin-left: auto;
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .home-btn:hover {
+            background: #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn active" id="tool-select" title="تحريك / تحديد"><i class="fas fa-mouse-pointer"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-point" title="نقطة"><i class="fas fa-circle"
+                    style="font-size: 0.6rem; color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-line" title="مستقيم"><i class="fas fa-grip-lines"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-segment" title="قطعة مستقيمة"><i class="fas fa-minus"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-circle" title="دائرة"><i class="far fa-circle"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-polygon" title="مضلع"><i class="fas fa-draw-polygon"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-angle" title="زاوية"><i class="fas fa-less-than"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-text" title="نص"><i class="fas fa-font"
+                    style="color: #ffffff !important;"></i></button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" id="tool-clear" title="مسح الكل"><i class="fas fa-trash-alt"
+                    style="color: #ffffff !important;"></i></button>
+            <button class="tool-btn" id="tool-grid" title="إظهار/إخفاء الشبكة"><i class="fas fa-border-all"
+                    style="color: #ffffff !important;"></i></button>
+        </div>
+    </div>
+
+    <div class="tool-group">
+        <button class="tool-btn" id="tool-trash" title="حذف العنصر المحدد"><i class="fas fa-trash-alt"></i></button>
+        <button class="tool-btn" id="tool-clear" title="مسح السبورة"><i class="fas fa-eraser"></i></button>
+    </div>
+
+    <a href="index.html" class="home-btn">
+        <i class="fas fa-home"></i> الرئيسية
+    </a>
+    </div>
+
+    <div class="canvas-container" id="canvasContainer">
+        <canvas id="geoCanvas"></canvas>
+
+        <!-- Info/Properties Panel -->
+        <div class="properties-panel" id="propPanel">
+            <h3 style="margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;">
+                خصائص</h3>
+            <div id="propContent">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="geometry.js"></script>
+</body>
+
+</html>

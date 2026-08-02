@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الألعاب التعليمية - منصة الرياضيات</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-gamepad"></i> الألعاب التعليمية</h1>
+                <p>تعلم الرياضيات بطريقة ممتعة وتفاعلية</p>
+                <div class="header-buttons">
+                    <button onclick="window.location.href='index.html'" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> العودة للمنصة الرئيسية
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Games Section -->
+        <section class="game-section">
+            <h2>اختر اللعبة</h2>
+            <div class="game-buttons">
+                <button class="game-btn" id="startQuickMath">
+                    <i class="fas fa-calculator"></i>
+                    <div>الحساب السريع</div>
+                    <small>اختبر مهاراتك في العمليات الحسابية</small>
+                </button>
+                <button class="game-btn" id="startNumberSort">
+                    <i class="fas fa-sort-numeric-up"></i>
+                    <div>ترتيب الأعداد</div>
+                    <small>رتب الأعداد من الأصغر إلى الأكبر</small>
+                </button>
+                <button class="game-btn" id="startMemoryGame">
+                    <i class="fas fa-brain"></i>
+                    <div>لعبة الذاكرة</div>
+                    <small>طابق بين المسألة ونتيجتها</small>
+                </button>
+                <button class="game-btn" id="startPatternGame">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <div>إكمال النمط</div>
+                    <small>اكتشف النمط وأكمل التسلسل</small>
+                </button>
+                <button class="game-btn" id="startGuessTheNumber">
+                    <i class="fas fa-search-plus"></i>
+                    <div>تخمين العدد</div>
+                    <small>خمن العدد الذي أفكر فيه</small>
+                </button>
+                <button class="game-btn" id="startOperationsChallenge">
+                    <i class="fas fa-cogs"></i>
+                    <div>تحدي العمليات</div>
+                    <small>حل مسائل متنوعة في العمليات الحسابية</small>
+                </button>
+                <button class="game-btn" id="startBalancingEquation">
+                    <i class="fas fa-balance-scale"></i>
+                    <div>موازنة المعادلات</div>
+                    <small>أوجد قيمة X لتحقيق التوازن</small>
+                </button>
+                <button class="game-btn" id="startWordProblems">
+                    <i class="fas fa-book-open"></i>
+                    <div>المسائل الكلامية</div>
+                    <small>حل مسائل من واقع الحياة</small>
+                </button>
+                <button class="game-btn" id="startComplexProblems">
+                    <i class="fas fa-brain-circuit"></i>
+                    <div>مسائل معقدة</div>
+                    <small>حل مسائل تتطلب عدة خطوات</small>
+                </button>
+                <button class="game-btn" id="startMultiplicationGrid">
+                    <i class="fas fa-table"></i>
+                    <div>تدريب جدول الضرب</div>
+                    <small>أكمل خلايا جدول الضرب</small>
+                </button>
+                <button class="game-btn" id="startGeometryAP">
+                    <i class="fas fa-ruler-combined"></i>
+                    <div>مساحة ومحيط</div>
+                    <small>احسب المساحة أو المحيط</small>
+                </button>
+                <button class="game-btn" id="startFractionsGame">
+                    <i class="fas fa-divide"></i>
+                    <div>لعبة الكسور</div>
+                    <small>قارن وبسط الكسور</small>
+                </button>
+                <button class="game-btn" id="startTimeGame">
+                    <i class="fas fa-clock"></i>
+                    <div>لعبة قراءة الساعة</div>
+                    <small>اقرأ الساعة وأجب</small>
+                </button>
+                <button class="game-btn" id="startSudokuGame">
+                    <i class="fas fa-th"></i>
+                    <div>السودوكو</div>
+                    <small>حل اللغز في الشبكة</small>
+                </button>
+                <button class="game-btn" id="startMagicSquareGame">
+                    <i class="fas fa-magic"></i>
+                    <div>المربعات السحرية</div>
+                    <small>ألغاز رياضية سحرية</small>
+                </button>
+                <button class="game-btn" id="startMazeGame">
+                    <i class="fas fa-project-diagram"></i>
+                    <div>لعبة المتاهة</div>
+                    <small>حل المسائل للوصول للنهاية</small>
+                </button>
+            </div>
+        </section>
+
+        <!-- Score Display -->
+        <div class="score-display" id="scoreDisplay" style="display: none;">
+            <div class="score-content">
+                <h3 id="gameTitle"></h3>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea" style="display: none;">
+            <div class="game-header">
+                <h3 id="gameTitleHeader">اللعبة</h3>
+                <div class="game-controls">
+                    <button id="endGameBtn" class="btn btn-danger">
+                        <i class="fas fa-times"></i> إنهاء اللعبة
+                    </button>
+                </div>
+            </div>
+            <div class="game-content" id="gameContent">
+                <!-- Game content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <section class="leaderboard-section">
+            <h2>أفضل النتائج</h2>
+            <div class="leaderboard" id="leaderboard">
+                <!-- Leaderboard will be populated here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="games.js"></script>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>عن المنصة</h4>
+                <p>منصة رياضيات تفاعلية مصممة خصيصاً لطلاب التعليم المتوسط</p>
+                <p>المنصة مصممة وفق المنهاج الجزائري</p>
+            </div>
+            <div class="footer-section">
+                <h4>معلومات التواصل</h4>
+                <p>إعداد وتقديم الأستاذة شريفي</p>
+                <p>البريد الإلكتروني: math2020amir@gmail.com</p>
+                <p>جميع الحقوق محفوظة 2025</p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
