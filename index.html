@@ -825,11 +825,13 @@
                         <Avatar emoji={currentUser.avatar} className={`w-12 h-12 text-2xl ${currentUser.color}`} />
                         <div className="flex-1 w-full overflow-hidden">
                             <div className="flex flex-wrap items-center gap-2 mb-3 bg-indigo-50/50 p-2 rounded-xl border border-indigo-100">
-                                <span className="text-xs font-black text-indigo-400 px-1 uppercase tracking-wider">🧮 أدوات:</span>
-                                <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\frac{ }{ }$', 7)} className="px-2.5 py-1.5 bg-white border border-slate-200 shadow-sm text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors btn-3d">⅟ كسر</button>
-                                <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\sqrt{ }$', 7)} className="px-2.5 py-1.5 bg-white border border-slate-200 shadow-sm text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors btn-3d">√ جذر</button>
-                                <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$x^{ }$', 4)} className="px-2.5 py-1.5 bg-white border border-slate-200 shadow-sm text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors btn-3d">x² قوى</button>
-                                <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\pi$', 4)} className="px-2.5 py-1.5 bg-white border border-slate-200 shadow-sm text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors btn-3d">π</button>
+                                <span className="text-xs font-black text-indigo-400 px-1 uppercase tracking-wider">🧮 رموز:</span>
+                                <div className="flex bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden mix-blend-multiply">
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\frac{ }{ }$', 7)} className="px-3 py-1.5 text-indigo-600 text-sm font-bold hover:bg-indigo-50 transition-colors border-r border-slate-200 btn-press" title="إدراج كسر">⅟</button>
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\sqrt{ }$', 7)} className="px-3 py-1.5 text-indigo-600 text-sm font-bold hover:bg-indigo-50 transition-colors border-r border-slate-200 btn-press" title="إدراج جذر تربيعي">√</button>
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$x^{ }$', 4)} className="px-3 py-1.5 text-indigo-600 text-sm font-black hover:bg-indigo-50 transition-colors border-r border-slate-200 btn-press" title="إدراج قوة / أس">x²</button>
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\pi$', 4)} className="px-3 py-1.5 text-indigo-600 text-sm font-serif font-black hover:bg-indigo-50 transition-colors btn-press" title="إدراج الرمز π">π</button>
+                                </div>
                             </div>
 
                             {postType === 'standard' ? (
@@ -1643,38 +1645,7 @@
                                     <aside className="w-full md:w-72 flex-shrink-0 z-10 relative">
                                         <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-slate-100 p-5 sticky top-28">
 
-                                            {/* ===== مختبر التعلم في الشريط الجانبي ===== */}
-                                            <div className="mb-6">
-                                                <div className="text-xs font-black text-slate-400 mb-3 px-2 uppercase tracking-wider">🧰 مختبر التعلم:</div>
-                                                <button
-                                                    onClick={() => setShowToolsHub(true)}
-                                                    className="w-full bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-2xl p-4 text-right font-black shadow-lg hover:from-violet-400 hover:to-purple-500 transition-all group relative overflow-hidden btn-3d"
-                                                >
-                                                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                    <div className="text-2xl mb-1">🧰</div>
-                                                    <div className="text-sm">مختبر التعلم</div>
-                                                    <div className="text-white/70 text-xs font-bold mt-0.5">8 أدوات تفاعلية</div>
-                                                    <div className="mt-3 flex flex-wrap gap-1.5">
-                                                        {['🎮', '📝', '🧮', '📈', '📐', '📊'].map((ico, i) => (
-                                                            <span key={i} className="text-xs bg-white/20 px-2 py-0.5 rounded-lg font-bold border border-white/30">{ico}</span>
-                                                        ))}
-                                                    </div>
-                                                </button>
-                                                {/* أزرار وصول سريع للأدوات الشائعة */}
-                                                <div className="mt-3 grid grid-cols-3 gap-2">
-                                                    {[{ icon: '🎮', name: 'الألعاب', id: 'games' }, { icon: '📝', name: 'التمارين', id: 'exercises' }, { icon: '🧮', name: 'الحاسبة', id: 'calculator' }].map(t => (
-                                                        <button
-                                                            key={t.id}
-                                                            onClick={() => { const tool = TOOLS.find(x => x.id === t.id); if (tool) setActiveTool(tool); }}
-                                                            className="flex flex-col items-center gap-1 bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 hover:border-indigo-300 rounded-xl p-2.5 transition-all btn-3d text-xs font-bold text-slate-600 hover:text-indigo-700"
-                                                        >
-                                                            <span className="text-xl">{t.icon}</span>
-                                                            <span>{t.name}</span>
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="border-t-2 border-slate-100 mb-6"></div>
+                                            {/* تمت إزالة مختبر التعلم من الشريط الجانبي لتفادي التكرار والحفاظ على احترافية ووضوح الواجهة */}
 
 
                                             {currentUser.role === 'teacher' && (
