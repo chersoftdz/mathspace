@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة سباق المعادلات</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0f172a;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .linear {
+            transition-timing-function: linear;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root" class="w-full max-w-2xl p-4"></div>
+
+    <script type="text/babel">
+        // تم إزالة الاستيراد الخارجي (import) تماماً لحل مشكلة الصفحة البيضاء
+        const { useState, useEffect, useCallback, useRef } = React;
+
+        const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const generateEquation = (level) => {
+            let equationText = '';
+            let correctAnswer = 0;
+
+            if (level === 1) {
+                const isAddition = Math.random() > 0.5;
+                correctAnswer = getRandomInt(1, 15);
+                const a = getRandomInt(1, 10);
+                if (isAddition) {
+                    equationText = `x + ${a} = ${correctAnswer + a}`;
+                } else {
+                    equationText = `x - ${a} = ${correctAnswer - a}`;
+                }
+            } else if (level === 2) {
+                correctAnswer = getRandomInt(1, 10);
+                const c = getRandomInt(2, 5);
+                const a = getRandomInt(1, 10);
+                if (Math.random() > 0.5) {
+                    equationText = `${c}x + ${a} = ${(c * correctAnswer) + a}`;
+                } else {
+                    equationText = `${c}x - ${a} = ${(c * correctAnswer) - a}`;
+                }
+            } else {
+                correctAnswer = getRandomInt(1, 10);
+                const a = getRandomInt(2, 5);
+                const b = getRandomInt(1, 5);
+                if (Math.random() > 0.5) {
+                    equationText = `${a}(x + ${b}) = ${a * (correctAnswer + b)}`;
+                } else {
+                    equationText = `${a}(x - ${b}) = ${a * (correctAnswer - b)}`;
+                }
+            }
+
+            let options = new Set();
+            options.add(correctAnswer);
+            while (options.size < 3) {
+                const wrongAnswer = correctAnswer + getRandomInt(-4, 4);
+                if (wrongAnswer > 0 && wrongAnswer !== correctAnswer) options.add(wrongAnswer);
+            }
+
+            const shuffledOptions = Array.from(options).sort(() => Math.random() - 0.5);
+            return { text: equationText, answer: correctAnswer, options: shuffledOptions };
+        };
+
+        function SpaceMathGame({ onClose = () => alert("سيتم إغلاق النافذة والعودة للمنصة الرئيسية!") }) {
+            const [gameState, setGameState] = useState('START');
+            const [isPaused, setIsPaused] = useState(false);
+            const [score, setScore] = useState(0);
+            const [lives, setLives] = useState(3);
+            const [level, setLevel] = useState(1);
+            const [equation, setEquation] = useState(null);
+            const [highScore, setHighScore] = useState(0);
+
+            const [streak, setStreak] = useState(0);
+            const [powerUps, setPowerUps] = useState({ freeze: 1, fiftyFifty: 1 });
+            const [isFrozen, setIsFrozen] = useState(false);
+            const [feedback, setFeedback] = useState(null);
+            const [meteorPosition, setMeteorPosition] = useState(0);
+            const [timeLeft, setTimeLeft] = useState(10);
+            const [isExploding, setIsExploding] = useState(false);
+            const [isShaking, setIsShaking] = useState(false);
+
+            const gameLoopRef = useRef(null);
+            const timerRef = useRef(null);
+
+            // حماية قراءة الـ localStorage
+            useEffect(() => {
+                try {
+                    const saved = localStorage.getItem('spaceMathHighScore');
+                    if (saved) setHighScore(parseInt(saved));
+                } catch (e) { console.log("لا يمكن قراءة الذاكرة"); }
+            }, []);
+
+            const startGame = () => {
+                setScore(0); setLives(3); setLevel(1); setStreak(0);
+                setPowerUps({ freeze: 1, fiftyFifty: 1 });
+                setIsPaused(false); setFeedback(null);
+                setGameState('PLAYING'); nextEquation(1);
+            };
+
+            const nextEquation = (currentLevel) => {
+                setEquation(generateEquation(currentLevel));
+                setMeteorPosition(0);
+                setTimeLeft(10 - (currentLevel > 1 ? 2 : 0));
+                setIsExploding(false); setFeedback(null);
+            };
+
+            useEffect(() => {
+                if (gameState !== 'PLAYING' || isExploding || isPaused || isFrozen || feedback) return;
+
+                const fallSpeed = level === 1 ? 0.8 : (level === 2 ? 1.0 : 1.2);
+
+                gameLoopRef.current = setInterval(() => {
+                    setMeteorPosition((prev) => {
+                        if (prev >= 80) { handleCrash("انتهى الوقت!"); return 0; }
+                        return prev + fallSpeed;
+                    });
+                }, 100);
+
+                timerRef.current = setInterval(() => {
+                    setTimeLeft((prev) => {
+                        if (prev <= 1) { handleCrash("انتهى الوقت!"); return 10; }
+                        return prev - 1;
+                    });
+                }, 1000);
+
+                return () => { clearInterval(gameLoopRef.current); clearInterval(timerRef.current); };
+            }, [gameState, level, isExploding, isPaused, isFrozen, feedback]);
+
+            const handleCrash = () => {
+                clearInterval(gameLoopRef.current); clearInterval(timerRef.current);
+                setStreak(0); setIsShaking(true);
+                setTimeout(() => setIsShaking(false), 500);
+                setFeedback(`خطأ! الإجابة هي: ${equation?.answer}`);
+
+                setTimeout(() => {
+                    setLives((prev) => {
+                        if (prev <= 1) { setGameState('GAME_OVER'); return 0; }
+                        nextEquation(level); return prev - 1;
+                    });
+                }, 2500);
+            };
+
+            const handleAnswer = (selectedOption) => {
+                if (selectedOption === equation.answer) {
+                    setIsExploding(true);
+                    const newStreak = streak + 1;
+                    setStreak(newStreak);
+                    const multiplier = newStreak > 5 ? 3 : (newStreak > 2 ? 2 : 1);
+                    const newScore = score + (10 * multiplier);
+                    setScore(newScore);
+
+                    if (newScore > highScore) {
+                        setHighScore(newScore);
+                        try { localStorage.setItem('spaceMathHighScore', newScore.toString()); } catch (e) { }
+                    }
+
+                    let newLevel = 1;
+                    if (newScore >= 150) newLevel = 3; else if (newScore >= 50) newLevel = 2;
+                    setLevel(newLevel);
+                    setTimeout(() => { nextEquation(newLevel); }, 800);
+                } else {
+                    handleCrash();
+                }
+            };
+
+            const useFreeze = () => {
+                if (powerUps.freeze > 0 && !isFrozen && !feedback && !isPaused) {
+                    setPowerUps(prev => ({ ...prev, freeze: prev.freeze - 1 }));
+                    setIsFrozen(true);
+                    setTimeout(() => setIsFrozen(false), 5000);
+                }
+            };
+
+            const useFiftyFifty = () => {
+                if (powerUps.fiftyFifty > 0 && equation?.options.length > 2 && !feedback && !isPaused) {
+                    setPowerUps(prev => ({ ...prev, fiftyFifty: prev.fiftyFifty - 1 }));
+                    const wrongOptions = equation.options.filter(opt => opt !== equation.answer);
+                    const optionToRemove = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+                    setEquation(prev => ({ ...prev, options: prev.options.filter(opt => opt !== optionToRemove) }));
+                }
+            };
+
+            const renderStars = () => (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    {[...Array(30)].map((_, i) => (
+                        <div key={i} className={`absolute bg-white rounded-full ${isFrozen ? 'animate-none opacity-20' : 'animate-pulse opacity-50'}`}
+                            style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: `${Math.random() * 3 + 1}px`, height: `${Math.random() * 3 + 1}px`, animationDelay: `${Math.random() * 2}s`, animationDuration: `${Math.random() * 3 + 2}s` }}
+                        />
+                    ))}
+                    {isFrozen && <div className="absolute inset-0 bg-cyan-900/20 backdrop-blur-[1px] pointer-events-none transition-all duration-500" />}
+                </div>
+            );
+
+            if (gameState === 'START') {
+                return (
+                    <div dir="rtl" className="relative w-full max-w-2xl h-[600px] bg-slate-900 rounded-2xl overflow-hidden flex flex-col items-center justify-center text-white shadow-[0_0_50px_rgba(0,0,0,0.5)] font-sans border-4 border-slate-800">
+                        {renderStars()}
+                        <div className="z-10 flex flex-col items-center p-8 bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 text-center max-w-md w-11/12 shadow-2xl">
+                            <div className="bg-indigo-600 p-4 rounded-full mb-4 text-5xl">🚀</div>
+                            <h1 className="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">مهمة الفضاء: سباق المعادلات</h1>
+                            <p className="text-slate-300 mb-6 leading-relaxed text-sm">أهلاً بك يا بطل! دمر النيازك التي تهدد مركبتك الفضائية بحل المعادلات.</p>
+                            {highScore > 0 && (
+                                <div className="flex items-center gap-2 mb-6 bg-yellow-500/20 text-yellow-300 px-4 py-2 rounded-full border border-yellow-500/30">
+                                    <span>🏆</span> <span className="font-bold">أعلى نتيجة حققتها: {highScore}</span>
+                                </div>
+                            )}
+                            <button onClick={startGame} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-8 rounded-full hover:scale-105 active:scale-95 shadow-xl transition-transform">
+                                <span>▶️</span> <span>ابدأ المهمة الآن</span>
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'GAME_OVER') {
+                return (
+                    <div dir="rtl" className="relative w-full max-w-2xl h-[600px] bg-slate-900 rounded-2xl overflow-hidden flex flex-col items-center justify-center text-white shadow-[0_0_50px_rgba(0,0,0,0.5)] border-4 border-slate-800">
+                        {renderStars()}
+                        <div className="z-10 flex flex-col items-center p-8 bg-slate-800/90 backdrop-blur-md rounded-2xl border border-red-900/50 text-center max-w-md w-11/12 shadow-2xl">
+                            <div className="bg-red-500 p-4 rounded-full mb-6 text-4xl">💥</div>
+                            <h2 className="text-3xl font-bold mb-2">انتهت المهمة!</h2>
+
+                            <div className="flex w-full gap-4 mb-8 mt-4">
+                                <div className="bg-slate-900/50 flex-1 py-4 rounded-xl flex justify-center items-center gap-2 border border-slate-700">
+                                    <span>⭐</span>
+                                    <div className="text-right"><p className="text-xs text-slate-400">النقاط</p><p className="text-2xl font-bold text-blue-400">{score}</p></div>
+                                </div>
+                                <div className="bg-slate-900/50 flex-1 py-4 rounded-xl flex justify-center items-center gap-2 border border-yellow-700/50">
+                                    <span>🏆</span>
+                                    <div className="text-right"><p className="text-xs text-slate-400">أعلى نتيجة</p><p className="text-2xl font-bold text-yellow-400">{Math.max(score, highScore)}</p></div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 w-full">
+                                <button onClick={startGame} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:scale-105 shadow-xl transition-transform">🔄 إعادة المحاولة</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div dir="rtl" className={`relative w-full max-w-2xl h-[600px] bg-slate-900 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] font-sans transition-transform duration-75 border-4 border-slate-800 ${isShaking ? 'translate-x-2 -translate-y-2' : ''}`}>
+                    {renderStars()}
+
+                    <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-start z-30 bg-gradient-to-b from-slate-900 to-transparent">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700">
+                                <span>🏆</span> <span className="font-bold text-white font-mono text-lg">{score}</span>
+                            </div>
+                            {streak > 2 && (
+                                <div className="flex items-center gap-1 bg-orange-500/20 px-3 py-1 rounded-full border border-orange-500/50 animate-bounce text-orange-400 font-bold text-xs font-mono">
+                                    🔥 x{streak > 5 ? '3' : '2'}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <button onClick={() => setIsPaused(true)} className="w-10 h-10 bg-slate-800/80 rounded-full border border-slate-600 text-white hover:scale-105" title="إيقاف مؤقت">⏸️</button>
+                            <div className="flex items-center gap-1 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700">
+                                <span>⭐</span> <span className="text-white font-bold text-sm">مستوى {level}</span>
+                            </div>
+                            <div className="flex gap-1 bg-slate-800/80 px-3 py-2 rounded-full border border-slate-700">
+                                {[...Array(3)].map((_, i) => (
+                                    <span key={i} className={i < lives ? '' : 'grayscale opacity-30'}>❤️</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="absolute right-4 top-1/3 flex flex-col gap-3 z-30">
+                        <button onClick={useFreeze} disabled={powerUps.freeze === 0 || isFrozen || feedback || isPaused} className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg transition-all relative text-2xl ${powerUps.freeze > 0 && !isFrozen && !feedback && !isPaused ? 'bg-cyan-900 border-cyan-400 hover:scale-110 cursor-pointer' : 'bg-slate-800 border-slate-700 cursor-not-allowed opacity-50'}`}>
+                            <span className={isFrozen ? 'animate-spin' : ''}>❄️</span>
+                            {powerUps.freeze > 0 && <span className="absolute -bottom-1 -left-1 bg-cyan-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>}
+                        </button>
+                        <button onClick={useFiftyFifty} disabled={powerUps.fiftyFifty === 0 || feedback || isPaused || equation?.options.length <= 2} className={`flex items-center justify-center w-12 h-12 rounded-full border-2 shadow-lg transition-all relative text-2xl ${powerUps.fiftyFifty > 0 && !feedback && !isPaused && equation?.options.length > 2 ? 'bg-purple-900 border-purple-400 hover:scale-110 cursor-pointer' : 'bg-slate-800 border-slate-700 cursor-not-allowed opacity-50'}`}>
+                            🪄
+                            {powerUps.fiftyFifty > 0 && <span className="absolute -bottom-1 -left-1 bg-purple-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>}
+                        </button>
+                    </div>
+
+                    {isPaused && (
+                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-md">
+                            <div className="bg-slate-800 border border-slate-600 p-8 rounded-2xl flex flex-col items-center text-center shadow-2xl min-w-[300px]">
+                                <span className="text-5xl mb-4 animate-pulse">⏸️</span>
+                                <h2 className="text-3xl font-bold text-white mb-6">اللعبة متوقفة</h2>
+                                <div className="flex flex-col gap-3 w-full">
+                                    <button onClick={() => setIsPaused(false)} className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-full w-full">▶️ متابعة اللعب</button>
+                                    <button onClick={() => window.location.href = 'games.html'} className="bg-slate-700 hover:bg-red-600 border border-slate-600 hover:border-red-500 text-white font-bold py-3 px-6 rounded-full w-full transition-colors">🚪 إنهاء والعودة للألعاب</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="absolute top-16 left-1/2 -translate-x-1/2 w-48 h-3 bg-slate-800 rounded-full overflow-hidden z-20 border border-slate-700">
+                        <div className={`h-full transition-all duration-1000 linear ${isFrozen ? 'bg-cyan-400' : (timeLeft <= 3 ? 'bg-red-500' : 'bg-emerald-500')}`} style={{ width: `${(timeLeft / (level === 1 ? 10 : 8)) * 100}%` }} />
+                    </div>
+
+                    {equation && (
+                        <div className="absolute left-1/2 -translate-x-1/2 z-10 flex flex-col items-center justify-center transition-all duration-100 linear w-full px-4" style={{ top: feedback ? '40%' : `${meteorPosition}%` }}>
+                            {feedback ? (
+                                <div className="bg-red-900/90 border-2 border-red-500 text-white py-4 px-8 rounded-2xl text-center animate-bounce">
+                                    <span className="text-4xl block mb-2">❌</span>
+                                    <p className="text-xl font-bold font-mono">{feedback}</p>
+                                </div>
+                            ) : isExploding ? (
+                                <div className="text-6xl animate-ping scale-150">💥</div>
+                            ) : (
+                                <div className={`relative group ${isFrozen ? 'grayscale opacity-80' : ''}`}>
+                                    <div className="text-7xl drop-shadow-[0_0_15px_rgba(255,100,0,0.8)]">☄️</div>
+                                    <div dir="ltr" className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 border-2 ${isFrozen ? 'border-cyan-400 text-cyan-100' : 'border-orange-500 text-white'} font-bold py-1 px-4 rounded-lg text-xl whitespace-nowrap font-mono`}>
+                                        {equation.text}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+                        <div className="w-4 h-12 bg-orange-500/50 blur-md rounded-full absolute -bottom-8 animate-pulse"></div>
+                        <span className="text-6xl drop-shadow-[0_0_20px_rgba(99,102,241,0.6)]">🚀</span>
+                    </div>
+
+                    <div className="absolute bottom-0 left-0 w-full p-4 bg-slate-900/95 border-t border-slate-700 z-20 backdrop-blur-md">
+                        <div className="flex justify-center gap-4 max-w-md mx-auto">
+                            {equation?.options.map((opt, index) => (
+                                <button key={index} onClick={() => handleAnswer(opt)} disabled={isExploding || isShaking || isPaused || feedback !== null}
+                                    className="flex-1 bg-slate-800 hover:bg-indigo-600 border border-slate-600 hover:border-indigo-400 text-white text-2xl font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95 font-mono cursor-pointer">
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SpaceMathGame />);
+    </script>
+</body>
+
+</html>
