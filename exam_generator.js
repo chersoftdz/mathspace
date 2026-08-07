@@ -47,51 +47,109 @@ window.ExamGenerator = {
     },
 
     generateEquation: function (difficulty) {
-        // Easy: x + a = b
-        // Medium: ax + b = c
-        // Hard: ax + b = cx + d
-
         let latex = "";
         let correctVal = 0;
         let options = [];
 
         if (difficulty === 'easy') {
-            // x + a = b => x = b - a
-            let a = this.rand(2, 20);
-            let b = this.rand(a + 1, 50);
-            correctVal = b - a;
-            latex = `x + ${a} = ${b}`;
-            options = [correctVal, correctVal + 1, correctVal - 1, correctVal + 10];
+            // تنويع الأشكال: x+a=b, a+x=b, x-a=b, a-x=b, ax=b
+            let form = this.rand(1, 5);
+            if (form <= 2) {
+                // الجمع: x + a = b أو a + x = b
+                let a = this.rand(2, 20);
+                let b = this.rand(a + 1, 50);
+                correctVal = b - a;
+                latex = form === 1 ? `x + ${a} = ${b}` : `${a} + x = ${b}`;
+            } else if (form === 3) {
+                // الطرح: x - a = b
+                let a = this.rand(2, 20);
+                let b = this.rand(2, 30);
+                correctVal = b + a;
+                latex = `x - ${a} = ${b}`;
+            } else if (form === 4) {
+                // الطرح المعكوس: a - x = b
+                let b = this.rand(2, 20);
+                let a = this.rand(b + 1, 50);
+                correctVal = a - b;
+                latex = `${a} - x = ${b}`;
+            } else {
+                // الضرب البسيط: a * x = b
+                let a = this.rand(2, 12);
+                let x = this.rand(2, 12);
+                correctVal = x;
+                let b = a * x;
+                latex = `${a}x = ${b}`;
+            }
+            options = [correctVal, correctVal + 1, correctVal - 1, correctVal + 2];
         }
         else if (difficulty === 'medium') {
-            // a*x + b = c => ax = c - b => x = (c-b)/a. We ensure integer solution!
-            let a = this.rand(2, 6);
-            let x = this.rand(2, 12);
+            // تنويع الأشكال: ax+b=c, ax-b=c, b-ax=c, a(x+b)=c
+            let form = this.rand(1, 4);
+            let a = this.rand(2, 9);
+            let x = this.rand(2, 15);
             let b = this.rand(2, 20);
-            let c = a * x + b;
+
             correctVal = x;
-            latex = `${a}x + ${b} = ${c}`;
+            if (form === 1) {
+                let c = a * x + b;
+                latex = `${a}x + ${b} = ${c}`;
+            } else if (form === 2) {
+                let c = a * x - b;
+                latex = `${a}x - ${b} = ${c}`;
+            } else if (form === 3) {
+                let c = b - a * x;
+                latex = `${b} - ${a}x = ${c}`;
+            } else {
+                // a(x + b) = c
+                let c = a * (x + b);
+                latex = `${a}(x + ${b}) = ${c}`;
+            }
             options = [correctVal, correctVal + 1, correctVal - 1, correctVal * 2];
         }
         else {
-            // ax + b = cx + d => (a-c)x = d-b
-            let a = this.rand(4, 10);
-            let c = this.rand(2, a - 1);
-            let x = this.rand(2, 10);
-            let b = this.rand(2, 15);
-            let d = (a - c) * x + b;
+            // تنويع الصعب: ax+b=cx+d, ax-d=cx-b, a(x+b)=cx+d
+            let form = this.rand(1, 4);
+            let x = this.rand(2, 12);
             correctVal = x;
-            latex = `${a}x + ${b} = ${c}x + ${d}`;
+            if (form <= 2) {
+                // ax + b = cx + d
+                let a = this.rand(4, 10);
+                let c = this.rand(2, a - 1);
+                let b = this.rand(2, 15);
+                let d = (a - c) * x + b;
+                latex = form === 1 ? `${a}x + ${b} = ${c}x + ${d}` : `${a}x - ${d} = ${c}x - ${b}`;
+            } else if (form === 3) {
+                // a(x + b) = cx + d
+                let a = this.rand(2, 5);
+                let b = this.rand(2, 8);
+                let c = this.rand(6, 12);
+                let d = (a - c) * x + (a * b);
+                latex = `${a}(x + ${b}) = ${c}x + ${d}`;
+            } else {
+                // ax = cx + d
+                let a = this.rand(5, 10);
+                let c = this.rand(2, a - 1);
+                let d = (a - c) * x;
+                latex = `${a}x = ${c}x + ${d}`;
+            }
             options = [correctVal, correctVal + 1, correctVal - 1, correctVal + 2];
         }
 
-        // Generate choices format: x = val
-        let formattedOptions = options.map(val => `x = ${val}`);
-        let correctDisplay = `x = ${correctVal}`;
+        let o = new Set();
+        o.add(correctVal);
+        while (o.size < 4) {
+            let offset = this.rand(-5, 5, [0]);
+            let newVal = correctVal + offset;
+            if (newVal > 0) o.add(newVal);
+            // Avoid infinite loop if possible numbers are small, though -5 to 5 with positive check is safe enough
+        }
+
+        let formattedOptions = Array.from(o).map(val => `x = ${val}`);
+
         return {
             latex: latex,
             options: this.shuffle(formattedOptions),
-            correct: correctDisplay
+            correct: `x = ${correctVal}`
         };
     },
 
