@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الامتحان التوليدي الذكي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Generator Engine -->
+    <script src="exam_generator.js"></script>
+
+    <style>
+        body {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            background-image:
+                radial-gradient(#cbd5e1 1px, transparent 1px),
+                radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-3d {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 0 transparent !important;
+        }
+
+        /* تأثيرات الإجابة */
+        .option-correct {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+            transform: scale(1.02);
+            animation: pulse-green 1s;
+        }
+
+        .option-wrong {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+        }
+
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .katex-display {
+            font-size: 2rem !important;
+            margin: 0 !important;
+            padding: 1rem 0 !important;
+        }
+
+        .option-content .katex {
+            font-size: 1.5rem !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- شاشة الإعداد الأولية -->
+    <div id="setup-screen"
+        class="glass-card rounded-[2rem] w-full max-w-xl p-8 transform transition-all duration-500 scale-100 opacity-100">
+        <div class="text-center mb-8">
+            <div
+                class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl text-4xl shadow-lg mb-4 transform -rotate-3 text-white">
+                🧠
+            </div>
+            <h1 class="text-3xl font-black text-slate-800 mb-2">الامتحان التوليدي</h1>
+            <p class="text-slate-500 font-bold">تدرب بذكاء وبدون نهاية. اصنع امتحاناً مخصصاً لك!</p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- اختيار المحور -->
+            <div>
+                <h3 class="text-sm font-black text-slate-400 mb-3 px-1 uppercase tracking-wider">📝 اختر الموضوع:</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="topic-container">
+                    <!-- سيتم توليده من JS -->
+                </div>
+            </div>
+
+            <!-- اختيار الصعوبة -->
+            <div>
+                <h3 class="text-sm font-black text-slate-400 mb-3 px-1 uppercase tracking-wider">🔥 مستوى الصعوبة:</h3>
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1">
+                    <button
+                        class="diff-btn flex-1 py-3 text-sm font-bold rounded-xl transition-colors bg-white text-indigo-700 shadow-sm"
+                        data-val="easy">سهل 🟢</button>
+                    <button
+                        class="diff-btn flex-1 py-3 text-sm font-bold rounded-xl transition-colors text-slate-500 hover:text-slate-700"
+                        data-val="medium">متوسط 🟡</button>
+                    <button
+                        class="diff-btn flex-1 py-3 text-sm font-bold rounded-xl transition-colors text-slate-500 hover:text-slate-700"
+                        data-val="hard">صعب 🔴</button>
+                </div>
+            </div>
+
+            <!-- الزر لبدء -->
+            <button id="start-btn"
+                class="w-full mt-4 bg-gradient-to-l from-indigo-600 to-purple-600 text-white text-xl font-black py-4 rounded-2xl shadow-[0_6px_0_0_#4f46e5] hover:shadow-[0_4px_0_0_#4f46e5] hover:translate-y-[2px] btn-3d flex items-center justify-center gap-2">
+                <span>ابدأ التحدي الآن</span>
+                <span class="text-2xl">🚀</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة الامتحان -->
+    <div id="exam-screen" class="hidden glass-card rounded-[2rem] w-full max-w-xl p-8 flex flex-col items-center">
+        <!-- الهيدر والمعلومات -->
+        <div class="w-full flex justify-between items-center mb-8 border-b-2 border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-indigo-100 text-indigo-700 font-black px-4 py-2 rounded-xl text-lg flex items-center gap-2">
+                    <span>السؤال</span>
+                    <span id="current-q-num">1</span>/<span id="total-q-num">10</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="text-center">
+                    <div class="text-[10px] uppercase font-black text-slate-400">النقاط</div>
+                    <div class="text-xl font-black text-amber-500" id="score-display">0 🪙</div>
+                </div>
+                <div class="text-center hidden sm:block">
+                    <div class="text-[10px] uppercase font-black text-slate-400">الوقت</div>
+                    <div class="text-xl font-black text-slate-700" id="timer-display">00:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- السؤال -->
+        <div
+            class="w-full bg-white border-2 border-slate-100 rounded-3xl p-8 mb-8 shadow-sm flex items-center justify-center min-h-[150px]">
+            <div id="question-math" class="text-center text-slate-800" dir="ltr"></div>
+        </div>
+
+        <!-- الخيارات -->
+        <div id="options-container" class="grid grid-cols-2 gap-4 w-full">
+            <!-- سيتم إضافة الأزرار من الكود -->
+        </div>
+
+        <!-- أزرار التحكم السفلية -->
+        <div class="w-full mt-8 flex justify-end">
+            <button id="next-btn"
+                class="hidden bg-indigo-600 text-white font-black px-8 py-3 rounded-xl shadow-[0_4px_0_0_#4338ca] hover:bg-indigo-500 transition-all btn-3d">
+                السؤال التالي ➡️
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة النتيجة النهائية -->
+    <div id="result-screen" class="hidden glass-card rounded-[2rem] w-full max-w-xl p-10 text-center">
+        <div class="text-6xl mb-4" id="result-emoji">🏆</div>
+        <h2 class="text-3xl font-black text-slate-800 mb-2" id="result-title">عمل مذهل!</h2>
+        <p class="text-slate-500 font-bold mb-8" id="result-desc">لقد أكملت التحدي بنجاح.</p>
+
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-4">
+                <div class="text-sm font-black text-emerald-600 mb-1">الإجابات الصحيحة</div>
+                <div class="text-3xl font-black text-slate-800" id="result-correct">8/10</div>
+            </div>
+            <div class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-4">
+                <div class="text-sm font-black text-indigo-600 mb-1">النقاط المكتسبة</div>
+                <div class="text-3xl font-black text-amber-500" id="result-xp">+40 🪙</div>
+            </div>
+        </div>
+
+        <button id="claim-btn"
+            class="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xl font-black py-4 rounded-2xl shadow-[0_6px_0_0_#d97706] hover:translate-y-[2px] btn-3d mb-3">
+            تحصيل النقاط وإنهاء 🎁
+        </button>
+        <button id="retry-btn"
+            class="w-full bg-white border-2 border-slate-200 text-slate-500 text-lg font-bold py-3 rounded-2xl hover:bg-slate-50 transition-colors btn-3d">
+            محاولة جديدة 🔄
+        </button>
+    </div>
+
+    <script>
+        // المتغيرات لحفظ الحالة
+        let currentConfig = { topic: 'equations', difficulty: 'easy', count: 10 };
+        let currentExam = [];
+        let currentIndex = 0;
+        let score = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        // تجهيز الواجهة الأولية
+        const topicContainer = document.getElementById('topic-container');
+        for (const [key, t] of Object.entries(ExamGenerator.Topics)) {
+            const btn = document.createElement('button');
+            btn.className = `topic-btn flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all btn-3d ${key === 'equations' ? t.color.replace('text-', 'border-').split(' ')[2] + ' ring-2 ring-offset-2 ring-' + t.color.split(' ')[0].split('-')[1] + '-200 bg-white shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+            btn.onclick = () => selectTopic(key, btn, t);
+            btn.innerHTML = `<span class="text-3xl mb-2">${t.icon}</span><span class="text-xs font-black">${t.name}</span>`;
+            topicContainer.appendChild(btn);
+        }
+
+        const diffBtns = document.querySelectorAll('.diff-btn');
+        diffBtns.forEach(btn => {
+            btn.onclick = () => {
+                diffBtns.forEach(b => { b.className = 'diff-btn flex-1 py-3 text-sm font-bold rounded-xl transition-colors text-slate-500 hover:text-slate-700'; });
+                btn.className = `diff-btn flex-1 py-3 text-sm font-bold rounded-xl transition-colors bg-white text-indigo-700 shadow-sm`;
+                currentConfig.difficulty = btn.getAttribute('data-val');
+            };
+        });
+
+        function selectTopic(key, btnElem, tData) {
+            currentConfig.topic = key;
+            document.querySelectorAll('.topic-btn').forEach(b => {
+                b.className = 'topic-btn flex flex-col items-center justify-center p-4 rounded-2xl border-2 bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition-all btn-3d';
+            });
+            btnElem.className = `topic-btn flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all btn-3d border-${tData.color.split(' ')[0].split('-')[1]}-400 ring-2 ring-offset-2 ring-${tData.color.split(' ')[0].split('-')[1]}-200 bg-white shadow-md text-${tData.color.split(' ')[0].split('-')[1]}-700`;
+        }
+
+        document.getElementById('start-btn').onclick = () => {
+            currentExam = ExamGenerator.generate(currentConfig.topic, currentConfig.difficulty, currentConfig.count);
+            currentIndex = 0;
+            score = 0;
+            timeElapsed = 0;
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('exam-screen').classList.remove('hidden');
+            document.getElementById('total-q-num').innerText = currentExam.length;
+            document.getElementById('score-display').innerText = `0 🪙`;
+
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                let m = String(Math.floor(timeElapsed / 60)).padStart(2, '0');
+                let s = String(timeElapsed % 60).padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${m}:${s}`;
+            }, 1000);
+
+            showQuestion();
+        };
+
+        function showQuestion() {
+            const q = currentExam[currentIndex];
+            document.getElementById('current-q-num').innerText = currentIndex + 1;
+            document.getElementById('next-btn').classList.add('hidden');
+
+            const mathContainer = document.getElementById('question-math');
+            katex.render(q.latex, mathContainer, { displayMode: true, throwOnError: false });
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = `option-content w-full bg-white border-2 border-slate-200 text-slate-700 p-4 rounded-2xl shadow-[0_4px_0_0_#e2e8f0] hover:bg-slate-50 font-bold transition-all btn-3d flex items-center justify-center min-h-[80px]`;
+                // Render option inside button using KaTeX string mode
+                btn.innerHTML = `<span dir="ltr">$$${opt}$$</span>`;
+                btn.onclick = () => handleAnswer(btn, opt, q.correct);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Render options math
+            renderMathInElement(optionsContainer, {
+                delimiters: [{ left: "$$", right: "$$", display: false }],
+                throwOnError: false
+            });
+        }
+
+        function handleAnswer(btnElem, selectedOpt, correctOpt) {
+            // تعطيل جميع الأزرار لتفادي النقر المزدوج
+            const allBtns = document.getElementById('options-container').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = selectedOpt === correctOpt;
+            if (isCorrect) {
+                btnElem.classList.add('option-correct');
+                btnElem.classList.remove('border-slate-200', 'text-slate-700', 'shadow-[0_4px_0_0_#e2e8f0]', 'bg-white');
+                score += (currentConfig.difficulty === 'hard' ? 10 : currentConfig.difficulty === 'medium' ? 5 : 3);
+                document.getElementById('score-display').innerText = `${score} 🪙`;
+
+                // قصاصات احتفالية بسيطة
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 }, colors: ['#10b981', '#fbbf24'] });
+            } else {
+                btnElem.classList.add('option-wrong');
+                btnElem.classList.remove('border-slate-200', 'text-slate-700', 'shadow-[0_4px_0_0_#e2e8f0]', 'bg-white');
+                // تظليل الإجابة الصحيحة
+                allBtns.forEach(b => {
+                    // Extract inner string carefully or just find the one that has correct latex
+                    // since we used KaTeX to render, the raw string is kinda lost, but we can match data
+                });
+                // أظهرنا الزر الخاطئ باللون الأحمر. إظهار الصحيح سيحتاج مطابقة. (للتبسيط نتركه يهتز فقط)
+            }
+
+            // إظهار زر "التالي"
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.onclick = () => {
+                currentIndex++;
+                if (currentIndex >= currentExam.length) {
+                    finishExam();
+                } else {
+                    showQuestion();
+                }
+            };
+
+            // انتقال تلقائي إذا كانت الإجابة صحيحة (للأمام بسرعة لزيادة الحماس)
+            if (isCorrect) {
+                setTimeout(() => nextBtn.click(), 1000);
+            }
+        }
+
+        function finishExam() {
+            clearInterval(timerInterval);
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const percent = score / (currentExam.length * (currentConfig.difficulty === 'hard' ? 10 : currentConfig.difficulty === 'medium' ? 5 : 3));
+
+            if (percent > 0.8) {
+                document.getElementById('result-emoji').innerText = '🔥';
+                document.getElementById('result-title').innerText = 'يا لك من بطل!';
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            } else if (percent > 0.5) {
+                document.getElementById('result-emoji').innerText = '👍';
+                document.getElementById('result-title').innerText = 'عمل جيد!';
+            } else {
+                document.getElementById('result-emoji').innerText = '💪';
+                document.getElementById('result-title').innerText = 'لا تستسلم!';
+                document.getElementById('result-desc').innerText = 'المحاولة المتكررة تصنع المعجزات.';
+            }
+
+            document.getElementById('result-correct').innerText = `${score} نقطة`;
+            document.getElementById('result-xp').innerText = `+${Math.floor(score * 1.5)} XP`;
+        }
+
+        document.getElementById('claim-btn').onclick = () => {
+            const xpToAward = Math.floor(score * 1.5);
+            // إرسال النتيجة للنافذة الأب (LMS)
+            if (window.parent) {
+                window.parent.postMessage({ type: 'COMPLETE_GEN_EXAM', points: xpToAward }, '*');
+            }
+            // إعادة الشاشة للإعدادات
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+        };
+
+        document.getElementById('retry-btn').onclick = () => {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+        };
+
+    </script>
+    <script>
+        // Helper to render math inside options automatically (Mini fallback implementation)
+        function renderMathInElement(elem, options) {
+            const spans = elem.querySelectorAll('span');
+            spans.forEach(s => {
+                if (s.innerText.startsWith('$$')) {
+                    const mathString = s.innerText.replace(/\$\$/g, '');
+                    katex.render(mathString, s, { throwOnError: false });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

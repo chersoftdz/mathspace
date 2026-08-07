@@ -11,6 +11,20 @@ function awardXP(amount) {
     }
 }
 
+// الاستماع للرسائل القادمة من الأدوات التفاعلية (مثل الامتحان التوليدي) الموجودة في iframe
+window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'COMPLETE_GEN_EXAM') {
+        const points = event.data.points || 0;
+        if (points > 0) {
+            awardXP(points);
+            // إظهار إشعار ذكي
+            if (window.showToast) {
+                window.showToast(`عمل رائع! لقد حصلت على ${points} XP من الامتحان التوليدي 🏆`);
+            }
+        }
+    }
+});
+
 // ============================================================
 // نظام حفظ التقدم (Progress System) - localStorage
 // ============================================================
