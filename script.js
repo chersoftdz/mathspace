@@ -875,7 +875,7 @@ function showSituations() {
 
 // Function to show calculator
 function showCalculator() {
-    window.location.href = 'calculator.html';
+    window.location.href = 'calculatrice scientifique.html';
 }
 
 // Graphing functions removed - handled inline in index.html

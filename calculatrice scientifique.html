@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آلة حاسبة علمية متطورة</title>
+    
+    <!-- تضمين خط تجوال للغة العربية -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- تضمين مكتبة Tailwind CSS للتصميم -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* إعدادات الخط الأساسية */
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0f172a; /* لون خلفية داكن */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* إخفاء شريط التمرير لشاشة الآلة الحاسبة مع الاحتفاظ بخاصية التمرير */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* تأثير النبض عند الضغط على الأزرار */
+        .btn-press:active {
+            transform: scale(0.92);
+            transition: transform 0.05s;
+        }
+
+        /* تصميم الأزرار المخصص */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center sm:p-4">
+
+    <!-- حاوية الآلة الحاسبة الرئيسية -->
+    <div class="w-full h-screen sm:h-auto sm:max-w-sm bg-slate-800 sm:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-slate-700">
+        
+        <!-- شاشة العرض -->
+        <div class="h-2/5 sm:h-48 p-6 flex flex-col justify-end items-end glass-panel border-b border-slate-700 relative">
+            <!-- مؤشر وضع الزاوية (راديان / درجات) -->
+            <button id="angle-mode-display" onclick="toggleAngleMode()" class="absolute top-6 left-6 text-slate-300 text-sm font-bold tracking-widest bg-slate-700/80 hover:bg-slate-600 px-3 py-1 rounded-lg transition-colors shadow-sm">
+                DEG
+            </button>
+            
+            <!-- سجل العمليات السابقة -->
+            <div id="history" class="text-slate-400 text-lg sm:text-xl w-full text-left overflow-x-auto no-scrollbar whitespace-nowrap mb-2 font-mono tracking-wider" dir="ltr">
+                <!-- يظهر هنا التاريخ -->
+            </div>
+            
+            <!-- الإدخال الحالي / النتيجة -->
+            <div id="display" class="text-white text-5xl sm:text-6xl font-semibold w-full text-left overflow-x-auto no-scrollbar whitespace-nowrap font-mono tracking-tight" dir="ltr">
+                0
+            </div>
+        </div>
+
+        <!-- لوحة المفاتيح -->
+        <div class="h-3/5 sm:h-auto flex-1 p-3 sm:p-5 bg-slate-900 grid grid-cols-4 gap-2 sm:gap-3 content-start">
+            
+            <!-- الصف الأول: وظائف التحكم -->
+            <button id="btn-2nd" class="btn-press bg-slate-700 hover:bg-slate-600 text-purple-400 font-bold rounded-2xl sm:rounded-3xl text-sm sm:text-base flex items-center justify-center transition-colors" onclick="toggleSecond()">2nd</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-emerald-400 font-bold rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors" onclick="appendValue('(')">(</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-emerald-400 font-bold rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors" onclick="appendValue(')')">)</button>
+            <button class="btn-press bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors shadow-lg shadow-rose-900/50" onclick="deleteLast()">DEL</button>
+
+            <!-- الصف الثاني: دوال مثلثية ومسح -->
+            <button id="btn-sin" class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors" onclick="appendFunction('sin(')">sin</button>
+            <button id="btn-cos" class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors" onclick="appendFunction('cos(')">cos</button>
+            <button id="btn-tan" class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors" onclick="appendFunction('tan(')">tan</button>
+            <button class="btn-press bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors shadow-lg shadow-rose-900/50" onclick="clearAll()">AC</button>
+
+            <!-- الصف الثالث: لوغاريتمات وجذور -->
+            <button id="btn-ln" class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors" onclick="appendFunction('ln(')">ln</button>
+            <button id="btn-log" class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors" onclick="appendFunction('log(')">log</button>
+            <button id="btn-sqrt" class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors" onclick="appendFunction('√(')">√</button>
+            <button class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors" onclick="appendValue('^')">xʸ</button>
+
+            <!-- الصف الرابع: ثوابت وعمليات -->
+            <button class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors font-serif" onclick="appendValue('π')">π</button>
+            <button class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors font-serif" onclick="appendValue('e')">e</button>
+            <button class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium rounded-2xl sm:rounded-3xl text-xl flex items-center justify-center transition-colors" onclick="appendValue('!')">x!</button>
+            <button class="btn-press bg-orange-500 hover:bg-orange-400 text-white font-bold rounded-2xl sm:rounded-3xl text-3xl flex items-center justify-center transition-colors shadow-lg shadow-orange-900/50" onclick="appendValue('÷')">÷</button>
+
+            <!-- الأرقام والعمليات الأساسية -->
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('7')">7</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('8')">8</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('9')">9</button>
+            <button class="btn-press bg-orange-500 hover:bg-orange-400 text-white font-bold rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors shadow-lg shadow-orange-900/50" onclick="appendValue('×')">×</button>
+
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('4')">4</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('5')">5</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('6')">6</button>
+            <button class="btn-press bg-orange-500 hover:bg-orange-400 text-white font-bold rounded-2xl sm:rounded-3xl text-3xl flex items-center justify-center transition-colors shadow-lg shadow-orange-900/50 pb-1" onclick="appendValue('-')">-</button>
+
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('1')">1</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('2')">2</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('3')">3</button>
+            <button class="btn-press bg-orange-500 hover:bg-orange-400 text-white font-bold rounded-2xl sm:rounded-3xl text-3xl flex items-center justify-center transition-colors shadow-lg shadow-orange-900/50 pb-1" onclick="appendValue('+')">+</button>
+
+            <!-- تعديل الصف الأخير لإضافة زر ANS -->
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-2xl sm:rounded-3xl text-2xl flex items-center justify-center transition-colors" onclick="appendValue('0')">0</button>
+            <button class="btn-press bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-2xl sm:rounded-3xl text-3xl flex items-center justify-center transition-colors pb-2" onclick="appendValue('.')">.</button>
+            <button class="btn-press bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-2xl sm:rounded-3xl text-lg flex items-center justify-center transition-colors shadow-sm" onclick="appendAns()">ANS</button>
+            <button class="btn-press bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl sm:rounded-3xl text-3xl flex items-center justify-center transition-colors shadow-lg shadow-blue-900/50 pb-1" onclick="calculateResult()">=</button>
+
+        </div>
+    </div>
+
+    <!-- الكود البرمجي للآلة الحاسبة -->
+    <script>
+        // المتغيرات الأساسية
+        const displayEl = document.getElementById('display');
+        const historyEl = document.getElementById('history');
+        const angleModeEl = document.getElementById('angle-mode-display');
+        
+        let currentExpression = '';
+        let isDegrees = true; // الحالة الافتراضية هي الدرجات
+        let hasError = false;
+        let isSecond = false; // حالة زر 2nd
+        let lastAnswer = ''; // تخزين النتيجة السابقة
+
+        // دالة الاهتزاز عند النقر (للهواتف المدعومة)
+        function vibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(40);
+            }
+        }
+
+        // تحديث الشاشة
+        function updateDisplay() {
+            if (currentExpression === '') {
+                displayEl.innerText = '0';
+            } else {
+                displayEl.innerText = currentExpression;
+            }
+            // التمرير التلقائي لليمين لرؤية آخر ما تم إدخاله
+            displayEl.scrollLeft = displayEl.scrollWidth;
+        }
+
+        // مسح الكل (AC)
+        function clearAll() {
+            vibrate();
+            currentExpression = '';
+            historyEl.innerText = '';
+            hasError = false;
+            updateDisplay();
+        }
+
+        // مسح آخر مدخل (DEL)
+        function deleteLast() {
+            vibrate();
+            if (hasError) {
+                clearAll();
+                return;
+            }
+            
+            // التعامل مع مسح الدوال (مثلاً مسح sin( مرة واحدة)
+            const funcs = ['sin(', 'cos(', 'tan(', 'ln(', 'log(', '√(', 'sin⁻¹(', 'cos⁻¹(', 'tan⁻¹('];
+            let deletedFunc = false;
+            
+            for (let f of funcs) {
+                if (currentExpression.endsWith(f)) {
+                    currentExpression = currentExpression.slice(0, -f.length);
+                    deletedFunc = true;
+                    break;
+                }
+            }
+
+            if (!deletedFunc) {
+                currentExpression = currentExpression.toString().slice(0, -1);
+            }
+            
+            updateDisplay();
+        }
+
+        // إضافة رقم أو رمز عادي
+        function appendValue(val) {
+            vibrate();
+            if (hasError) clearAll();
+            
+            // منع إضافة عمليات متعددة متتالية
+            const lastChar = currentExpression.slice(-1);
+            const operators = ['+', '-', '×', '÷', '^'];
+            
+            if (operators.includes(val) && operators.includes(lastChar)) {
+                currentExpression = currentExpression.slice(0, -1) + val;
+            } else {
+                currentExpression += val;
+            }
+            
+            updateDisplay();
+        }
+
+        // إضافة دالة (مثل sin, cos)
+        function appendFunction(func) {
+            vibrate();
+            if (hasError) clearAll();
+            
+            // إضافة علامة ضرب تلقائية إذا كان قبل الدالة رقم أو قوس مغلق أو ANS
+            const lastChar = currentExpression.slice(-1);
+            if (lastChar && (/\d/.test(lastChar) || lastChar === ')' || lastChar === 'π' || lastChar === 'e' || currentExpression.endsWith('ANS'))) {
+                currentExpression += '×';
+            }
+            
+            currentExpression += func;
+            updateDisplay();
+        }
+
+        // إضافة الإجابة السابقة (ANS)
+        function appendAns() {
+            if (!lastAnswer && lastAnswer !== 0) return; // لا تفعل شيئاً إذا لم تكن هناك إجابة سابقة
+            vibrate();
+            if (hasError) clearAll();
+            
+            const lastChar = currentExpression.slice(-1);
+            if (lastChar && (/\d/.test(lastChar) || lastChar === ')' || lastChar === 'π' || lastChar === 'e')) {
+                currentExpression += '×';
+            }
+            
+            currentExpression += 'ANS';
+            updateDisplay();
+        }
+
+        // تبديل وحدة الزوايا بين راديان ودرجات
+        function toggleAngleMode() {
+            vibrate();
+            isDegrees = !isDegrees;
+            angleModeEl.innerText = isDegrees ? 'DEG' : 'RAD';
+            angleModeEl.classList.toggle('text-emerald-400', !isDegrees);
+            angleModeEl.classList.toggle('text-slate-300', isDegrees);
+        }
+
+        // تبديل وظائف الدوال (2nd)
+        function toggleSecond() {
+            vibrate();
+            isSecond = !isSecond;
+            const btn2nd = document.getElementById('btn-2nd');
+            
+            // تغيير شكل زر 2nd
+            if (isSecond) {
+                btn2nd.classList.remove('bg-slate-700', 'text-purple-400');
+                btn2nd.classList.add('bg-purple-600', 'text-white');
+                
+                // تحديث أزرار الدوال
+                document.getElementById('btn-sin').innerHTML = 'sin⁻¹';
+                document.getElementById('btn-sin').setAttribute('onclick', "appendFunction('sin⁻¹(')");
+                
+                document.getElementById('btn-cos').innerHTML = 'cos⁻¹';
+                document.getElementById('btn-cos').setAttribute('onclick', "appendFunction('cos⁻¹(')");
+                
+                document.getElementById('btn-tan').innerHTML = 'tan⁻¹';
+                document.getElementById('btn-tan').setAttribute('onclick', "appendFunction('tan⁻¹(')");
+                
+                document.getElementById('btn-ln').innerHTML = 'eˣ';
+                document.getElementById('btn-ln').setAttribute('onclick', "appendFunction('e^(')");
+                
+                document.getElementById('btn-log').innerHTML = '10ˣ';
+                document.getElementById('btn-log').setAttribute('onclick', "appendFunction('10^(')");
+                
+                document.getElementById('btn-sqrt').innerHTML = 'x²';
+                document.getElementById('btn-sqrt').setAttribute('onclick', "appendValue('^2')");
+            } else {
+                btn2nd.classList.add('bg-slate-700', 'text-purple-400');
+                btn2nd.classList.remove('bg-purple-600', 'text-white');
+                
+                // استرجاع أزرار الدوال الأصلية
+                document.getElementById('btn-sin').innerHTML = 'sin';
+                document.getElementById('btn-sin').setAttribute('onclick', "appendFunction('sin(')");
+                
+                document.getElementById('btn-cos').innerHTML = 'cos';
+                document.getElementById('btn-cos').setAttribute('onclick', "appendFunction('cos(')");
+                
+                document.getElementById('btn-tan').innerHTML = 'tan';
+                document.getElementById('btn-tan').setAttribute('onclick', "appendFunction('tan(')");
+                
+                document.getElementById('btn-ln').innerHTML = 'ln';
+                document.getElementById('btn-ln').setAttribute('onclick', "appendFunction('ln(')");
+                
+                document.getElementById('btn-log').innerHTML = 'log';
+                document.getElementById('btn-log').setAttribute('onclick', "appendFunction('log(')");
+                
+                document.getElementById('btn-sqrt').innerHTML = '√';
+                document.getElementById('btn-sqrt').setAttribute('onclick', "appendFunction('√(')");
+            }
+        }
+
+        // دالة المضروب (Factorial)
+        function factorial(n) {
+            n = parseFloat(n);
+            if (n < 0 || !Number.isInteger(n)) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) result *= i;
+            return result;
+        }
+
+        // تنفيذ العملية الحسابية
+        function calculateResult() {
+            vibrate();
+            if (!currentExpression || hasError) return;
+
+            // حفظ التعبير الأصلي للسجل
+            const originalExpression = currentExpression;
+            let expressionToEval = currentExpression;
+
+            // 1. الضرب الضمني (مثال: 2(3) تصبح 2*3)
+            expressionToEval = expressionToEval.replace(/(\d)\(/g, '$1×(');
+            expressionToEval = expressionToEval.replace(/\)(\d)/g, ')×$1');
+            expressionToEval = expressionToEval.replace(/([πe])(\d|\()/g, '$1×$2');
+            expressionToEval = expressionToEval.replace(/(\d|\))([πe])/g, '$1×$2');
+
+            // 2. استبدال الرموز المرئية برموز برمجية والنسبة المئوية
+            expressionToEval = expressionToEval
+                .replace(/ANS/g, `(${lastAnswer})`) // تعويض ANS بقيمتها
+                .replace(/%/g, '/100')             // دعم النسبة المئوية
+                .replace(/×/g, '*')
+                .replace(/÷/g, '/')
+                .replace(/\^/g, '**')
+                .replace(/π/g, 'Math.PI')
+                .replace(/e/g, 'Math.E')
+                .replace(/√\(/g, 'sqrt(')
+                .replace(/sin⁻¹\(/g, 'asin(')
+                .replace(/cos⁻¹\(/g, 'acos(')
+                .replace(/tan⁻¹\(/g, 'atan(');
+
+            // 3. استبدال المضروب (!)
+            expressionToEval = expressionToEval.replace(/(\d+\.?\d*)!/g, 'fact($1)');
+
+            // إعداد بيئة آمنة لتنفيذ الكود الرياضي فقط
+            const MathContext = {
+                // دوال مثلثية مع دعم التحويل بين الراديان والدرجات
+                sin: (x) => isDegrees ? Math.sin(x * Math.PI / 180) : Math.sin(x),
+                cos: (x) => isDegrees ? Math.cos(x * Math.PI / 180) : Math.cos(x),
+                tan: (x) => isDegrees ? Math.tan(x * Math.PI / 180) : Math.tan(x),
+                asin: (x) => isDegrees ? Math.asin(x) * 180 / Math.PI : Math.asin(x),
+                acos: (x) => isDegrees ? Math.acos(x) * 180 / Math.PI : Math.acos(x),
+                atan: (x) => isDegrees ? Math.atan(x) * 180 / Math.PI : Math.atan(x),
+                ln: Math.log,
+                log: Math.log10,
+                sqrt: Math.sqrt,
+                fact: factorial
+            };
+
+            try {
+                // استخدام منشئ الدوال (Function) كبديل آمن ومنعزل عن eval العادي
+                const evaluate = new Function(
+                    'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'ln', 'log', 'sqrt', 'fact', 
+                    `return ${expressionToEval};`
+                );
+                
+                // التنفيذ وإعطاء الدوال كمدخلات
+                let result = evaluate(
+                    MathContext.sin, MathContext.cos, MathContext.tan, 
+                    MathContext.asin, MathContext.acos, MathContext.atan,
+                    MathContext.ln, MathContext.log, MathContext.sqrt, 
+                    MathContext.fact
+                );
+
+                // معالجة الأخطاء الرياضية (مثل القسمة على صفر أو جذور سالبة)
+                if (!isFinite(result) || isNaN(result)) {
+                    throw new Error("خطأ رياضي");
+                }
+
+                // تقريب الأرقام الطويلة جداً الناتجة عن أخطاء الفاصلة العائمة (Floating point)
+                result = Math.round(result * 10000000000) / 10000000000;
+
+                // تحديث الواجهة وحفظ الإجابة
+                historyEl.innerText = originalExpression + ' =';
+                currentExpression = result.toString();
+                lastAnswer = result; // حفظ النتيجة للاستخدام في ANS
+                updateDisplay();
+
+            } catch (error) {
+                historyEl.innerText = originalExpression;
+                currentExpression = 'خطأ';
+                hasError = true;
+                updateDisplay();
+            }
+        }
+
+        // دعم لوحة المفاتيح (Keyboard Support)
+        document.addEventListener('keydown', function(event) {
+            // منع البحث السريع في المتصفح عند ضغط /
+            if (event.key === '/') event.preventDefault();
+
+            const key = event.key;
+            
+            // الأرقام والعمليات الأساسية
+            if (/[0-9\(\)\.\+\-]/.test(key)) {
+                appendValue(key);
+            } else if (key === '*') {
+                appendValue('×');
+            } else if (key === '/') {
+                appendValue('÷');
+            } else if (key === '^') {
+                appendValue('^');
+            } else if (key === '!') {
+                appendValue('!');
+            } else if (key === '%') {
+                appendValue('%'); // أضفنا دعم النسبة المئوية
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault(); // منع إعادة تحميل الصفحة إذا كانت الآلة داخل نموذج
+                calculateResult();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            } else if (key === 'Escape') {
+                clearAll();
+            }
+        });
+
+    </script>
+</body>
+</html>
