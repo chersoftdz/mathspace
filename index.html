@@ -1645,9 +1645,6 @@
                                     <aside className="w-full md:w-72 flex-shrink-0 z-10 relative">
                                         <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-slate-100 p-5 sticky top-28">
 
-                                            {/* تمت إزالة مختبر التعلم من الشريط الجانبي لتفادي التكرار والحفاظ على احترافية ووضوح الواجهة */}
-
-
                                             {currentUser.role === 'teacher' && (
                                                 <div className="space-y-2 mb-6">
                                                     <div className="text-xs font-black text-slate-400 mb-3 px-2 uppercase tracking-wider">تصفية المنشورات (الأقسام):</div>
@@ -1656,103 +1653,125 @@
                                                 </div>
                                             )}
 
-                                            <div className="flex-1 max-w-2xl min-w-0 z-10 relative">
-                                                {/* شريط تصفية المواضيع (أفقي) */}
-                                                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-6 p-1">
-                                                    <button onClick={() => setActiveTopic('all')} className={`px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all border-2 btn-3d ${activeTopic === 'all' ? 'bg-slate-800 text-white border-slate-900 shadow-md transform -translate-y-0.5' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
-                                                        كل المواضيع
-                                                    </button>
-                                                    {TOPICS.map(t => (
-                                                        <button key={t.id} onClick={() => setActiveTopic(t.id)} className={`px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all border-2 btn-3d ${activeTopic === t.id ? t.color.replace('border-', 'border-').replace('text-', 'text-').replace('bg-', 'bg-').concat(' shadow-md transform -translate-y-0.5 shadow-[0_3px_0_0_currentColor]') : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
-                                                            {t.name}
-                                                        </button>
-                                                    ))}
-                                                </div>
-
-                                                {currentUser.role === 'teacher' && <PostCreator currentUser={currentUser} onAddPost={handleAddPost} activeClassId={activeClassId} />}
-
-                                                {filteredPosts.length === 0 ? (
-                                                    <div className="text-center py-16 bg-white rounded-[2rem] border-4 border-dashed border-slate-200 text-slate-500 font-bold shadow-sm">
-                                                        <div className="text-6xl mb-4 opacity-50">📭</div>
-                                                        لا توجد مغامرات رياضية حالياً.
-                                                    </div>
+                                            <div className="border-t-2 border-slate-100 pt-5 bg-gradient-to-b from-transparent to-amber-50/50 rounded-b-[2rem] -mx-5 -mb-5 p-5">
+                                                <div className="text-sm font-black text-amber-600 mb-4 px-1 flex items-center gap-2 text-shadow-sm">🏆 أساطير الرياضيات</div>
+                                                {topStudents.length === 0 ? (
+                                                    <div className="text-center text-xs font-bold text-slate-400 bg-white p-4 rounded-2xl border-2 shadow-sm">لم يجمع أحد نقاطاً بعد!</div>
                                                 ) : (
-                                                    filteredPosts.map(post => <Post key={post.id} post={post} currentUser={currentUser} appUsers={appUsers} onUpdatePost={handleUpdatePost} onDeletePost={handleDeletePost} onRewardStudent={handleRewardStudent} onTogglePin={handleTogglePin} onBanUser={handleBanUser} onOpenPhoto={handleOpenPhoto} />)
+                                                    <div className="space-y-3">
+                                                        {topStudents.map((student, index) => (
+                                                            <div key={student.id} className={`flex items-center justify-between bg-white p-2.5 rounded-2xl border-2 shadow-sm ${index === 0 ? 'border-amber-300 ring-2 ring-amber-100' : 'border-slate-100'}`}>
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`font-black text-sm w-5 h-5 flex items-center justify-center rounded-full ${index === 0 ? 'bg-amber-100 text-amber-600' : index === 1 ? 'bg-slate-200' : index === 2 ? 'bg-orange-100 text-orange-600' : 'text-slate-300'}`}>{index === 0 ? '👑' : index + 1}</div>
+                                                                    <Avatar emoji={student.avatar} className={`w-9 h-9 text-base ${student.color}`} />
+                                                                    <div className="text-sm font-black text-slate-700 truncate max-w-[100px]" title={student.name}>{student.name}</div>
+                                                                </div>
+                                                                <div className="text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-xl border border-indigo-100">{student.points} 🪙</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 )}
                                             </div>
-                                        </main>
-
-                                        {/* عرض الصورة ملء الشاشة (فيسبوك ستايل + سحب) */}
-                                        {viewingPhoto && <PhotoViewer imageUrl={viewingPhoto} onClose={handleClosePhoto} />}
-
-                                        {/* ===== مختبر التعلم - نافذة اختيار الأداة ===== */}
-                                        {showToolsHub && !activeTool && (
-                                            <ToolsHub
-                                                onClose={() => setShowToolsHub(false)}
-                                                onSelectTool={(tool) => { setActiveTool(tool); setShowToolsHub(false); }}
-                                            />
-                                        )}
-
-                                        {/* ===== عارض الأداة التفاعلية ===== */}
-                                        {activeTool && (
-                                            <ToolViewer
-                                                tool={activeTool}
-                                                onClose={() => setActiveTool(null)}
-                                            />
-                                        )}
-
-                                        {/* ===== Quick Nav Bar (شريط التنقل السريع للهاتف) ===== */}
-                                        <div className="quick-nav fixed bottom-0 left-0 right-0 z-[50] bg-white/90 border-t-2 border-slate-200 px-2 py-2 flex items-stretch gap-1 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-                                            {/* زر الفضاء */}
-                                            <button
-                                                onClick={() => { setActiveTool(null); setShowToolsHub(false); }}
-                                                className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all"
-                                            >
-                                                <span className="text-xl">🏠</span>
-                                                <span className="text-[10px] font-black">الفضاء</span>
-                                            </button>
-                                            {/* الألعاب */}
-                                            <button
-                                                onClick={() => setActiveTool(TOOLS.find(t => t.id === 'games'))}
-                                                className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-pink-600 hover:bg-pink-50 active:scale-95 transition-all"
-                                            >
-                                                <span className="text-xl">🎮</span>
-                                                <span className="text-[10px] font-black">الألعاب</span>
-                                            </button>
-                                            {/* التمارين */}
-                                            <button
-                                                onClick={() => setActiveTool(TOOLS.find(t => t.id === 'exercises'))}
-                                                className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-purple-50 active:scale-95 transition-all"
-                                            >
-                                                <span className="text-xl">📝</span>
-                                                <span className="text-[10px] font-black">التمارين</span>
-                                            </button>
-                                            {/* الحاسبة */}
-                                            <button
-                                                onClick={() => setActiveTool(TOOLS.find(t => t.id === 'calculator'))}
-                                                className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 active:scale-95 transition-all"
-                                            >
-                                                <span className="text-xl">🧮</span>
-                                                <span className="text-[10px] font-black">الحاسبة</span>
-                                            </button>
-                                            {/* زر مختبر التعلم (المزيد) */}
-                                            <button
-                                                onClick={() => setShowToolsHub(true)}
-                                                className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl bg-gradient-to-b from-violet-500 to-purple-600 text-white active:scale-95 transition-all shadow-[0_3px_0_0_#5b21b6]"
-                                            >
-                                                <span className="text-xl">🧰</span>
-                                                <span className="text-[10px] font-black">المزيد</span>
-                                            </button>
                                         </div>
-                                    </>
-                        )}
+                                    </aside>
+
+                                    <div className="flex-1 max-w-2xl min-w-0 z-10 relative">
+
+                                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-6 p-1">
+                                            <button onClick={() => setActiveTopic('all')} className={`px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all border-2 btn-3d ${activeTopic === 'all' ? 'bg-slate-800 text-white border-slate-900 shadow-md transform -translate-y-0.5' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
+                                                كل المواضيع
+                                            </button>
+                                            {TOPICS.map(t => (
+                                                <button key={t.id} onClick={() => setActiveTopic(t.id)} className={`px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all border-2 btn-3d ${activeTopic === t.id ? t.color.replace('border-', 'border-').replace('text-', 'text-').replace('bg-', 'bg-').concat(' shadow-md transform -translate-y-0.5 shadow-[0_3px_0_0_currentColor]') : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
+                                                    {t.name}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {currentUser.role === 'teacher' && <PostCreator currentUser={currentUser} onAddPost={handleAddPost} activeClassId={activeClassId} />}
+
+                                        {filteredPosts.length === 0 ? (
+                                            <div className="text-center py-16 bg-white rounded-[2rem] border-4 border-dashed border-slate-200 text-slate-500 font-bold shadow-sm">
+                                                <div className="text-6xl mb-4 opacity-50">📭</div>
+                                                لا توجد مغامرات رياضية حالياً.
+                                            </div>
+                                        ) : (
+                                            filteredPosts.map(post => <Post key={post.id} post={post} currentUser={currentUser} appUsers={appUsers} onUpdatePost={handleUpdatePost} onDeletePost={handleDeletePost} onRewardStudent={handleRewardStudent} onTogglePin={handleTogglePin} onBanUser={handleBanUser} onOpenPhoto={handleOpenPhoto} />)
+                                        )}
+                                    </div>
+                                </main>
+
+                                {/* عرض الصورة ملء الشاشة (فيسبوك ستايل + سحب) */}
+                                {viewingPhoto && <PhotoViewer imageUrl={viewingPhoto} onClose={handleClosePhoto} />}
+
+                                {/* ===== مختبر التعلم - نافذة اختيار الأداة ===== */}
+                                {showToolsHub && !activeTool && (
+                                    <ToolsHub
+                                        onClose={() => setShowToolsHub(false)}
+                                        onSelectTool={(tool) => { setActiveTool(tool); setShowToolsHub(false); }}
+                                    />
+                                )}
+
+                                {/* ===== عارض الأداة التفاعلية ===== */}
+                                {activeTool && (
+                                    <ToolViewer
+                                        tool={activeTool}
+                                        onClose={() => setActiveTool(null)}
+                                    />
+                                )}
+
+                                {/* ===== Quick Nav Bar (شريط التنقل السريع للهاتف) ===== */}
+                                <div className="quick-nav fixed bottom-0 left-0 right-0 z-[50] bg-white/90 border-t-2 border-slate-200 px-2 py-2 flex items-stretch gap-1 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+                                    {/* زر الفضاء */}
+                                    <button
+                                        onClick={() => { setActiveTool(null); setShowToolsHub(false); }}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">🏠</span>
+                                        <span className="text-[10px] font-black">الفضاء</span>
+                                    </button>
+                                    {/* الألعاب */}
+                                    <button
+                                        onClick={() => setActiveTool(TOOLS.find(t => t.id === 'games'))}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-pink-600 hover:bg-pink-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">🎮</span>
+                                        <span className="text-[10px] font-black">الألعاب</span>
+                                    </button>
+                                    {/* التمارين */}
+                                    <button
+                                        onClick={() => setActiveTool(TOOLS.find(t => t.id === 'exercises'))}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-purple-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">📝</span>
+                                        <span className="text-[10px] font-black">التمارين</span>
+                                    </button>
+                                    {/* الحاسبة */}
+                                    <button
+                                        onClick={() => setActiveTool(TOOLS.find(t => t.id === 'calculator'))}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">🧮</span>
+                                        <span className="text-[10px] font-black">الحاسبة</span>
+                                    </button>
+                                    {/* زر مختبر التعلم (المزيد) */}
+                                    <button
+                                        onClick={() => setShowToolsHub(true)}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl bg-gradient-to-b from-violet-500 to-purple-600 text-white active:scale-95 transition-all shadow-[0_3px_0_0_#5b21b6]"
+                                    >
+                                        <span className="text-xl">🧰</span>
+                                        <span className="text-[10px] font-black">المزيد</span>
+                                    </button>
                                 </div>
-                            </ErrorBoundary>
-                        );
+                            </>
+                        )}
+                    </div>
+                </ErrorBoundary>
+            );
         };
 
-                        const root = ReactDOM.createRoot(document.getElementById('root'));
-                        root.render(<MathSpaceLMS />);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MathSpaceLMS />);
     </script>
 </body>
 
