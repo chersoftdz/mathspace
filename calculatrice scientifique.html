@@ -70,7 +70,7 @@
 
             <!-- الإدخال الحالي / النتيجة -->
             <div id="display"
-                class="text-white text-5xl sm:text-6xl font-semibold w-full text-left overflow-x-auto no-scrollbar whitespace-nowrap font-mono tracking-tight"
+                class="text-white text-3xl sm:text-4xl font-semibold w-full text-left overflow-x-auto no-scrollbar whitespace-nowrap font-mono tracking-tight"
                 dir="ltr">
                 0
             </div>
@@ -455,6 +455,8 @@
                 currentExpression = result.toString();
                 lastAnswer = result; // حفظ النتيجة للاستخدام في ANS
                 updateDisplay();
+                // التأكد من ظهور الجزء الصحيح للعدد وعدم التمرير لليمين عند عرض النتيجة النهائية
+                setTimeout(() => { displayEl.scrollLeft = 0; }, 10);
 
             } catch (error) {
                 historyEl.innerText = originalExpression;
