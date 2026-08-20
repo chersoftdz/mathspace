@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فضاء الرياضيات - منصة تعليمية</title>
+    <link rel="icon" type="image/png" href="أيقونة المنصة النهائية.png">
+    <script src="./assets/js/tailwindcss.js"></script>
+    <script crossorigin src="./assets/js/react.production.min.js"></script>
+    <script crossorigin src="./assets/js/react-dom.production.min.js"></script>
+    <script src="./assets/js/babel.min.js"></script>
+
+    <!-- مكتبة KaTeX للرياضيات -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+        body {
+            font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+        }
+
+        .bg-dots {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+
+        .btn-3d {
+            transition: all 0.1s ease;
+        }
+
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 0 currentColor !important;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #c7d2fe;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #a5b4fc;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #818cf8;
+        }
+
+        .katex-display {
+            margin: 1em 0;
+            direction: ltr;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .katex {
+            direction: ltr;
+            display: inline-block;
+        }
+
+        @keyframes scrollText {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .animate-scroll {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scrollText 25s linear infinite;
+        }
+
+        .animate-scroll:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes modalPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate-modal {
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* ===== أنماط مختبر التعلم ===== */
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .tools-hub-overlay {
+            animation: fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .tool-card-anim {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .tool-card-anim:nth-child(1) {
+            animation-delay: 0.03s;
+        }
+
+        .tool-card-anim:nth-child(2) {
+            animation-delay: 0.06s;
+        }
+
+        .tool-card-anim:nth-child(3) {
+            animation-delay: 0.09s;
+        }
+
+        .tool-card-anim:nth-child(4) {
+            animation-delay: 0.12s;
+        }
+
+        .tool-card-anim:nth-child(5) {
+            animation-delay: 0.15s;
+        }
+
+        .tool-card-anim:nth-child(6) {
+            animation-delay: 0.18s;
+        }
+
+        .tool-card-anim:nth-child(7) {
+            animation-delay: 0.21s;
+        }
+
+        .tool-card-anim:nth-child(8) {
+            animation-delay: 0.24s;
+        }
+
+        .tool-card {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-6px) scale(1.03);
+        }
+
+        .tool-card:active {
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        /* shimmer gradient on active tool card */
+        .tool-card-shimmer {
+            background-size: 200% auto;
+            animation: shimmer 2.5s linear infinite;
+        }
+
+        .tool-viewer-anim {
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Quick Nav Bar (mobile) */
+        .quick-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .quick-nav-btn {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .quick-nav-btn:hover,
+        .quick-nav-btn.active {
+            transform: translateY(-4px);
+        }
+
+        /* iframe container */
+        .tool-iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* هندسة الشاشة الكاملة للعرض */
+        .viewer-fullscreen {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .viewer-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .viewer-body {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .viewer-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            flex-direction: column;
+            gap: 16px;
+            font-weight: 700;
+            color: #6366f1;
+            font-size: 1.1rem;
+        }
+
+        /* hub header gradient */
+        .hub-header-grad {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+        }
+
+        /* scrollbar for tools grid */
+        .tools-grid-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .tools-grid-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .tools-grid-scroll::-webkit-scrollbar-thumb {
+            background: #c7d2fe;
+            border-radius: 6px;
+        }
+
+        /* نبضة النقاط */
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            animation: pulse-ring 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-dots text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_4sqWF0WVCojlC9TJajkaLIDLKDUjDsg",
+            authDomain: "mathspace2026-d314c.firebaseapp.com",
+            projectId: "mathspace2026-d314c",
+            storageBucket: "mathspace2026-d314c.firebasestorage.app",
+            messagingSenderId: "151688129928",
+            appId: "1:151688129928:web:cccef753f6c309bbc6de3d",
+            measurementId: "G-ND226S3281"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // تصدير Firebase للاستخدام من ملفات خارجية (dashboard.js, script.js)
+        window.firebaseDB = db;
+        window.firebaseAuth = auth;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseUpdateDoc = updateDoc;
+        window.firebaseOnAuthStateChanged = onAuthStateChanged;
+
+        const { useState, useEffect, useRef } = React;
+
+        const CLOUDINARY_CLOUD_NAME = "qxi0yh6c";
+        const CLOUDINARY_UPLOAD_PRESET = "jvwct9uc";
+        const SECRET_ADMIN_CODE = "math2026";
+
+        const CLASSES = [
+            { id: 'class_1am', name: 'السنة الأولى متوسط' },
+            { id: 'class_2am', name: 'السنة الثانية متوسط' },
+            { id: 'class_3am', name: 'السنة الثالثة متوسط' },
+            { id: 'class_4am', name: 'السنة الرابعة متوسط' }
+        ];
+
+        const TOPICS = [
+            { id: 'general', name: 'عام 📝', color: 'bg-slate-100 text-slate-700 border-slate-200' },
+            { id: 'algebra', name: 'أنشطة عددية 🧮', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+            { id: 'geometry', name: 'أنشطة هندسية 📐', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+            { id: 'statistics', name: 'تنظيم معطيات 📊', color: 'bg-purple-100 text-purple-700 border-purple-200' }
+        ];
+
+        const AVATARS = ['👦', '👧', '👨‍🎓', '👩‍🎓', '🧑‍🏫', '👩‍🏫', '👨‍🏫', '🤓', '😎', '💡', '🚀', '🌟', '🦊', '🐼', '🦁', '🦉'];
+        const COLORS = ['bg-indigo-100 text-indigo-600 border-indigo-200', 'bg-emerald-100 text-emerald-600 border-emerald-200', 'bg-blue-100 text-blue-600 border-blue-200', 'bg-purple-100 text-purple-600 border-purple-200', 'bg-orange-100 text-orange-600 border-orange-200', 'bg-rose-100 text-rose-600 border-rose-200'];
+
+        const getBadge = (points = 0) => {
+            if (points >= 100) return { icon: '👑', title: 'أسطورة', color: 'text-yellow-700 bg-gradient-to-r from-yellow-200 to-yellow-400 border border-yellow-500 shadow-sm' };
+            if (points >= 50) return { icon: '💎', title: 'محترف', color: 'text-cyan-700 bg-gradient-to-r from-cyan-100 to-cyan-300 border border-cyan-400 shadow-sm' };
+            if (points >= 20) return { icon: '🚀', title: 'مجتهد', color: 'text-purple-700 bg-gradient-to-r from-purple-100 to-purple-300 border border-purple-400 shadow-sm' };
+            return { icon: '🌱', title: 'مبتدئ', color: 'text-emerald-700 bg-gradient-to-r from-emerald-100 to-emerald-200 border border-emerald-300 shadow-sm' };
+        };
+
+        const Avatar = ({ emoji, className = "w-12 h-12 text-2xl" }) => {
+            const isUrl = typeof emoji === 'string' && (emoji.startsWith('http') || emoji.startsWith('data:image'));
+            return (
+                <div className={`flex items-center justify-center rounded-2xl flex-shrink-0 border-2 shadow-sm overflow-hidden bg-white ${className}`}>
+                    {isUrl ? (
+                        <img src={emoji} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                        emoji
+                    )}
+                </div>
+            );
+        };
+
+        const Button = ({ children, variant = 'primary', className = '', ...props }) => {
+            const variants = {
+                primary: "bg-gradient-to-b from-indigo-500 to-indigo-600 text-white shadow-[0_4px_0_0_#4338ca] hover:from-indigo-400 hover:to-indigo-500 text-[#4338ca]",
+                secondary: "bg-white text-slate-700 border-2 border-slate-200 shadow-[0_4px_0_0_#cbd5e1] hover:bg-slate-50 text-[#cbd5e1]",
+                success: "bg-gradient-to-b from-emerald-500 to-emerald-600 text-white shadow-[0_4px_0_0_#047857] hover:from-emerald-400 hover:to-emerald-500 text-[#047857]",
+                danger: "bg-gradient-to-b from-red-500 to-red-600 text-white shadow-[0_4px_0_0_#b91c1c] hover:from-red-400 hover:to-red-500 text-[#b91c1c]",
+                ghost: "bg-transparent text-slate-500 hover:bg-slate-100 border-none",
+            };
+            return (
+                <button className={`btn-3d inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`} {...props}>
+                    {children}
+                </button>
+            );
+        };
+
+        class ErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, error: null };
+            }
+            static getDerivedStateFromError(error) { return { hasError: true, error }; }
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 p-6">
+                            <div className="text-6xl mb-4">🚨</div>
+                            <h1 className="text-2xl font-black text-red-600 mb-2">عذراً، حدث خطأ!</h1>
+                            <div className="bg-white p-4 rounded-xl border border-red-200 text-red-500 font-mono text-sm max-w-lg overflow-auto" dir="ltr">{this.state.error.message}</div>
+                        </div>
+                    );
+                }
+                return this.props.children;
+            }
+        }
+
+        const OnboardingScreen = ({ globalUser, onComplete }) => {
+            const [role, setRole] = useState('student');
+            const [classId, setClassId] = useState(CLASSES[0].id);
+            const [adminCode, setAdminCode] = useState('');
+            const [teacherCode, setTeacherCode] = useState('');
+            const [joinTeacherCode, setJoinTeacherCode] = useState('');
+            const [inviteCodeInput, setInviteCodeInput] = useState('');
+            const [title, setTitle] = useState('أستاذ');
+            const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+
+            const handleSubmit = async () => {
+                setError('');
+                setIsLoading(true);
+                if (role === 'teacher') {
+                    if (adminCode !== SECRET_ADMIN_CODE) { setError('الرمز السري للإدارة غير صحيح 🛑'); setIsLoading(false); return; }
+                    if (teacherCode.trim() && teacherCode.trim().length < 6) { setError('يجب أن يحتوي رمز فصلك على 6 رموز على الأقل 🔒'); setIsLoading(false); return; }
+                }
+
+                let linkedTeacherId = null;
+                if (role === 'student' && joinTeacherCode.trim()) {
+                    try {
+                        const teachersSnap = await getDocs(query(collection(db, 'users'), where('teacherCode', '==', joinTeacherCode.trim().toUpperCase())));
+                        if (teachersSnap.empty) { setError('رمز الفصل غير صحيح، تأكد منه أو اتركه فارغاً 🔍'); setIsLoading(false); return; }
+                        linkedTeacherId = teachersSnap.docs[0].id;
+                    } catch (err) {
+                        setError('حدث خطأ أثناء التحقق من رمز الفصل.'); setIsLoading(false); return;
+                    }
+                }
+
+                let verified = false;
+                let usedInviteCode = null;
+                if (role === 'teacher' && inviteCodeInput.trim()) {
+                    try {
+                        const invSnap = await getDocs(query(collection(db, 'users'), where('inviteCode', '==', inviteCodeInput.trim().toUpperCase())));
+                        if (!invSnap.empty) {
+                            verified = true;
+                            usedInviteCode = inviteCodeInput.trim().toUpperCase();
+                        } else {
+                            setError('كود الدعوة غير صحيح، تأكد منه أو اتركه فارغاً 🔍'); setIsLoading(false); return;
+                        }
+                    } catch (err) {
+                        setError('خطأ في التحقق من كود الدعوة.'); setIsLoading(false); return;
+                    }
+                }
+
+                onComplete(role, classId, adminCode, teacherCode.trim() ? teacherCode.trim().toUpperCase() : null, linkedTeacherId, title, verified, usedInviteCode);
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+                    <div className="bg-white p-8 rounded-[2rem] shadow-xl max-w-md w-full border-2 border-slate-100 text-center animate-modal">
+                        <div className="text-6xl mb-4">🦸‍♂️</div>
+                        <h2 className="text-2xl font-black mb-2">أهلاً بك يا {globalUser.name}!</h2>
+                        <p className="text-slate-500 mb-6 font-bold text-sm">خطوة أخيرة لتجهيز حسابك...</p>
+                        {error && <div className="bg-red-100 text-red-600 border-2 border-red-200 p-3 rounded-2xl text-sm font-bold mb-4">{error}</div>}
+                        <div className="space-y-4 text-right">
+                            <label className="block text-sm font-bold text-slate-700">أنا...</label>
+                            <select value={role} onChange={e => setRole(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm cursor-pointer">
+                                <option value="student">تلميذ 🎮</option>
+                                <option value="teacher">أستاذ 👩‍🏫</option>
+                            </select>
+                            {role === 'student' && (
+                                <>
+                                    <label className="block text-sm font-bold text-slate-700 mt-2">قسمي هو:</label>
+                                    <select value={classId} onChange={e => setClassId(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm cursor-pointer text-indigo-700">
+                                        {CLASSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    </select>
+                                    <label className="block text-sm font-bold text-slate-700 mt-2">رمز فصل الأستاذ (اختياري):</label>
+                                    <input type="text" value={joinTeacherCode} onChange={e => setJoinTeacherCode(e.target.value)} placeholder="مثال: MA1234" className="w-full bg-white border-2 border-slate-200 text-slate-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm uppercase" />
+                                </>
+                            )}
+                            {role === 'teacher' && (
+                                <>
+                                    <label className="block text-sm font-bold text-slate-700 mt-2">اللــقــب:</label>
+                                    <select value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm cursor-pointer">
+                                        <option value="أستاذ">أستاذ 👨‍🏫</option>
+                                        <option value="أستاذة">أستاذة 👩‍🏫</option>
+                                    </select>
+                                    <label className="block text-sm font-bold text-slate-700 mt-2">رمز الفصل (اختياري - يمكنك إنشاؤه لاحقاً):</label>
+                                    <input type="text" value={teacherCode} onChange={e => setTeacherCode(e.target.value)} placeholder="مثال: MATH26 (6 أحرف/أرقام)" className="w-full bg-indigo-50 border-2 border-indigo-200 text-indigo-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm uppercase" />
+                                    <label className="block text-sm font-bold text-slate-700 mt-2">الرمز السري للإدارة:</label>
+                                    <input type="password" value={adminCode} onChange={e => setAdminCode(e.target.value)} placeholder="الرمز السري 🤫" className="w-full bg-purple-50 border-2 border-purple-200 text-purple-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm" />
+                                    <label className="block text-sm font-bold text-slate-700 mt-2">كود دعوة زميل (اختياري للتوثيق التلقائي):</label>
+                                    <input type="text" value={inviteCodeInput} onChange={e => setInviteCodeInput(e.target.value)} placeholder="مثال: TEA-1234" className="w-full bg-blue-50 border-2 border-blue-200 text-blue-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm uppercase" />
+                                </>
+                            )}
+                            <Button onClick={handleSubmit} disabled={isLoading} className="w-full py-4 mt-2">{isLoading ? 'جاري التحقق...' : 'حفظ ودخول المنصة 🚀'}</Button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AuthScreen = ({ setGlobalOnboardingUser }) => {
+            const [isLogin, setIsLogin] = useState(true);
+            const [isForgot, setIsForgot] = useState(false);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [name, setName] = useState('');
+            const [role, setRole] = useState('student');
+            const [classId, setClassId] = useState(CLASSES[0].id);
+            const [teacherCode, setTeacherCode] = useState('');
+            const [joinTeacherCode, setJoinTeacherCode] = useState('');
+            const [error, setError] = useState('');
+            const [successMsg, setSuccessMsg] = useState('');
+            const [adminCode, setAdminCode] = useState('');
+            const [inviteCodeInput, setInviteCodeInput] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+
+            const handleEmailSubmit = async (e) => {
+                e.preventDefault();
+                setError(''); setIsLoading(true);
+                try {
+                    if (isLogin) {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    } else {
+                        const isTeacher = role.startsWith('teacher');
+                        const actualRole = isTeacher ? 'teacher' : 'student';
+                        const title = role === 'teacher_m' ? 'أستاذ' : (role === 'teacher_f' ? 'أستاذة' : null);
+
+                        if (password.length < 6) { setError('كلمة المرور يجب أن تكون 6 رموز على الأقل 🔐'); setIsLoading(false); return; }
+                        if (!name.trim()) { setError('لا تنسَ كتابة اسمك البطل! 🦸‍♂️'); setIsLoading(false); return; }
+                        if (isTeacher && adminCode !== SECRET_ADMIN_CODE) { setError('الرمز السري للإدارة غير صحيح 🛑'); setIsLoading(false); return; }
+                        if (isTeacher && teacherCode.trim() && teacherCode.trim().length < 6) { setError('يجب أن يحتوي رمز فصلك على 6 رموز على الأقل 🔒'); setIsLoading(false); return; }
+
+                        let linkedTeacherId = null;
+                        if (actualRole === 'student' && joinTeacherCode.trim()) {
+                            const teachersSnap = await getDocs(query(collection(db, 'users'), where('teacherCode', '==', joinTeacherCode.trim().toUpperCase())));
+                            if (teachersSnap.empty) { setError('رمز الفصل غير صحيح، تأكد منه أو اتركه فارغاً 🔍'); setIsLoading(false); return; }
+                            linkedTeacherId = teachersSnap.docs[0].id;
+                        }
+
+                        let verified = false;
+                        let usedInviteCode = null;
+                        if (isTeacher && inviteCodeInput.trim()) {
+                            try {
+                                const invSnap = await getDocs(query(collection(db, 'users'), where('inviteCode', '==', inviteCodeInput.trim().toUpperCase())));
+                                if (!invSnap.empty) {
+                                    verified = true;
+                                    usedInviteCode = inviteCodeInput.trim().toUpperCase();
+                                } else {
+                                    setError('كود الدعوة غير صحيح، تأكد منه أو اتركه فارغاً 🔍'); setIsLoading(false); return;
+                                }
+                            } catch (err) {
+                                setError('حدث خطأ في التحقق من كود الدعوة.'); setIsLoading(false); return;
+                            }
+                        }
+
+                        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                        await setDoc(doc(db, 'users', userCred.user.uid), {
+                            name: name.trim(), role: actualRole, email: userCred.user.email,
+                            title: title,
+                            classId: actualRole === 'student' ? classId : null,
+                            teacherCode: (isTeacher && teacherCode.trim()) ? teacherCode.trim().toUpperCase() : null,
+                            linkedTeacherId: actualRole === 'student' ? linkedTeacherId : null,
+                            avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)], color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                            points: 0, joinedAt: Date.now(), bannedUntil: null,
+                            isVerified: isTeacher ? verified : false,
+                            invitedByCode: usedInviteCode
+                        });
+                    }
+                } catch (err) {
+                    setError(err.message.includes('invalid-credential') ? 'البيانات غير صحيحة ❌' : 'تأكد من البيانات أو أن البريد مستخدم مسبقاً 🧐');
+                }
+                setIsLoading(false);
+            };
+
+            const handleGoogleSignIn = async () => {
+                setError(''); setIsLoading(true);
+                try {
+                    const provider = new GoogleAuthProvider();
+                    const result = await signInWithPopup(auth, provider);
+                    const docSnap = await getDoc(doc(db, 'users', result.user.uid));
+                    if (!docSnap.exists()) {
+                        setGlobalOnboardingUser({
+                            uid: result.user.uid, email: result.user.email, name: result.user.displayName || 'بطل جديد',
+                            avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)], color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                            points: 0, joinedAt: Date.now(), bannedUntil: null
+                        });
+                    }
+                } catch (err) { setError('خطأ الدخول بجوجل: ' + err.message); console.error(err); }
+                setIsLoading(false);
+            };
+
+            const handleForgotSubmit = async (e) => {
+                e.preventDefault();
+                setError(''); setSuccessMsg(''); setIsLoading(true);
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    setSuccessMsg('✅ تم إرسال رابط استعادة كلمة المرور إلى بريدك!');
+                    setTimeout(() => { setIsForgot(false); setIsLogin(true); setEmail(''); setSuccessMsg(''); }, 5000);
+                } catch (err) { setError('عذراً، البريد غير صحيح أو غير مسجل.'); }
+                setIsLoading(false);
+            };
+
+            if (isForgot) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl border-4 border-slate-100 overflow-hidden animate-modal">
+                            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-6 text-center text-white">
+                                <h2 className="text-2xl font-black mb-1">استعادة كلمة المرور 🔑</h2>
+                            </div>
+                            <div className="p-8">
+                                <button type="button" onClick={() => setIsForgot(false)} className="text-sm text-slate-500 hover:text-indigo-600 font-bold mb-4 flex items-center gap-1">🔙 عودة</button>
+                                {error && <div className="bg-red-100 text-red-600 border-2 border-red-200 p-3 rounded-2xl text-sm font-bold mb-4">{error}</div>}
+                                {successMsg && <div className="bg-emerald-100 text-emerald-700 border-2 border-emerald-200 p-3 rounded-2xl text-sm font-bold mb-4">{successMsg}</div>}
+                                <form onSubmit={handleForgotSubmit} className="space-y-4">
+                                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="البريد الإلكتروني المسجل" className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-base font-medium focus:outline-none focus:border-indigo-500 transition-colors shadow-inner" dir="ltr" />
+                                    <Button type="submit" disabled={isLoading} className="w-full py-4 mt-6 text-lg">{isLoading ? 'جاري الإرسال...' : 'إرسال الرابط 📩'}</Button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] border-4 border-white overflow-hidden relative">
+                        <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-10 text-center text-white relative overflow-hidden">
+                            <div className="text-5xl mb-4 relative z-10 animate-bounce">🚀</div>
+                            <h1 className="text-3xl font-black mb-1 relative z-10 tracking-tight text-white drop-shadow-md">فضاء الرياضيات</h1>
+                        </div>
+                        <div className="p-8 bg-slate-50">
+                            <button type="button" onClick={handleGoogleSignIn} disabled={isLoading} className="w-full py-3.5 mb-5 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-3 shadow-sm card-hover">
+                                <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
+                                الدخول بحساب Google
+                            </button>
+                            <div className="flex bg-slate-200 p-1.5 rounded-2xl mb-6 shadow-inner border border-slate-300/50">
+                                <button type="button" className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${isLogin ? 'bg-white text-indigo-700 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`} onClick={() => { setIsLogin(true); setError(''); }}>تسجيل دخول</button>
+                                <button type="button" className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${!isLogin ? 'bg-white text-indigo-700 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`} onClick={() => { setIsLogin(false); setError(''); }}>حساب جديد</button>
+                            </div>
+                            {error && <div className="bg-red-100 text-red-600 border-2 border-red-200 p-3 rounded-2xl text-sm font-bold mb-4 animate-pulse">{error}</div>}
+                            <form onSubmit={handleEmailSubmit} className="space-y-4">
+                                {!isLogin && (
+                                    <>
+                                        <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="الاسم الكامل 🦸‍♂️" className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all shadow-sm" />
+                                        <select value={role} onChange={e => setRole(e.target.value)} className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm cursor-pointer">
+                                            <option value="student">تلميذ 🎮</option>
+                                            <option value="teacher_m">أستاذ 👨‍🏫</option>
+                                            <option value="teacher_f">أستاذة 👩‍🏫</option>
+                                        </select>
+                                        {role === 'student' && (
+                                            <>
+                                                <select value={classId} onChange={e => setClassId(e.target.value)} className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm cursor-pointer text-indigo-700">
+                                                    {CLASSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                </select>
+                                                <input type="text" value={joinTeacherCode} onChange={e => setJoinTeacherCode(e.target.value)} placeholder="رمز الفصل (أو اتركه فارغاً للدخول المستقل) 🔑" className="w-full bg-amber-50 border-2 border-amber-300 text-amber-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm uppercase" />
+                                            </>
+                                        )}
+                                        {role.startsWith('teacher') && (
+                                            <>
+                                                <input type="password" required value={adminCode} onChange={e => setAdminCode(e.target.value)} placeholder="الرمز السري للإدارة 🤫" className="w-full bg-purple-50 border-2 border-purple-200 text-purple-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm" />
+                                                <input type="text" value={teacherCode} onChange={e => setTeacherCode(e.target.value.toUpperCase())} placeholder="رمز فصلك مثل MATH26 (أو اتركه لتنشئه لاحقاً) 🔓" className="w-full bg-green-50 border-2 border-green-300 text-green-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm uppercase" />
+                                                <input type="text" value={inviteCodeInput} onChange={e => setInviteCodeInput(e.target.value)} placeholder="كود دعوة زميل (لتصبح أستاذاً موثقاً تلقائياً) 🎁" className="w-full bg-blue-50 border-2 border-blue-300 text-blue-800 rounded-2xl p-4 text-sm font-bold focus:outline-none shadow-sm uppercase" />
+                                                <div className="text-xs text-green-600 font-bold bg-green-50 p-2 rounded-xl border border-green-200">✅ شارك رمز فصلك مع تلاميذك للانضمام لفصلك</div>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="البريد الإلكتروني 📧" className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-indigo-400 transition-all" dir="ltr" />
+                                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="كلمة المرور 🔒" className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-indigo-400 transition-all" dir="ltr" />
+                                <Button type="submit" disabled={isLoading} className="w-full py-4 mt-6 text-lg">{isLoading ? 'جاري التحميل...' : (isLogin ? 'انطلق للتعلم! 🚀' : 'ابدأ المغامرة! ✨')}</Button>
+                                {isLogin && <button type="button" onClick={() => setIsForgot(true)} className="w-full text-center mt-6 text-sm font-bold text-slate-400 hover:text-indigo-600 transition-colors">🤔 نسيت كلمة المرور؟</button>}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ProfileModal = ({ user, appUsers, onClose, onUpdateProfile }) => {
+            const [isEditing, setIsEditing] = useState(false);
+            const [editName, setEditName] = useState(user.name);
+            const [editAvatar, setEditAvatar] = useState(user.avatar);
+            const [editClassId, setEditClassId] = useState(user.classId);
+            const [editTeacherCode, setEditTeacherCode] = useState(user.teacherCode || '');
+            const [editTitle, setEditTitle] = useState(user.title || 'أستاذ');
+            const [joinTeacherCode, setJoinTeacherCode] = useState('');
+            const [localError, setLocalError] = useState('');
+            const [localSuccess, setLocalSuccess] = useState('');
+            const [isUploading, setIsUploading] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const [verificationFile, setVerificationFile] = useState(null);
+            const [isVerifying, setIsVerifying] = useState(false);
+            const verificationInputRef = useRef(null);
+            const [verificationInviteCode, setVerificationInviteCode] = useState('');
+            const [verificationMode, setVerificationMode] = useState('none'); // 'none', 'photo', 'code'
+
+            const classmates = appUsers.filter(u => u.role === 'student' && u.classId === user.classId);
+            classmates.sort((a, b) => (b.points || 0) - (a.points || 0));
+            const rank = classmates.findIndex(u => u.id === user.id) + 1;
+            const badge = getBadge(user.points);
+
+            const handleSave = async () => {
+                setLocalError('');
+                let newLinkedTeacherId = user.linkedTeacherId;
+                if (user.role === 'student' && joinTeacherCode.trim() && !user.linkedTeacherId) {
+                    setIsUploading(true);
+                    const teachersSnap = await getDocs(query(collection(db, 'users'), where('teacherCode', '==', joinTeacherCode.trim().toUpperCase())));
+                    setIsUploading(false);
+                    if (teachersSnap.empty) {
+                        setLocalError('رمز الفصل غير صحيح 🔍');
+                        return;
+                    }
+                    newLinkedTeacherId = teachersSnap.docs[0].id;
+                }
+
+                let updatedTeacherCode = user.teacherCode;
+                if (user.role === 'teacher' && editTeacherCode !== user.teacherCode) {
+                    if (editTeacherCode.trim().length > 0 && editTeacherCode.trim().length < 6) {
+                        setLocalError('رمز الفصل يجب أن يكون 6 رموز أو أكثر 🔒');
+                        return;
+                    }
+                    updatedTeacherCode = editTeacherCode.trim().toUpperCase() || null;
+                }
+
+                let updatedTitle = user.title;
+                if (user.role === 'teacher' && editTitle !== user.title) {
+                    updatedTitle = editTitle;
+                }
+
+                if (onUpdateProfile) onUpdateProfile(user.id, editName, editAvatar, editClassId, newLinkedTeacherId, updatedTeacherCode, updatedTitle);
+                setIsEditing(false);
+            };
+
+            const handleRequestVerification = async () => {
+                if (!verificationFile) {
+                    setLocalError('الرجاء اختيار صورة لقطة الشاشة من فضاء الأستاذ 📸');
+                    return;
+                }
+                setLocalError('');
+                setLocalSuccess('');
+                setIsVerifying(true);
+                const formData = new FormData();
+                formData.append("file", verificationFile);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
+                    const data = await res.json();
+                    if (data.secure_url) {
+                        await updateDoc(doc(db, 'users', user.id), {
+                            pendingVerification: true,
+                            verificationProof: data.secure_url
+                        });
+                        setLocalSuccess('تم إرسال الطلب بنجاح! ⏳ سيتم مراجعته قريباً.');
+                        setVerificationFile(null);
+                    }
+                } catch (error) {
+                    setLocalError('تعذر رفع الصورة، جرب لاحقاً.');
+                } finally {
+                    setIsVerifying(false);
+                }
+            };
+
+            const handleVerifyWithCode = async () => {
+                if (!verificationInviteCode.trim()) {
+                    setLocalError('الرجاء إدخال رمز الدعوة 🎁');
+                    return;
+                }
+                setLocalError('');
+                setLocalSuccess('');
+                setIsVerifying(true);
+                try {
+                    const invSnap = await getDocs(query(collection(db, 'users'), where('inviteCode', '==', verificationInviteCode.trim().toUpperCase())));
+                    if (!invSnap.empty) {
+                        await updateDoc(doc(db, 'users', user.id), {
+                            isVerified: true,
+                            invitedByCode: verificationInviteCode.trim().toUpperCase(),
+                            pendingVerification: false
+                        });
+                        setLocalSuccess('✅ تم توثيق حسابك بنجاح! تحدّث الصفحة لترى الصلاحيات.');
+                        setTimeout(() => onClose(), 2000);
+                    } else {
+                        setLocalError('❌ كود الدعوة غير صحيح.');
+                    }
+                } catch (error) {
+                    setLocalError('تعذر التحقق، جرب لاحقاً.');
+                } finally {
+                    setIsVerifying(false);
+                }
+            };
+
+            const handleAvatarUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setIsUploading(true);
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
+                    const data = await res.json();
+                    if (data.secure_url) setEditAvatar(data.secure_url);
+                } catch (error) {
+                    console.error("تعذر رفع الصورة، يرجى المحاولة لاحقاً.");
+                } finally {
+                    setIsUploading(false);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-modal border-4 border-white relative">
+                        {!isEditing && (
+                            <button onClick={() => setIsEditing(true)} className="absolute top-4 left-4 w-8 h-8 flex items-center justify-center bg-white/20 text-white rounded-xl hover:bg-white/40 backdrop-blur-sm z-10 transition-colors shadow-sm" title="تعديل الملف الشخصي">✏️</button>
+                        )}
+                        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/20 text-white rounded-full hover:bg-white/40 backdrop-blur-sm z-10 transition-colors">✕</button>
+                        <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 text-center text-white relative">
+                            {isEditing ? (
+                                <div className="mb-4 relative w-fit mx-auto">
+                                    <Avatar emoji={editAvatar} className={`w-24 h-24 text-5xl mx-auto border-4 border-white shadow-xl ${user.color}`} />
+                                    <input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarUpload} className="hidden" id="avatar-upload" />
+                                    <label htmlFor="avatar-upload" className="absolute -bottom-2 -right-2 bg-white text-indigo-600 p-2 rounded-xl shadow-lg cursor-pointer hover:bg-indigo-50 transition-colors text-sm font-bold border-2 border-indigo-100 z-10 btn-3d">
+                                        {isUploading ? '⏳' : '📸 تغيير'}
+                                    </label>
+                                </div>
+                            ) : (
+                                <Avatar emoji={user.avatar} className={`w-24 h-24 text-5xl mx-auto mb-4 border-4 border-white shadow-xl ${user.color}`} />
+                            )}
+
+                            {isEditing ? (
+                                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full bg-white/20 border-2 border-white/40 rounded-xl px-3 py-2 text-white text-center font-bold outline-none focus:bg-white/30 backdrop-blur-sm placeholder:text-white/50" placeholder="اسمك الجديد" />
+                            ) : (
+                                <h2 className="text-2xl font-black mb-1 drop-shadow-md">{user.name}</h2>
+                            )}
+
+                            {isEditing && user.role === 'student' && (
+                                <div className="mt-3 space-y-3">
+                                    <div>
+                                        <select value={editClassId} onChange={(e) => setEditClassId(e.target.value)} className="w-full bg-white/20 border-2 border-white/40 rounded-xl px-3 py-2 text-white text-center font-bold outline-none focus:bg-white/30 backdrop-blur-sm cursor-pointer">
+                                            {CLASSES.map(c => <option key={c.id} value={c.id} className="text-slate-800">{c.name}</option>)}
+                                        </select>
+                                        <div className="text-xs text-white/80 mt-1 font-bold">المستوى الدراسي (ترقية القسم) 🎓</div>
+                                    </div>
+                                    {!user.linkedTeacherId && (
+                                        <div>
+                                            <input type="text" value={joinTeacherCode} onChange={e => setJoinTeacherCode(e.target.value)} placeholder="رمز فصل أستاذك (اختياري)" className="w-full bg-white/20 border-2 border-white/40 rounded-xl px-3 py-2 text-white text-center font-bold outline-none focus:bg-white/30 backdrop-blur-sm placeholder:text-white/50 uppercase" />
+                                            {localError && <div className="text-xs text-red-200 mt-1 font-bold bg-red-900/30 py-1 rounded">{localError}</div>}
+                                            <div className="text-xs text-white/80 mt-1 font-bold">للانضمام لفصل محدد 🔗</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {isEditing && user.role === 'teacher' && (
+                                <div className="mt-3 space-y-3">
+                                    <div>
+                                        <select value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full bg-white/20 border-2 border-white/40 rounded-xl px-3 py-2 text-white text-center font-bold outline-none focus:bg-white/30 backdrop-blur-sm cursor-pointer mb-3 hidden sm:block">
+                                            <option value="أستاذ" className="text-slate-800">أستاذ 👨‍🏫</option>
+                                            <option value="أستاذة" className="text-slate-800">أستاذة 👩‍🏫</option>
+                                        </select>
+                                        <select value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full bg-white/20 border-2 border-white/40 rounded-xl px-3 py-2 text-white text-center font-bold outline-none focus:bg-white/30 backdrop-blur-sm cursor-pointer mb-3 block sm:hidden">
+                                            <option value="أستاذ" className="text-slate-800">أستاذ</option>
+                                            <option value="أستاذة" className="text-slate-800">أستاذة</option>
+                                        </select>
+                                        <div className="text-xs text-white/80 mt-1 mb-3 font-bold">تغيير اللقب 👤</div>
+                                        <input type="text" value={editTeacherCode} onChange={e => setEditTeacherCode(e.target.value)} placeholder="اختر رمزاً جديداً لفصلك (6+ رموز) 🔒" className="w-full bg-white/20 border-2 border-white/40 rounded-xl px-3 py-2 text-white text-center font-bold outline-none focus:bg-white/30 backdrop-blur-sm placeholder:text-white/50 uppercase" />
+                                        {localError && <div className="text-xs text-red-200 mt-1 font-bold bg-red-900/30 py-1 rounded">{localError}</div>}
+                                        <div className="text-xs text-white/80 mt-1 font-bold">تعيين أو تحديث رمز الفصل الخاص بك 🔑</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!isEditing && (
+                                <div className="text-indigo-100 text-sm font-bold bg-white/20 inline-block px-3 py-1 rounded-full border border-white/30 backdrop-blur-sm mt-2">
+                                    {user.role === 'teacher' ? `${user.title || 'أستاذ'} 👑` : CLASSES.find(c => c.id === user.classId)?.name}
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-6 bg-slate-50">
+                            {isEditing ? (
+                                <div className="space-y-3">
+                                    <Button onClick={handleSave} className="w-full py-3" disabled={isUploading || !editName.trim()}>حفظ التعديلات ✅</Button>
+                                    <Button onClick={() => { setIsEditing(false); setEditName(user.name); setEditAvatar(user.avatar); setEditClassId(user.classId); }} variant="secondary" className="w-full py-3">إلغاء ❌</Button>
+                                </div>
+                            ) : (
+                                user.role === 'student' ? (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm">
+                                            <div className="text-slate-500 font-bold text-sm">النقاط الحالية</div>
+                                            <div className="text-xl font-black text-indigo-700 flex items-center gap-1">{user.points || 0} 🪙</div>
+                                        </div>
+                                        <div className={`p-4 rounded-2xl border-2 ${badge.color}`}>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="text-sm font-bold opacity-80">الشارة الحالية</div>
+                                                <div className="text-2xl">{badge.icon}</div>
+                                            </div>
+                                            <div className="text-lg font-black">{badge.title}</div>
+                                        </div>
+                                        <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-2xl border-2 border-amber-200 shadow-sm">
+                                            <div className="text-amber-700 font-bold text-sm flex items-center gap-2">المرتبة في القسم 🏆</div>
+                                            <div className="text-xl font-black text-amber-600 bg-white px-3 py-1 rounded-xl shadow-sm">#{rank}</div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6">
+                                        <div className="text-4xl mb-4">👑</div>
+                                        <h3 className="text-lg font-black text-slate-700 mb-4">لوحة تحكم الأستاذ</h3>
+
+                                        {user.isAdmin && (
+                                            <a href="admin.html" target="_blank" className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg mb-4 hover:shadow-xl transition-all btn-3d">
+                                                لوحة الإدارة الكاملة 🛡️
+                                            </a>
+                                        )}
+
+                                        {localError && <div className="text-xs text-red-600 mb-2 font-bold bg-red-50 p-2 rounded-lg border border-red-200">{localError}</div>}
+                                        {localSuccess && <div className="text-xs text-green-700 mb-2 font-bold bg-green-50 p-2 rounded-lg border border-green-200">{localSuccess}</div>}
+
+                                        {user.isVerified ? (
+                                            <div className="bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-200 text-right mt-2">
+                                                <div className="text-emerald-700 font-bold text-sm mb-2 text-center">أنت أستاذ موثق ✔️</div>
+                                                <div className="text-xs text-emerald-600 mb-3 text-center">يمكنك نشر محتوى في "كل المنصة"</div>
+                                                <div className="bg-white p-3 rounded-xl shadow-sm text-center border border-emerald-100">
+                                                    <div className="text-[10px] text-slate-500 font-bold mb-1">كود الدعوة الخاص بك لدعوة الأساتذة:</div>
+                                                    <div className="text-lg font-black text-emerald-600 tracking-wider font-mono">{user.inviteCode || 'جاري التوليد...'}</div>
+                                                </div>
+                                            </div>
+                                        ) : user.pendingVerification ? (
+                                            <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 text-center mt-2">
+                                                <div className="text-3xl mb-2 animate-bounce">⏳</div>
+                                                <div className="text-amber-700 font-bold text-sm">حسابك قيد المراجعة للتوثيق...</div>
+                                                <div className="text-xs text-amber-600 mt-1">لا يزال بإمكانك النشر لفصلك الخاص.</div>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-blue-50 p-4 rounded-2xl border-2 border-blue-200 text-right mt-2 transition-all">
+                                                <div className="text-blue-700 font-bold text-sm mb-2 flex items-center justify-between">
+                                                    <span>توثيق الحساب ✔️</span>
+                                                    <span className="text-xl">🛡️</span>
+                                                </div>
+                                                {verificationMode === 'none' ? (
+                                                    <div className="space-y-2 mt-4">
+                                                        <button onClick={() => setVerificationMode('photo')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-1 transition-colors btn-3d shadow-[0_3px_0_0_#1d4ed8]">
+                                                            <span>📸 توثيق يعتمد على رفع صورة</span>
+                                                            <span className="text-[10px] font-normal opacity-90">لقطة شاشة لفضاء الأستاذ (يراجع يدوياً)</span>
+                                                        </button>
+                                                        <button onClick={() => setVerificationMode('code')} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-1 transition-colors btn-3d shadow-[0_3px_0_0_#047857] border border-emerald-600">
+                                                            <span>🎁 توثيق سريع برمز دعوة زميل</span>
+                                                            <span className="text-[10px] font-normal text-emerald-50">(مستحسن) توثيق فوري بدون مراجعة</span>
+                                                        </button>
+                                                    </div>
+                                                ) : verificationMode === 'photo' ? (
+                                                    <div className="mt-2 animate-modal">
+                                                        <div className="text-xs text-blue-600 mb-3 leading-relaxed font-bold">
+                                                            لفتح ميزة النشر لجميع مراجعي المنصة، يرجى رفع لقطة شاشة من حسابك الرسمي في "فضاء الأستاذ" تُظهر اسمك بوضوح (لا حاجة لأي معلومات أخرى).
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 cursor-pointer bg-white rounded-xl p-2 border border-blue-100 mb-3"
+                                                            onChange={(e) => setVerificationFile(e.target.files[0])}
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <Button onClick={handleRequestVerification} disabled={isVerifying || !verificationFile} className="flex-1 py-3 text-xs">
+                                                                {isVerifying ? 'جاري الرفع...' : 'إرسال طلب التوثيق 🚀'}
+                                                            </Button>
+                                                            <Button variant="secondary" onClick={() => setVerificationMode('none')} className="py-3 text-xs bg-white text-slate-700 border-2 border-slate-200">رجوع</Button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="mt-2 animate-modal">
+                                                        <div className="text-xs text-emerald-700 mb-3 leading-relaxed font-bold">
+                                                            لديك رمز دعوة من زميل أستاذ موثق؟ أدخله هنا وستتم ترقيتك تلقائياً وبسرعة!
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            value={verificationInviteCode}
+                                                            onChange={e => setVerificationInviteCode(e.target.value)}
+                                                            className="w-full text-sm text-emerald-800 bg-white rounded-xl p-3 border-2 border-emerald-300 mb-3 focus:outline-none focus:border-emerald-500 transition-colors uppercase font-black text-center shadow-inner tracking-widest placeholder:text-slate-300 placeholder:font-normal placeholder:tracking-normal"
+                                                            placeholder="مثال: ABC-1234"
+                                                            dir="ltr"
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <Button onClick={handleVerifyWithCode} disabled={isVerifying || !verificationInviteCode.trim()} className="flex-1 py-3 text-xs bg-gradient-to-b from-emerald-500 to-emerald-600 shadow-[0_3px_0_0_#059669] hover:from-emerald-400">
+                                                                {isVerifying ? 'جاري التحقق...' : 'التحقق الآن 🚀'}
+                                                            </Button>
+                                                            <Button variant="secondary" onClick={() => setVerificationMode('none')} className="py-3 text-xs bg-white text-slate-700 border-2 border-slate-200 hover:bg-slate-50">رجوع</Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const PostCreator = ({ currentUser, onAddPost, activeClassId }) => {
+            const [postType, setPostType] = useState('standard');
+            const [content, setContent] = useState('');
+            const [imageUrl, setImageUrl] = useState('');
+            const [fileUrl, setFileUrl] = useState('');
+            const [showAttach, setShowAttach] = useState(false);
+
+            // بُعدان مستقلان تماماً:
+            // 1. targetClass: أي قسم/مستوى يستهدفه هذا المنشور
+            // 2. isPublic:  هل يراه فصلي فقط أم كل من ينتمي لذلك القسم
+            const [targetClass, setTargetClass] = useState('all');
+            const [isPublic, setIsPublic] = useState(!currentUser.teacherCode); // بدون فصل = عام دائماً
+            const [postTopic, setPostTopic] = useState('general');
+
+            const [isUploading, setIsUploading] = useState(false);
+            const [uploadErrorMsg, setUploadErrorMsg] = useState('');
+
+            const [qcmQuestion, setQcmQuestion] = useState('');
+            const [qcmOptions, setQcmOptions] = useState(['', '', '']);
+            const [qcmCorrect, setQcmCorrect] = useState(0);
+            const [qcmPoints, setQcmPoints] = useState(10);
+
+            const fileInputRef = useRef(null);
+            const inputRefs = useRef({});
+            const [focusedField, setFocusedField] = useState('content');
+
+            const handleFileUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setUploadErrorMsg(''); setIsUploading(true);
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, { method: "POST", body: formData });
+                    const data = await res.json();
+                    if (data.secure_url) { file.type.startsWith('image/') ? setImageUrl(data.secure_url) : setFileUrl(data.secure_url); }
+                    else { setUploadErrorMsg("حدث خطأ أثناء الرفع."); }
+                } catch (error) { setUploadErrorMsg("تعذر الرفع."); }
+                finally { setIsUploading(false); }
+            };
+
+            const insertMathSymbol = (template, cursorOffset) => {
+                let active = focusedField;
+                if (postType === 'standard') active = 'content';
+                if (postType === 'qcm' && active === 'content') active = 'qcmQuestion';
+                const el = inputRefs.current[active];
+                if (!el) return;
+                const startPos = el.selectionStart || 0;
+                const endPos = el.selectionEnd || 0;
+                if (active === 'content') {
+                    setContent(content.substring(0, startPos) + template + content.substring(endPos));
+                } else if (active === 'qcmQuestion') {
+                    setQcmQuestion(qcmQuestion.substring(0, startPos) + template + qcmQuestion.substring(endPos));
+                } else if (active.startsWith('qcmOption-')) {
+                    const idx = parseInt(active.split('-')[1]);
+                    const newOpts = [...qcmOptions];
+                    newOpts[idx] = qcmOptions[idx].substring(0, startPos) + template + qcmOptions[idx].substring(endPos);
+                    setQcmOptions(newOpts);
+                }
+                setTimeout(() => { el.focus(); el.setSelectionRange(startPos + cursorOffset, startPos + cursorOffset); }, 0);
+            };
+
+            const handleSubmit = () => {
+                if (postType === 'standard' && !content.trim() && !imageUrl.trim() && !fileUrl.trim()) return;
+                if (postType === 'qcm' && (!qcmQuestion.trim() || qcmOptions.some(opt => !opt.trim()))) return;
+
+                const newPost = {
+                    id: Date.now().toString(),
+                    author: currentUser,
+                    teacherId: currentUser.id,
+                    type: postType,
+                    content: postType === 'standard' ? content : '',
+                    imageUrl: postType === 'standard' ? imageUrl.trim() : '',
+                    fileUrl: postType === 'standard' ? fileUrl.trim() : '',
+                    qcmData: postType === 'qcm' ? { question: qcmQuestion, options: qcmOptions, correctOption: qcmCorrect, points: qcmPoints } : null,
+                    targetClass,
+                    isPublic,
+                    topic: postTopic,
+                    timestamp: Date.now(), likes: [], comments: [], answeredBy: [], isPinned: false
+                };
+                onAddPost(newPost);
+                setContent(''); setImageUrl(''); setFileUrl(''); setShowAttach(false); setPostTopic('general');
+                setTargetClass('all');
+                setIsPublic(!currentUser.teacherCode);
+                setQcmQuestion(''); setQcmOptions(['', '', '']); setQcmCorrect(0);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            };
+
+            return (
+                <div className="bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-slate-100 mb-8 relative z-10">
+                    <div className="flex gap-2 mb-6 bg-slate-100 p-1.5 rounded-2xl w-fit">
+                        <button onClick={() => setPostType('standard')} className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${postType === 'standard' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>📝 درس أو ملاحظة</button>
+                        <button onClick={() => setPostType('qcm')} className={`px-4 py-2 text-sm font-bold rounded-xl transition-all flex items-center gap-1 ${postType === 'qcm' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>⚡ تحدي QCM</button>
+                    </div>
+
+                    <div className="flex gap-4 mb-4">
+                        <Avatar emoji={currentUser.avatar} className={`w-12 h-12 text-2xl ${currentUser.color}`} />
+                        <div className="flex-1 w-full overflow-hidden">
+                            <div className="flex flex-wrap items-center gap-2 mb-3 bg-indigo-50/50 p-2 rounded-xl border border-indigo-100">
+                                <span className="text-xs font-black text-indigo-400 px-1 uppercase tracking-wider">🧮 رموز:</span>
+                                <div className="flex bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden mix-blend-multiply">
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\frac{ }{ }$', 7)} className="px-3 py-1.5 text-indigo-600 text-sm font-bold hover:bg-indigo-50 transition-colors border-r border-slate-200 btn-press" title="إدراج كسر">⅟</button>
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\sqrt{ }$', 7)} className="px-3 py-1.5 text-indigo-600 text-sm font-bold hover:bg-indigo-50 transition-colors border-r border-slate-200 btn-press" title="إدراج جذر تربيعي">√</button>
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$x^{ }$', 4)} className="px-3 py-1.5 text-indigo-600 text-sm font-black hover:bg-indigo-50 transition-colors border-r border-slate-200 btn-press" title="إدراج قوة / أس">x²</button>
+                                    <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insertMathSymbol('$\\pi$', 4)} className="px-3 py-1.5 text-indigo-600 text-sm font-serif font-black hover:bg-indigo-50 transition-colors btn-press" title="إدراج الرمز π">π</button>
+                                </div>
+                            </div>
+
+                            {postType === 'standard' ? (
+                                <>
+                                    <textarea ref={el => inputRefs.current['content'] = el} onFocus={() => setFocusedField('content')} value={content} onChange={e => setContent(e.target.value)} placeholder="ماذا سنتعلم اليوم يا أستاذة؟" className="w-full bg-slate-50 border-2 border-slate-100 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 rounded-2xl p-4 text-base resize-none min-h-[120px] outline-none transition-all font-medium" />
+                                    {showAttach && (
+                                        <div className="mt-3 bg-indigo-50 p-5 rounded-2xl border-2 border-indigo-100 border-dashed">
+                                            <div className="flex items-center gap-4 mb-3">
+                                                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" id="file-upload" />
+                                                <label htmlFor="file-upload" className="cursor-pointer bg-white text-indigo-600 border-2 border-indigo-200 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-50 transition-colors btn-3d"><span>📤</span> اختر ملفاً</label>
+                                                {isUploading && <span className="text-sm font-bold text-indigo-600 animate-pulse bg-white px-3 py-1 rounded-full border border-indigo-100 shadow-sm">⏳ جاري الرفع...</span>}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="space-y-5 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 rounded-2xl border-2 border-emerald-100">
+                                    <div>
+                                        <label className="text-sm font-black text-emerald-800 mb-2 block flex items-center gap-2">🎯 السؤال الرياضي:</label>
+                                        <input type="text" ref={el => inputRefs.current['qcmQuestion'] = el} onFocus={() => setFocusedField('qcmQuestion')} value={qcmQuestion} onChange={e => setQcmQuestion(e.target.value)} placeholder="مثال: حل المعادلة $2x = 4$ هو:" className="w-full bg-white border-2 border-emerald-200 rounded-xl p-3.5 text-base font-bold focus:outline-none shadow-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-black text-emerald-800 mb-2 block">✨ الخيارات (ظللي الإجابة الصحيحة):</label>
+                                        <div className="space-y-3">
+                                            {qcmOptions.map((opt, idx) => (
+                                                <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${qcmCorrect === idx ? 'bg-emerald-100 border-emerald-400' : 'bg-white border-slate-200'}`}>
+                                                    <input type="radio" name="correctOption" checked={qcmCorrect === idx} onChange={() => setQcmCorrect(idx)} className="w-5 h-5 cursor-pointer text-emerald-600" />
+                                                    <input type="text" ref={el => inputRefs.current[`qcmOption-${idx}`] = el} onFocus={() => setFocusedField(`qcmOption-${idx}`)} value={opt} onChange={e => { const newOpts = [...qcmOptions]; newOpts[idx] = e.target.value; setQcmOptions(newOpts); }} placeholder={`الخيار رقم ${idx + 1}`} className="flex-1 bg-transparent text-base font-bold outline-none text-slate-700" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-4 border-t-2 border-emerald-100 pt-4">
+                                        <span className="text-sm font-black text-emerald-800">🏆 الجائزة:</span>
+                                        <select value={qcmPoints} onChange={e => setQcmPoints(Number(e.target.value))} className="bg-white border-2 border-yellow-300 text-yellow-700 font-black rounded-xl text-sm p-2 outline-none cursor-pointer shadow-sm">
+                                            <option value={10}>10 نقاط 🪙</option><option value={20}>20 نقطة 💎</option><option value={50}>50 نقطة 👑</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {/* صف 1: القسم، النطاق، نوع النشاط */}
+                    <div className="flex flex-nowrap items-center gap-1.5 pl-14 mt-3 overflow-x-auto no-scrollbar">
+                        {/* 1. القسم المستهدف */}
+                        <select value={targetClass} onChange={e => setTargetClass(e.target.value)} className="text-xs sm:text-sm font-bold rounded-xl px-2 py-1.5 cursor-pointer outline-none border-2 border-slate-200 bg-slate-100 text-slate-700 shadow-sm hover:border-indigo-300 transition-colors shrink-0">
+                            <option value="all">📢 كل الأقسام</option>
+                            {CLASSES.map(c => <option key={c.id} value={c.id}>📚 {c.name}</option>)}
+                        </select>
+
+                        {/* 2. النطاق: toggle فصلي / كل المنصة */}
+                        {currentUser.teacherCode ? (
+                            <div className="flex rounded-xl overflow-hidden border-2 border-slate-200 shadow-sm shrink-0">
+                                <button onClick={() => setIsPublic(false)} className={`px-2 py-1.5 text-[10px] sm:text-xs font-black transition-all ${!isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+                                    🔒 فصلي فقط
+                                </button>
+                                <button onClick={() => { if (currentUser.isVerified) setIsPublic(true); }} className={`px-2 py-1.5 text-[10px] sm:text-xs font-black transition-all ${!currentUser.isVerified ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : (isPublic ? 'bg-green-500 text-white' : 'bg-white text-slate-500 hover:bg-slate-50')}`} title={!currentUser.isVerified ? 'للنشر العام، قم بتوثيق حسابك من ملفك الشخصي' : ''}>
+                                    🌍 كل المنصة {!currentUser.isVerified && '🔒'}
+                                </button>
+                            </div>
+                        ) : (
+                            <span className="text-xs font-bold bg-green-50 text-green-600 px-2 py-1.5 rounded-xl border-2 border-green-200 shrink-0">🌍 مفتوح للجميع</span>
+                        )}
+
+                        {/* 3. نوع النشاط */}
+                        <select value={postTopic} onChange={e => setPostTopic(e.target.value)} className="bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold rounded-xl px-2 py-1.5 cursor-pointer outline-none border-2 border-slate-200 shadow-sm hover:border-indigo-300 transition-colors shrink-0">
+                            {TOPICS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        </select>
+                    </div>
+
+                    {/* صف 2: الملخص الحي */}
+                    <div className="pl-14 mt-2">
+                        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${!isPublic ? 'bg-indigo-50 text-indigo-600' : 'bg-green-50 text-green-700'}`}>
+                            {!isPublic
+                                ? `👥 يراه تلاميذ فصلك${targetClass !== 'all' ? ` من ${CLASSES.find(c => c.id === targetClass)?.name || ''}` : ''} فقط`
+                                : `🌐 يراه ${targetClass === 'all' ? 'كل تلاميذ المنصة' : `تلاميذ ${CLASSES.find(c => c.id === targetClass)?.name || ''} في المنصة`}`
+                            }
+                        </span>
+                    </div>
+
+                    {/* صف 3: زر النشر والإرفاق */}
+                    <div className="pl-14 mt-3 flex items-center justify-start gap-2">
+                        <Button onClick={handleSubmit} variant={postType === 'qcm' ? 'success' : 'primary'} disabled={isUploading || (postType === 'standard' ? !content.trim() && !imageUrl.trim() && !fileUrl.trim() : (!qcmQuestion.trim() || qcmOptions.some(opt => !opt.trim())))} className="px-6 text-sm">
+                            {postType === 'standard' ? 'نشر الدرس 🚀' : 'أطلق التحدي ⚡'}
+                        </Button>
+                        {postType === 'standard' && (
+                            <button onClick={() => setShowAttach(!showAttach)} className="text-sm font-bold px-3 py-2 rounded-xl border-2 bg-white text-slate-500 border-slate-200 hover:text-indigo-600 btn-3d shrink-0">📎 إرفاق</button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // مكون PhotoViewer (Facebook Style & Drag)
+        // ==========================================
+        const PhotoViewer = ({ imageUrl, onClose }) => {
+            const [zoom, setZoom] = useState(1);
+            const [position, setPosition] = useState({ x: 0, y: 0 });
+            const [isDragging, setIsDragging] = useState(false);
+            const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+            // تم تصغير نسبة التكبير إلى 0.2 لتحكم أدق
+            const handleZoomIn = (e) => { e.stopPropagation(); setZoom(prev => Math.min(prev + 0.2, 5)); };
+            const handleZoomOut = (e) => { e.stopPropagation(); setZoom(prev => Math.max(prev - 0.2, 0.2)); };
+            const handleReset = (e) => { e.stopPropagation(); setZoom(1); setPosition({ x: 0, y: 0 }); };
+
+            // دوال السحب (Drag and Pan) للفأرة
+            const handleMouseDown = (e) => {
+                e.stopPropagation();
+                e.preventDefault(); // منع سلوك المتصفح الافتراضي لسحب الصور
+                setIsDragging(true);
+                setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isDragging) return;
+                e.stopPropagation();
+                setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+            };
+
+            const handleMouseUp = (e) => {
+                if (isDragging) {
+                    e.stopPropagation();
+                    setIsDragging(false);
+                }
+            };
+
+            // دوال السحب لشاشات اللمس (الهواتف)
+            const handleTouchStart = (e) => {
+                e.stopPropagation();
+                setIsDragging(true);
+                const touch = e.touches[0];
+                setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+            };
+
+            const handleTouchMove = (e) => {
+                if (!isDragging) return;
+                e.stopPropagation();
+                const touch = e.touches[0];
+                setPosition({ x: touch.clientX - dragStart.x, y: touch.clientY - dragStart.y });
+            };
+
+            // منع التمرير في المنصة الخلفية عند فتح الصورة
+            useEffect(() => {
+                document.body.style.overflow = 'hidden';
+                return () => { document.body.style.overflow = 'unset'; };
+            }, []);
+
+            return (
+                <div
+                    className="fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden"
+                    onClick={onClose}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleMouseUp}
+                >
+                    {/* شريط الأزرار العلوي */}
+                    <div className="absolute top-0 w-full p-4 flex justify-between items-center z-[110] bg-gradient-to-b from-black/80 to-transparent">
+                        <button onClick={onClose} className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-xl font-black transition-colors shadow-sm" title="إغلاق">✕</button>
+                        <div className="flex gap-3" dir="ltr">
+                            <button onClick={handleZoomIn} className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-2xl transition-colors shadow-sm" title="تكبير">⊕</button>
+                            <button onClick={handleZoomOut} className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-2xl transition-colors shadow-sm" title="تصغير">⊖</button>
+                            <button onClick={handleReset} className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-xl transition-colors shadow-sm" title="احتواء الشاشة">⛶</button>
+                        </div>
+                    </div>
+
+                    {/* حاوية الصورة مع خاصية السحب والإفلات */}
+                    <div className="flex-1 w-full h-full flex items-center justify-center relative">
+                        <img
+                            src={imageUrl}
+                            style={{
+                                transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                                transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                                cursor: isDragging ? 'grabbing' : (zoom > 1 ? 'grab' : 'zoom-in')
+                            }}
+                            className="max-w-full max-h-[95vh] object-contain select-none shadow-2xl bg-black"
+                            onMouseDown={handleMouseDown}
+                            onTouchStart={handleTouchStart}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (zoom === 1 && !isDragging) { setZoom(1.5); } // تكبير سريع عند النقر لأول مرة
+                            }}
+                            draggable="false"
+                        />
+                    </div>
+                </div>
+            );
+        };
+        // ==========================================
+
+        const Post = ({ post, currentUser, appUsers, onUpdatePost, onDeletePost, onRewardStudent, onTogglePin, onBanUser, onOpenPhoto }) => {
+            const [commentText, setCommentText] = useState('');
+
+            const className = post.targetClass === 'all' ? 'إعلان لجميع الأقسام 📢' : (CLASSES.find(c => c.id === post.targetClass)?.name || 'القسم');
+            const topicData = TOPICS.find(t => t.id === (post.topic || 'general'));
+            const isTeacher = currentUser.role === 'teacher';
+
+            const safeLikes = post.likes || [];
+            const safeComments = post.comments || [];
+            const safeAuthor = post.author || { name: 'مجهول', avatar: '👤', color: 'bg-slate-200 text-slate-600', points: 0 };
+            const isQcm = post.type === 'qcm';
+            const safeAnsweredBy = post.answeredBy || [];
+            const myAnswer = safeAnsweredBy.find(a => a.studentId === currentUser.id);
+
+            const isBanned = currentUser?.bannedUntil && currentUser.bannedUntil > Date.now();
+
+            const handleLike = () => {
+                const isLiked = safeLikes.includes(currentUser.id);
+                onUpdatePost(post.id, { likes: isLiked ? safeLikes.filter(id => id !== currentUser.id) : [...safeLikes, currentUser.id] });
+            };
+
+            const handleComment = () => {
+                if (!commentText.trim() || isBanned) return;
+                const newComment = { id: Date.now().toString(), author: currentUser, text: commentText, timestamp: Date.now() };
+                onUpdatePost(post.id, { comments: [...safeComments, newComment] });
+                setCommentText('');
+
+                // إرسال إشعار لصاحب المنشور إذا لم يكن هو نفسه المعلق
+                if (safeAuthor.id && safeAuthor.id !== currentUser.id) {
+                    const notifId = Date.now().toString();
+                    setDoc(doc(db, 'notifications', notifId), {
+                        id: notifId,
+                        userId: safeAuthor.id, // المستهدف بالإشعار
+                        senderId: currentUser.id, // مرسل التعليق
+                        senderName: currentUser.name,
+                        message: `علّق على منشورك: "${commentText.substring(0, 30)}${commentText.length > 30 ? '...' : ''}"`,
+                        postId: post.id,
+                        timestamp: Date.now(),
+                        read: false
+                    });
+                }
+            };
+
+            const handleAnswerQcm = (idx) => {
+                if (isTeacher || myAnswer || isBanned) return;
+                const isCorrect = idx === post.qcmData.correctOption;
+                const newAnswer = { studentId: currentUser.id, optionIndex: idx, isCorrect, timestamp: Date.now() };
+                onUpdatePost(post.id, { answeredBy: [...safeAnsweredBy, newAnswer] });
+                if (isCorrect) onRewardStudent(currentUser.id, post.qcmData.points || 10);
+            };
+
+            const pinnedStyles = post.isPinned ? "border-indigo-400 shadow-[0_10px_40px_rgba(79,70,229,0.15)] ring-4 ring-indigo-50 scale-[1.01]" : "border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]";
+
+            return (
+                <div className={`bg-white rounded-[2rem] border-2 overflow-hidden mb-8 card-hover relative z-10 ${pinnedStyles} post-container`}>
+                    <div className="p-6">
+                        {post.isPinned && <div className="mb-4 inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-black px-4 py-1.5 rounded-full shadow-md animate-pulse">📌 درس مثبت للأهمية</div>}
+
+                        <div className="flex items-start justify-between mb-5">
+                            <div className="flex gap-4 items-center">
+                                <Avatar emoji={safeAuthor.avatar} className={`w-12 h-12 text-2xl ${safeAuthor.color}`} />
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-black text-slate-800 text-lg">{safeAuthor.name}</span>
+                                        {safeAuthor.role === 'teacher' ? <span className="bg-indigo-100 text-indigo-700 border border-indigo-200 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">{safeAuthor.title || 'أستاذ'} {safeAuthor.title === 'أستاذة' ? '👩‍🏫' : '👨‍🏫'}</span> : <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${getBadge(safeAuthor.points).color}`}>{getBadge(safeAuthor.points).icon} {getBadge(safeAuthor.points).title}</span>}
+                                    </div>
+                                    <div className="text-xs font-bold mt-0.5 flex flex-wrap items-center gap-1 text-slate-400">
+                                        <span>🕒 {new Date(post.timestamp).toLocaleDateString('ar-DZ')}</span>
+                                        <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200">{className}</span>
+                                        {topicData && topicData.id !== 'general' && <span className={`px-2 py-0.5 rounded-md border ${topicData.color} shadow-sm font-black`}>{topicData.name}</span>}
+                                    </div>
+                                </div>
+                            </div>
+                            {isTeacher && (
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => onTogglePin(post.id, post.isPinned)} className={`p-2 rounded-xl text-lg transition-colors cursor-pointer border-2 btn-3d ${post.isPinned ? 'text-indigo-600 bg-indigo-50 border-indigo-200' : 'text-slate-400 bg-white border-slate-200'}`} title="تثبيت">📌</button>
+                                    <button onClick={() => onDeletePost(post.id)} className="text-red-500 bg-white border-2 border-slate-200 hover:bg-red-50 p-2 rounded-xl text-lg transition-colors cursor-pointer btn-3d" title="حذف">🗑️</button>
+                                </div>
+                            )}
+                        </div>
+
+                        {isQcm && post.qcmData ? (
+                            <div className="mb-5 bg-gradient-to-b from-white to-slate-50 rounded-2xl p-5 border-2 border-slate-100 shadow-inner">
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-black px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">⚡ تحدي سريع</span>
+                                    <span className="text-sm font-black text-yellow-600 bg-yellow-100 px-3 py-1.5 rounded-full border border-yellow-300 shadow-sm">الجائزة: {post.qcmData.points || 10} نقطة 🪙</span>
+                                </div>
+                                <h3 className="font-black text-slate-800 mb-5 text-lg math-content text-center py-2">{post.qcmData.question}</h3>
+                                <div className="space-y-3">
+                                    {post.qcmData.options.map((opt, idx) => {
+                                        let btnClass = "w-full text-right p-4 rounded-2xl border-2 text-base font-bold transition-all ";
+                                        if (isTeacher) {
+                                            btnClass += (idx === post.qcmData.correctOption) ? "bg-emerald-50 border-emerald-400 text-emerald-800" : "bg-white border-slate-200 opacity-60";
+                                        } else if (myAnswer) {
+                                            if (idx === post.qcmData.correctOption) btnClass += "bg-emerald-100 border-emerald-500 text-emerald-900";
+                                            else if (idx === myAnswer.optionIndex) btnClass += "bg-red-50 border-red-300 text-red-500 line-through opacity-70";
+                                            else btnClass += "bg-white border-slate-200 text-slate-300 opacity-50";
+                                        } else { btnClass += "bg-white border-slate-200 text-slate-700 hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer btn-3d"; }
+
+                                        return (
+                                            <button key={idx} onClick={() => handleAnswerQcm(idx)} disabled={isTeacher || myAnswer || isBanned} className={btnClass}>
+                                                <span className="math-content flex items-center justify-between">
+                                                    <span>{opt}</span>
+                                                    {isTeacher && idx === post.qcmData.correctOption && <span className="text-emerald-500">✅ الإجابة الصحيحة</span>}
+                                                    {myAnswer && idx === post.qcmData.correctOption && <span className="text-emerald-600 text-xl">✅</span>}
+                                                    {myAnswer && idx === myAnswer.optionIndex && !myAnswer.isCorrect && <span className="text-red-500 text-xl">❌</span>}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                {post.content && <div className="text-slate-700 whitespace-pre-wrap leading-relaxed mb-5 text-base font-medium math-content bg-slate-50/50 p-4 rounded-2xl">{post.content}</div>}
+                                {post.imageUrl && (
+                                    <div
+                                        className="mb-5 rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 flex justify-center shadow-inner cursor-pointer hover:opacity-95 transition-opacity duration-200 relative group"
+                                        onClick={() => onOpenPhoto(post.imageUrl, post.id)}
+                                        title="اضغط لفتح الصورة ملء الشاشة"
+                                    >
+                                        <img src={post.imageUrl} alt="مرفق" className="max-w-full max-h-[400px] object-contain rounded-2xl" />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                            <span className="bg-white/90 text-slate-800 font-bold px-4 py-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg backdrop-blur-sm">🔍 تكبير الصورة</span>
+                                        </div>
+                                    </div>
+                                )}
+                                {post.fileUrl && typeof post.fileUrl === 'string' && post.fileUrl.trim() !== '' && (
+                                    post.fileUrl.includes('/video/') ? (
+                                        <div className="mb-5 rounded-2xl overflow-hidden border-2 border-slate-100 bg-black flex justify-center shadow-inner">
+                                            <video src={post.fileUrl} controls preload="metadata" className="max-w-full max-h-[400px] w-full" />
+                                        </div>
+                                    ) : (
+                                        <a href={post.fileUrl} target="_blank" rel="noopener noreferrer" className="mb-5 flex items-center justify-center gap-3 p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl hover:bg-indigo-100 transition-colors shadow-sm">
+                                            <span className="text-3xl">📎</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-indigo-700 text-lg">عرض المرفق</span>
+                                                <span className="text-xs font-bold text-indigo-400">ملف أو مستند خارجي</span>
+                                            </div>
+                                        </a>
+                                    )
+                                )}
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-6 pt-4 border-t-2 border-slate-100">
+                            <button onClick={handleLike} className={`flex items-center gap-2 text-sm font-black transition-colors btn-3d bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 ${safeLikes.includes(currentUser.id) ? 'text-indigo-600 border-indigo-200 bg-indigo-50' : 'text-slate-500 hover:text-slate-700'}`}><span className="text-lg">{safeLikes.includes(currentUser.id) ? '💙' : '🤍'}</span> {safeLikes.length > 0 && <span>{safeLikes.length}</span>} إعجاب</button>
+                            <div className="flex items-center gap-2 text-sm font-black text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200"><span className="text-lg">💬</span> {safeComments.length > 0 && <span>{safeComments.length}</span>} استفسار</div>
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-5 border-t-2 border-slate-100">
+                        <div className="space-y-4 mb-4 max-h-64 overflow-y-auto pr-2">
+                            {safeComments.map(comment => (
+                                <div key={comment.id} className="flex gap-3 group items-end">
+                                    <Avatar emoji={comment.author?.avatar || '👤'} className={`w-8 h-8 text-sm ${comment.author?.color || 'bg-slate-200'}`} />
+                                    <div className="flex-1 bg-white p-3.5 rounded-2xl rounded-tr-none border-2 border-slate-200 shadow-sm relative">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-black text-xs text-slate-800">{comment.author?.name || 'مجهول'}</span>
+                                                {comment.author?.role === 'teacher' ? <span className="text-[10px] bg-indigo-100 border border-indigo-200 text-indigo-700 px-1.5 rounded font-bold shadow-sm">{comment.author.title || 'أستاذ'} 👑</span> : <span className={`text-[10px] px-1.5 rounded ${getBadge(comment.author?.points).color}`}>{getBadge(comment.author?.points).icon}</span>}
+                                            </div>
+                                            {isTeacher && comment.author?.role !== 'teacher' && (
+                                                <button onClick={() => onBanUser(comment.author.id, 3)} className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-md hover:bg-red-100 transition-colors font-bold shadow-sm" title="حظر من المشاركة لـ 3 أيام">🚫 حظر</button>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-slate-700 math-content font-medium leading-relaxed">{comment.text}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {isBanned ? (
+                            <div className="bg-red-50 border-2 border-red-200 p-3 rounded-2xl text-center text-sm font-bold text-red-600 shadow-sm">
+                                🚫 تم تعليق مشاركتك مؤقتاً لمخالفة قوانين القسم.
+                            </div>
+                        ) : (
+                            <div className="flex gap-2 items-center bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-inner">
+                                <input type="text" value={commentText} onChange={e => setCommentText(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleComment()} placeholder="شارك بأفكارك..." className="flex-1 bg-transparent px-4 py-3 text-sm font-bold outline-none text-slate-700" />
+                                <button onClick={handleComment} disabled={!commentText.trim()} className="bg-gradient-to-b from-indigo-500 to-indigo-600 text-white px-5 py-2.5 text-sm font-bold rounded-xl shadow-[0_3px_0_0_#4338ca] disabled:bg-slate-300 disabled:shadow-none hover:from-indigo-400 btn-3d mr-1">إرسال 🚀</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================
+        // مختبر التعلم - قائمة الأدوات التفاعلية
+        // ============================================
+        const TOOLS = [
+            {
+                id: 'exercises',
+                name: 'التمارين التفاعلية',
+                icon: '📝',
+                desc: '4 مستويات • دروس منظمة • حلول مفصلة',
+                url: 'mathspace.html?start=exercises',
+                gradient: 'from-violet-500 to-purple-600',
+                shadow: 'shadow-purple-200',
+                badge: 'التمارين',
+                badgeColor: 'bg-purple-100 text-purple-700',
+                ring: 'ring-purple-200'
+            },
+            {
+                id: 'generative_exam',
+                name: 'الامتحان التوليدي',
+                icon: '🧠',
+                desc: 'اختبارات لا نهائية • تصحيح آلي • تحديات ذكية',
+                url: 'generative_exam.html',
+                gradient: 'from-amber-400 to-orange-500',
+                shadow: 'shadow-orange-200',
+                badge: 'تحدي',
+                badgeColor: 'bg-orange-100 text-orange-700',
+                ring: 'ring-orange-200'
+            },
+            {
+                id: 'games',
+                name: 'الألعاب التعليمية',
+                icon: '🎮',
+                desc: 'نظام نقاط • مسابقات • جوائز',
+                url: 'games.html',
+                gradient: 'from-pink-500 to-rose-600',
+                shadow: 'shadow-pink-200',
+                badge: 'الألعاب',
+                badgeColor: 'bg-pink-100 text-pink-700',
+                ring: 'ring-pink-200'
+            },
+            {
+                id: 'calculator',
+                name: 'الآلة الحاسبة العلمية',
+                icon: <img src="a73f47e2-6648-48ee-8bbe-3b331c8a2583.png" alt="الآلة الحاسبة العلمية" className="w-10 h-10 object-contain drop-shadow-md mx-auto" />,
+                desc: 'آلة علمية متطورة بجميع الخصائص',
+                url: 'calculatrice%20scientifique.html',
+                gradient: 'from-blue-500 to-cyan-500',
+                shadow: 'shadow-blue-200',
+                badge: 'الحاسبة',
+                badgeColor: 'bg-blue-100 text-blue-700',
+                ring: 'ring-blue-200'
+            },
+            {
+                id: 'graphing',
+                name: 'الرسم البياني',
+                icon: '📈',
+                desc: 'رسم دقيق للدوال • تكبير • تفاعلي',
+                url: 'graphing.html',
+                gradient: 'from-teal-500 to-emerald-500',
+                shadow: 'shadow-teal-200',
+                badge: 'الرسم',
+                badgeColor: 'bg-teal-100 text-teal-700',
+                ring: 'ring-teal-200'
+            },
+            {
+                id: 'geometry',
+                name: 'المختبر الهندسي',
+                icon: '📐',
+                desc: 'رسم حر • قياسات • هندسة ديناميكية',
+                url: 'geometry.html',
+                gradient: 'from-indigo-500 to-blue-600',
+                shadow: 'shadow-indigo-200',
+                badge: 'الهندسة',
+                badgeColor: 'bg-indigo-100 text-indigo-700',
+                ring: 'ring-indigo-200'
+            },
+            {
+                id: 'situations',
+                name: 'الوضعيات المركبة',
+                icon: '🃏',
+                desc: 'مسائل ذكية • حل خطوة بخطوة',
+                url: 'situations.html',
+                gradient: 'from-orange-500 to-amber-500',
+                shadow: 'shadow-orange-200',
+                badge: 'وضعيات',
+                badgeColor: 'bg-orange-100 text-orange-700',
+                ring: 'ring-orange-200'
+            },
+            {
+                id: 'wiki',
+                name: 'القاموس الرياضي',
+                icon: '📖',
+                desc: 'تعريفات • قوانين • أمثلة مشروحة',
+                url: 'wiki.html',
+                gradient: 'from-fuchsia-500 to-purple-600',
+                shadow: 'shadow-fuchsia-200',
+                badge: 'القاموس',
+                badgeColor: 'bg-fuchsia-100 text-fuchsia-700',
+                ring: 'ring-fuchsia-200'
+            }
+        ];
+
+        // عارض الأداة - iframe كاملة الشاشة
+        const ToolViewer = ({ tool, onClose }) => {
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                document.body.style.overflow = 'hidden';
+                return () => { document.body.style.overflow = ''; };
+            }, []);
+
+            return (
+                <div className="viewer-fullscreen tool-viewer-anim">
+                    {/* رأس العارض */}
+                    <div className="viewer-header">
+                        <button
+                            onClick={onClose}
+                            className="flex items-center justify-center w-9 h-9 bg-white/20 hover:bg-white/30 rounded-xl transition-colors flex-shrink-0"
+                            title="رجوع لمختبر التعلم"
+                        >
+                            ←
+                        </button>
+                        <div className="text-2xl">{tool.icon}</div>
+                        <div className="flex-1 min-w-0">
+                            <div className="font-black text-lg leading-tight">{tool.name}</div>
+                            <div className="text-white/70 text-xs font-bold">{tool.desc}</div>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="flex items-center justify-center w-9 h-9 bg-white/20 hover:bg-white/30 rounded-xl transition-colors flex-shrink-0 text-xl"
+                            title="إغلاق"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    {/* جسم العارض */}
+                    <div className="viewer-body">
+                        {isLoading && (
+                            <div className="viewer-loading">
+                                <div className="text-5xl animate-bounce">{tool.icon}</div>
+                                <div>جاري تحميل {tool.name}...</div>
+                            </div>
+                        )}
+                        <iframe
+                            src={tool.url}
+                            className="tool-iframe"
+                            onLoad={() => setIsLoading(false)}
+                            title={tool.name}
+                            allow="fullscreen"
+                        />
+                    </div>
+                </div>
+            );
+        };
+
+        // مختبر التعلم - نافذة اختيار الأدوات
+        const ToolsHub = ({ onClose, onSelectTool }) => {
+            useEffect(() => {
+                document.body.style.overflow = 'hidden';
+                return () => { document.body.style.overflow = ''; };
+            }, []);
+
+            return (
+                <div className="fixed inset-0 z-[150] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+                    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col tools-hub-overlay">
+
+                        {/* رأس الحوار */}
+                        <div className="hub-header-grad p-6 sm:p-8 text-white relative overflow-hidden flex-shrink-0">
+                            {/* دوائر زخرفية خلفية */}
+                            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full"></div>
+                            <div className="absolute -bottom-8 left-1/3 w-32 h-32 bg-white/5 rounded-full"></div>
+                            <div className="absolute top-2 right-20 w-16 h-16 bg-white/10 rounded-full"></div>
+
+                            <div className="relative z-10 flex items-center justify-between">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="text-4xl">🧰</div>
+                                        <div>
+                                            <h2 className="text-2xl sm:text-3xl font-black leading-tight">مختبر التعلم</h2>
+                                            <p className="text-white/80 text-sm font-bold">8 أدوات تفاعلية لتعلم الرياضيات</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap mt-3">
+                                        {['🎮 ألعاب', '📝 تمارين', '🧮 حاسبة', '📈 رسم'].map(tag => (
+                                            <span key={tag} className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">{tag}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={onClose}
+                                    className="w-10 h-10 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-2xl transition-colors text-xl font-black flex-shrink-0"
+                                >✕</button>
+                            </div>
+                        </div>
+
+                        {/* شبكة الأدوات */}
+                        <div className="flex-1 overflow-y-auto p-5 sm:p-7 tools-grid-scroll">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                {TOOLS.map((tool) => (
+                                    <button
+                                        key={tool.id}
+                                        onClick={() => onSelectTool(tool)}
+                                        className={`tool-card tool-card-anim bg-white rounded-2xl p-4 sm:p-5 shadow-lg border-2 border-slate-100 hover:border-transparent hover:shadow-xl hover:${tool.shadow} text-right relative overflow-hidden group ${tool.ring} hover:ring-2`}
+                                    >
+                                        {/* خلفية متدرجة عند التحويم */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl`}></div>
+
+                                        {/* أيقونة الأداة */}
+                                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center text-2xl sm:text-3xl mb-3 shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                                            {tool.icon}
+                                        </div>
+
+                                        {/* اسم الأداة */}
+                                        <div className="font-black text-slate-800 text-sm sm:text-base mb-1 leading-tight">{tool.name}</div>
+
+                                        {/* وصف مختصر */}
+                                        <div className="text-slate-400 text-xs font-bold leading-relaxed">{tool.desc}</div>
+
+                                        {/* شارة */}
+                                        <div className={`mt-3 inline-block text-xs font-black px-2.5 py-1 rounded-lg ${tool.badgeColor}`}>{tool.badge}</div>
+
+                                        {/* سهم */}
+                                        <div className={`absolute top-3 left-3 w-7 h-7 flex items-center justify-center bg-gradient-to-br ${tool.gradient} text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 text-sm font-black shadow-sm`}>→</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* تذييل الحوار */}
+                        <div className="border-t-2 border-slate-100 p-4 bg-slate-50/80 flex-shrink-0 rounded-b-[2rem]">
+                            <p className="text-center text-xs text-slate-400 font-bold">
+                                💡 اضغط على أي أداة لفتحها مباشرة داخل فضاء الرياضيات
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================
+
+        const MathSpaceLMS = () => {
+            const [currentUser, setCurrentUser] = useState(null);
+            const [globalOnboardingUser, setGlobalOnboardingUser] = useState(null);
+            const [appUsers, setAppUsers] = useState([]);
+            const [posts, setPosts] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+
+            const [activeClassId, setActiveClassId] = useState('all');
+            const [studentScope, setStudentScope] = useState('all'); // 'my_class' or 'all'
+            const [activeTopic, setActiveTopic] = useState('all');
+            const [showProfileModal, setShowProfileModal] = useState(false);
+            const [viewingPhoto, setViewingPhoto] = useState(null);
+            const [showToolsHub, setShowToolsHub] = useState(false);
+            const [activeTool, setActiveTool] = useState(null);
+
+            const [notifications, setNotifications] = useState([]);
+            const [showNotifications, setShowNotifications] = useState(false);
+
+            const handleMarkNotifRead = async (notifId) => {
+                try { await deleteDoc(doc(db, 'notifications', String(notifId))); } catch (e) { }
+            };
+
+            // مراقبة أزرار المتصفح (الخلف/الأمام) لتغيير الرابط
+            useEffect(() => {
+                const handlePopState = () => {
+                    setViewingPhoto(null);
+                };
+                window.addEventListener('popstate', handlePopState);
+                return () => window.removeEventListener('popstate', handlePopState);
+            }, []);
+
+            const handleOpenPhoto = (url, postId) => {
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('photo', postId);
+                window.history.pushState({ photo: postId }, "", newUrl.toString());
+                setViewingPhoto(url);
+            };
+
+            const handleClosePhoto = () => {
+                setViewingPhoto(null);
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('photo');
+                window.history.replaceState({}, "", newUrl.toString());
+            };
+
+            useEffect(() => {
+                const renderMath = () => {
+                    if (window.renderMathInElement) {
+                        const elements = document.querySelectorAll('.post-container .math-content');
+                        elements.forEach(el => {
+                            window.renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+                        });
+                    }
+                };
+                const timer = setTimeout(renderMath, 300);
+                return () => clearTimeout(timer);
+            });
+
+            useEffect(() => {
+                const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        try {
+                            const docSnap = await getDoc(doc(db, 'users', user.uid));
+                            if (docSnap.exists()) {
+                                let uData = docSnap.data();
+                                // تجاوز مخصص لحساب المدير الأساسي
+                                const adminEmails = ['aminanima01@gmail.com', 'aminanima01@gmail.om'];
+                                if (adminEmails.includes(uData.email?.toLowerCase())) {
+                                    uData.isAdmin = true;
+                                    uData.isVerified = true;
+                                }
+                                setCurrentUser({ id: docSnap.id, ...uData });
+                                setGlobalOnboardingUser(null);
+                            }
+                            else {
+                                setGlobalOnboardingUser({
+                                    uid: user.uid, email: user.email, name: user.displayName || 'بطل جديد',
+                                    avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)], color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                                    points: 0, joinedAt: Date.now(), bannedUntil: null
+                                });
+                                setCurrentUser(null);
+                            }
+                        } catch (e) { }
+                    } else { setCurrentUser(null); setGlobalOnboardingUser(null); }
+                    setIsLoading(false);
+                });
+
+                const unsubscribePosts = onSnapshot(collection(db, 'posts'), (snapshot) => {
+                    const fetchedPosts = [];
+                    snapshot.forEach((doc) => { fetchedPosts.push({ ...doc.data(), id: doc.id }); });
+                    setPosts(fetchedPosts);
+                });
+                const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
+                    const fetchedUsers = [];
+                    snapshot.forEach((doc) => fetchedUsers.push({ ...doc.data(), id: doc.id }));
+                    setAppUsers(fetchedUsers);
+                });
+
+                return () => { unsubscribeAuth(); unsubscribePosts(); unsubscribeUsers(); };
+            }, []);
+
+            useEffect(() => {
+                if (!currentUser) return;
+                const q = query(collection(db, 'notifications'), where('userId', '==', String(currentUser.id)));
+                const unsubscribe = onSnapshot(q, (snapshot) => {
+                    const notifs = [];
+                    snapshot.forEach(doc => notifs.push({ ...doc.data(), id: doc.id }));
+                    setNotifications(notifs.sort((a, b) => b.timestamp - a.timestamp));
+                });
+                return () => unsubscribe();
+            }, [currentUser]);
+
+            useEffect(() => {
+                if (currentUser && appUsers.length > 0) {
+                    const updatedUser = appUsers.find(u => u.id === currentUser.id);
+                    if (updatedUser) {
+                        let finalUser = { ...updatedUser };
+                        const adminEmails = ['aminanima01@gmail.com', 'aminanima01@gmail.om'];
+                        if (adminEmails.includes(finalUser.email?.toLowerCase())) {
+                            finalUser.isAdmin = true;
+                            finalUser.isVerified = true;
+                        }
+                        if (JSON.stringify(finalUser) !== JSON.stringify(currentUser)) {
+                            setCurrentUser(finalUser);
+                        }
+                    }
+                }
+            }, [appUsers]);
+
+            const handleCompleteOnboarding = async (role, classId, adminCode, teacherCode, linkedTeacherId, title, verified = false, usedInviteCode = null) => {
+                const newUserObj = {
+                    ...globalOnboardingUser,
+                    role,
+                    classId: role === 'student' ? classId : null,
+                    teacherCode: role === 'teacher' ? teacherCode : null,
+                    linkedTeacherId: role === 'student' ? linkedTeacherId : null,
+                    title: role === 'teacher' ? title : null,
+                    isVerified: role === 'teacher' ? verified : false,
+                    invitedByCode: usedInviteCode
+                };
+                await setDoc(doc(db, 'users', globalOnboardingUser.uid), newUserObj);
+                setCurrentUser({ ...newUserObj, id: globalOnboardingUser.uid });
+                setGlobalOnboardingUser(null);
+            };
+
+            const filteredPosts = posts.filter(post => {
+                const postTopic = post.topic || 'general';
+
+                // ===== teacherMatch: هل يحق لهذا المستخدم رؤية المنشور؟ =====
+                let teacherMatch = false;
+
+                if (currentUser?.role === 'teacher') {
+                    // الأستاذ يرى منشوراته دائماً + المنشورات القديمة بدون teacherId
+                    teacherMatch = post.teacherId === currentUser.id || !post.teacherId;
+                } else {
+                    // تلميذ: إذا اختار "فصلي فقط"، يرى منشورات أستاذه حصراً.
+                    // إذا اختار "المنشورات العامة"، يرى المنشورات العامة إضافة لمنشورات أستاذه.
+                    if (studentScope === 'my_class') {
+                        teacherMatch = post.teacherId === currentUser?.linkedTeacherId;
+                    } else {
+                        teacherMatch = post.isPublic || post.teacherId === currentUser?.linkedTeacherId;
+                    }
+                }
+
+                // ===== classMatch: هل القسم مناسب؟ =====
+                let classMatch = false;
+                if (currentUser?.role === 'teacher') {
+                    classMatch = activeClassId === 'all' || post.targetClass === activeClassId || post.targetClass === 'all';
+                } else {
+                    // تلميذ: يرى منشورات قسمه + الموجهة لكل الأقسام
+                    classMatch = post.targetClass === 'all' || post.targetClass === currentUser?.classId;
+                }
+
+                const topicMatch = activeTopic === 'all' || postTopic === activeTopic;
+                return teacherMatch && classMatch && topicMatch;
+            }).sort((a, b) => {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+                return (b.timestamp || 0) - (a.timestamp || 0);
+            });
+
+            const topStudents = appUsers.filter(u => {
+                if (u.role !== 'student' || !u.points || u.points <= 0) return false;
+                // إظهار تلاميذ نفس الأستاذ فقط (المنعزلين بالفصل)
+                if (currentUser?.role === 'teacher') {
+                    return u.linkedTeacherId === currentUser.id || !u.linkedTeacherId; // إظهار غير المرتبطين احتياطياً للمستخدمين القدامى
+                } else {
+                    return u.linkedTeacherId === currentUser?.linkedTeacherId || (!u.linkedTeacherId && !currentUser?.linkedTeacherId);
+                }
+            }).sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 5);
+
+            const handleLogout = () => signOut(auth);
+            const handleAddPost = async (newPost) => { await setDoc(doc(db, 'posts', String(newPost.id)), { ...newPost, teacherId: currentUser.id }); };
+            const handleUpdatePost = async (postId, updates) => { await updateDoc(doc(db, 'posts', String(postId)), updates); };
+            const handleDeletePost = async (postId) => { try { await deleteDoc(doc(db, 'posts', String(postId))); } catch (e) { } };
+            const handleTogglePin = async (postId, currentPinStatus) => { try { await updateDoc(doc(db, 'posts', String(postId)), { isPinned: !currentPinStatus }); } catch (e) { } };
+            const handleRewardStudent = async (studentId, pointsToAdd) => {
+                try { const studentData = appUsers.find(u => u.id === studentId); if (studentData) await updateDoc(doc(db, 'users', String(studentId)), { points: (studentData.points || 0) + pointsToAdd }); } catch (error) { }
+            };
+
+            const handleBanUser = async (userId, days) => {
+                try {
+                    const banUntil = Date.now() + (days * 24 * 60 * 60 * 1000);
+                    await updateDoc(doc(db, 'users', String(userId)), { bannedUntil: banUntil });
+                } catch (error) { console.error("Error banning user:", error); }
+            };
+
+            const handleUpdateProfile = async (userId, newName, newAvatar, newClassId, newLinkedTeacherId, newTeacherCode, newTitle) => {
+                try {
+                    const updates = { name: newName, avatar: newAvatar };
+                    if (newClassId) updates.classId = newClassId;
+                    if (newLinkedTeacherId !== undefined) updates.linkedTeacherId = newLinkedTeacherId;
+                    if (newTeacherCode !== undefined) updates.teacherCode = newTeacherCode;
+                    if (newTitle !== undefined) updates.title = newTitle;
+                    await updateDoc(doc(db, 'users', String(userId)), updates);
+                } catch (error) { console.error("Error updating profile:", error); }
+            };
+
+            if (isLoading) return <div className="min-h-screen flex flex-col items-center justify-center font-bold text-indigo-600 text-xl gap-4"><div className="animate-spin text-4xl">🧮</div> جاري تجهيز الأرقام والمعادلات...</div>;
+            if (globalOnboardingUser) return <OnboardingScreen globalUser={globalOnboardingUser} onComplete={handleCompleteOnboarding} />;
+
+            return (
+                <ErrorBoundary>
+                    <div className="min-h-screen pb-12 selection:bg-indigo-100">
+                        {!currentUser ? (
+                            <AuthScreen setGlobalOnboardingUser={setGlobalOnboardingUser} />
+                        ) : (
+                            <>
+                                {showProfileModal && <ProfileModal user={currentUser} appUsers={appUsers} onClose={() => setShowProfileModal(false)} onUpdateProfile={handleUpdateProfile} />}
+
+                                <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-slate-200 shadow-sm px-4 h-20 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl shadow-md rotate-3 overflow-hidden flex-shrink-0">
+                                            <img src="أيقونة المنصة النهائية.png" alt="فضاء الرياضيات" className="w-full h-full object-cover" />
+                                        </div>
+                                        <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 hidden sm:block">فضاء الرياضيات</h1>
+                                    </div>
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                        {/* زر الألعاب التفاعلية */}
+                                        <button
+                                            onClick={() => setActiveTool(TOOLS.find(t => t.id === 'games'))}
+                                            className="flex items-center gap-2 bg-gradient-to-b from-pink-500 to-rose-600 text-white px-3 sm:px-5 py-2.5 rounded-2xl font-black text-sm shadow-[0_4px_0_0_#be123c] hover:from-pink-400 hover:to-rose-500 btn-3d transition-all"
+                                            title="الألعاب التعليمية"
+                                        >
+                                            <span className="text-base animate-bounce">🎮</span>
+                                            <span className="hidden sm:inline">الألعاب</span>
+                                        </button>
+
+                                        {/* زر مختبر التعلم */}
+                                        <button
+                                            onClick={() => setShowToolsHub(true)}
+                                            className="flex items-center gap-2 bg-gradient-to-b from-violet-500 to-purple-600 text-white px-3 sm:px-5 py-2.5 rounded-2xl font-black text-sm shadow-[0_4px_0_0_#5b21b6] hover:from-violet-400 hover:to-purple-500 btn-3d transition-all"
+                                            title="مختبر التعلم - أدوات تفاعلية"
+                                        >
+                                            <span className="text-base">🧰</span>
+                                            <span className="hidden sm:inline">المختبر</span>
+                                        </button>
+
+                                        {/* زر لوحة الإدارة (للمديرين فقط) */}
+                                        {currentUser.isAdmin && (
+                                            <a
+                                                href="admin.html"
+                                                target="_blank"
+                                                className="flex items-center gap-2 bg-gradient-to-b from-slate-700 to-slate-900 text-white px-3 sm:px-5 py-2.5 rounded-2xl font-black text-sm shadow-[0_4px_0_0_#0f172a] hover:from-slate-600 hover:to-slate-800 btn-3d transition-all border border-slate-600"
+                                                title="لوحة الإدارة"
+                                            >
+                                                <span className="text-base animate-pulse">🛡️</span>
+                                                <span className="hidden sm:inline text-amber-400">الإدارة</span>
+                                            </a>
+                                        )}
+                                        <div className="flex items-center gap-2 sm:gap-3 bg-slate-50 p-1.5 rounded-[1.25rem] border-2 border-slate-100 shadow-inner relative">
+                                            {/* زر الإشعارات */}
+                                            <div className="relative">
+                                                <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 sm:p-2.5 bg-white border-2 border-slate-200 text-slate-500 rounded-xl hover:bg-amber-50 hover:border-amber-300 hover:text-amber-600 btn-3d shadow-sm transition-colors relative" title="الإشعارات">
+                                                    🔔
+                                                    {notifications.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-md animate-bounce border-2 border-white">{notifications.length}</span>}
+                                                </button>
+                                                {showNotifications && (
+                                                    <div className="absolute top-[calc(100%+0.5rem)] left-0 mt-2 w-72 sm:w-80 max-w-[90vw] bg-white rounded-[2rem] shadow-2xl border-4 border-slate-100 p-4 z-50">
+                                                        <div className="font-black text-slate-800 mb-3 border-b-2 border-slate-100 pb-3 text-sm flex justify-between items-center">
+                                                            <span>الإشعارات 🔔</span>
+                                                            <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-lg text-[10px]">{notifications.length} جديد</span>
+                                                        </div>
+                                                        {notifications.length === 0 ? (
+                                                            <div className="text-center text-slate-400 font-bold py-6 text-xs bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">📭 لا توجد إشعارات حالياً.</div>
+                                                        ) : (
+                                                            <div className="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                                                                {notifications.map(n => (
+                                                                    <div key={n.id} onClick={() => { handleMarkNotifRead(n.id); setShowNotifications(false); }} className="bg-white hover:bg-indigo-50 p-3 rounded-xl border-2 border-slate-100 hover:border-indigo-200 cursor-pointer transition-colors text-right shadow-sm">
+                                                                        <div className="flex items-center justify-between mb-1">
+                                                                            <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">{n.senderName} 👤</span>
+                                                                            <span className="text-[9px] text-slate-400 font-bold">{new Date(n.timestamp).toLocaleTimeString('ar-DZ')}</span>
+                                                                        </div>
+                                                                        <p className="text-xs font-bold text-slate-600 leading-relaxed mt-2">{n.message}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="w-px h-6 bg-slate-200 mx-0.5"></div>
+
+                                            <div className="text-left hidden sm:flex flex-col justify-center px-1">
+                                                <div className="text-sm font-black text-slate-800">{currentUser.name}</div>
+                                                <div className="text-[10px] text-slate-500 font-bold flex items-center justify-end gap-1 mt-0.5">
+                                                    {currentUser.role === 'teacher' ? `${currentUser.title || 'أستاذ'} | رمز الفصل: ${currentUser.teacherCode || '—'} 👑` : CLASSES.find(c => c.id === currentUser.classId)?.name}
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setShowProfileModal(true)} className="relative group cursor-pointer btn-3d" title="عرض ملفي الشخصي">
+                                                <Avatar emoji={currentUser.avatar} className={`w-11 h-11 ${currentUser.color} border-2 border-white shadow-md group-hover:border-indigo-300 transition-colors`} />
+                                                <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-slate-200">👤</div>
+                                            </button>
+                                            <div className="w-px h-8 bg-slate-200 mx-1"></div>
+                                            <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-2.5 bg-white border-2 border-slate-200 text-slate-500 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-300 btn-3d shadow-sm transition-colors text-sm font-bold" title="تسجيل الخروج">
+                                                <span>🚪</span>
+                                                <span className="hidden sm:inline">خروج</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </nav>
+
+                                {/* ===== شريط الإعلانات المتحرك ===== */}
+                                <div className="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 py-2 px-4 overflow-hidden">
+                                    <p className="text-white text-xs font-black text-center">
+                                        <span className="animate-scroll inline-block">
+                                            🎮 الألعاب التعليمية • 📝 التمارين التفاعلية • 🧮 الآلة الحاسبة العلمية • 📈 الرسم البياني • 📐 المختبر الهندسي • 📊 فضاء الفروض • 📖 القاموس الرياضي • 🏆 تحديات QCM • 🧰 اضغط على مختبر التعلم لتكتشف كل الأدوات 🎮 الألعاب التعليمية • 📝 التمارين التفاعلية • 🧮 الآلة الحاسبة العلمية
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <main className="max-w-5xl mx-auto px-4 py-8 pb-20 md:pb-12 flex flex-col md:flex-row gap-8 relative">
+                                    <aside className="w-full md:w-72 flex-shrink-0 z-10 relative">
+                                        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-slate-100 p-5 sticky top-28">
+
+                                            {currentUser.role === 'teacher' ? (
+                                                <div className="space-y-2 mb-6">
+                                                    <div className="text-xs font-black text-slate-400 mb-3 px-2 uppercase tracking-wider">تصفية المنشورات (الأقسام):</div>
+                                                    <button onClick={() => setActiveClassId('all')} className={`w-full text-right px-4 py-3 text-sm rounded-xl font-bold transition-all btn-3d border-2 ${activeClassId === 'all' ? 'bg-slate-800 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}`}>جميع الأقسام</button>
+                                                    {CLASSES.map(c => <button key={c.id} onClick={() => setActiveClassId(c.id)} className={`w-full text-right px-4 py-3 text-sm rounded-xl font-bold transition-all btn-3d border-2 mt-2 ${activeClassId === c.id ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-white text-slate-600 border-slate-200'}`}>{c.name}</button>)}
+                                                </div>
+                                            ) : currentUser.linkedTeacherId && (
+                                                <div className="space-y-2 mb-6">
+                                                    <div className="text-xs font-black text-slate-400 mb-3 px-2 uppercase tracking-wider">نطاق المنشورات:</div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <button onClick={() => setStudentScope('my_class')} className={`w-full text-right px-4 py-3 text-sm rounded-xl font-black transition-all btn-3d border-2 ${studentScope === 'my_class' ? 'bg-indigo-600 text-white border-indigo-700 shadow-md' : 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100'}`}>
+                                                            🔒 منشورات فصلي فقط
+                                                        </button>
+                                                        <button onClick={() => setStudentScope('all')} className={`w-full text-right px-4 py-3 text-sm rounded-xl font-black transition-all btn-3d border-2 ${studentScope === 'all' ? 'bg-green-500 text-white border-green-600 shadow-md' : 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'}`}>
+                                                            🌍 المنشورات العامة ومدرستي
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="border-t-2 border-slate-100 pt-5 bg-gradient-to-b from-transparent to-amber-50/50 rounded-b-[2rem] -mx-5 -mb-5 p-5">
+                                                <div className="text-sm font-black text-amber-600 mb-4 px-1 flex items-center gap-2 text-shadow-sm">🏆 أساطير الرياضيات</div>
+                                                {topStudents.length === 0 ? (
+                                                    <div className="text-center text-xs font-bold text-slate-400 bg-white p-4 rounded-2xl border-2 shadow-sm">لم يجمع أحد نقاطاً بعد!</div>
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {topStudents.map((student, index) => (
+                                                            <div key={student.id} className={`flex items-center justify-between bg-white p-2.5 rounded-2xl border-2 shadow-sm ${index === 0 ? 'border-amber-300 ring-2 ring-amber-100' : 'border-slate-100'}`}>
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`font-black text-sm w-5 h-5 flex items-center justify-center rounded-full ${index === 0 ? 'bg-amber-100 text-amber-600' : index === 1 ? 'bg-slate-200' : index === 2 ? 'bg-orange-100 text-orange-600' : 'text-slate-300'}`}>{index === 0 ? '👑' : index + 1}</div>
+                                                                    <Avatar emoji={student.avatar} className={`w-9 h-9 text-base ${student.color}`} />
+                                                                    <div className="text-sm font-black text-slate-700 truncate max-w-[100px]" title={student.name}>{student.name}</div>
+                                                                </div>
+                                                                <div className="text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-xl border border-indigo-100">{student.points} 🪙</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </aside>
+
+                                    <div className="flex-1 max-w-2xl min-w-0 z-10 relative">
+
+                                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-6 p-1">
+                                            <button onClick={() => setActiveTopic('all')} className={`px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all border-2 btn-3d ${activeTopic === 'all' ? 'bg-slate-800 text-white border-slate-900 shadow-md transform -translate-y-0.5' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
+                                                كل المواضيع
+                                            </button>
+                                            {TOPICS.map(t => (
+                                                <button key={t.id} onClick={() => setActiveTopic(t.id)} className={`px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all border-2 btn-3d ${activeTopic === t.id ? t.color.replace('border-', 'border-').replace('text-', 'text-').replace('bg-', 'bg-').concat(' shadow-md transform -translate-y-0.5 shadow-[0_3px_0_0_currentColor]') : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
+                                                    {t.name}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {currentUser.role === 'teacher' && <PostCreator currentUser={currentUser} onAddPost={handleAddPost} activeClassId={activeClassId} />}
+
+                                        {filteredPosts.length === 0 ? (
+                                            <div className="text-center py-16 bg-white rounded-[2rem] border-4 border-dashed border-slate-200 text-slate-500 font-bold shadow-sm">
+                                                <div className="text-6xl mb-4 opacity-50">📭</div>
+                                                لا توجد مغامرات رياضية حالياً.
+                                            </div>
+                                        ) : (
+                                            filteredPosts.map(post => <Post key={post.id} post={post} currentUser={currentUser} appUsers={appUsers} onUpdatePost={handleUpdatePost} onDeletePost={handleDeletePost} onRewardStudent={handleRewardStudent} onTogglePin={handleTogglePin} onBanUser={handleBanUser} onOpenPhoto={handleOpenPhoto} />)
+                                        )}
+                                    </div>
+                                </main>
+
+                                {/* عرض الصورة ملء الشاشة (فيسبوك ستايل + سحب) */}
+                                {viewingPhoto && <PhotoViewer imageUrl={viewingPhoto} onClose={handleClosePhoto} />}
+
+                                {/* ===== مختبر التعلم - نافذة اختيار الأداة ===== */}
+                                {showToolsHub && !activeTool && (
+                                    <ToolsHub
+                                        onClose={() => setShowToolsHub(false)}
+                                        onSelectTool={(tool) => { setActiveTool(tool); setShowToolsHub(false); }}
+                                    />
+                                )}
+
+                                {/* ===== عارض الأداة التفاعلية ===== */}
+                                {activeTool && (
+                                    <ToolViewer
+                                        tool={activeTool}
+                                        onClose={() => setActiveTool(null)}
+                                    />
+                                )}
+
+                                {/* ===== Quick Nav Bar (شريط التنقل السريع للهاتف) ===== */}
+                                <div className="quick-nav fixed bottom-0 left-0 right-0 z-[50] bg-white/90 border-t-2 border-slate-200 px-2 py-2 flex items-stretch gap-1 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+                                    {/* زر الفضاء */}
+                                    <button
+                                        onClick={() => { setActiveTool(null); setShowToolsHub(false); }}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">🏠</span>
+                                        <span className="text-[10px] font-black">الفضاء</span>
+                                    </button>
+                                    {/* الألعاب */}
+                                    <button
+                                        onClick={() => setActiveTool(TOOLS.find(t => t.id === 'games'))}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-pink-600 hover:bg-pink-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">🎮</span>
+                                        <span className="text-[10px] font-black">الألعاب</span>
+                                    </button>
+                                    {/* التمارين */}
+                                    <button
+                                        onClick={() => setActiveTool(TOOLS.find(t => t.id === 'exercises'))}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-purple-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">📝</span>
+                                        <span className="text-[10px] font-black">التمارين</span>
+                                    </button>
+                                    {/* الحاسبة */}
+                                    <button
+                                        onClick={() => setActiveTool(TOOLS.find(t => t.id === 'calculator'))}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 active:scale-95 transition-all"
+                                    >
+                                        <span className="text-xl">🧮</span>
+                                        <span className="text-[10px] font-black">الحاسبة</span>
+                                    </button>
+                                    {/* زر مختبر التعلم (المزيد) */}
+                                    <button
+                                        onClick={() => setShowToolsHub(true)}
+                                        className="quick-nav-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-xl bg-gradient-to-b from-violet-500 to-purple-600 text-white active:scale-95 transition-all shadow-[0_3px_0_0_#5b21b6]"
+                                    >
+                                        <span className="text-xl">🧰</span>
+                                        <span className="text-[10px] font-black">المزيد</span>
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </ErrorBoundary>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MathSpaceLMS />);
+    </script>
+</body>
+
+</html>

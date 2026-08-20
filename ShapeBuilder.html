@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>باني الأشكال: مهندس الكوكبات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            overflow: hidden;
+            /* يمنع ظهور شريط التمرير */
+            background-color: #020617;
+            color: white;
+            user-select: none;
+            touch-action: none;
+            /* يمنع تحديث الصفحة عند السحب في الهواتف */
+        }
+
+        /* شبكة الفضاء المربعة الدقيقة (Grid) */
+        .space-grid {
+            background-image:
+                linear-gradient(rgba(56, 189, 248, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.15) 1px, transparent 1px);
+            background-size: 10% 10%;
+            /* كل مربع يمثل 10% من المساحة */
+            background-position: top left;
+        }
+
+        /* النجوم القابلة للنقر */
+        .star-point {
+            fill: #e2e8f0;
+            cursor: crosshair;
+            transition: fill 0.2s ease, filter 0.2s ease;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+        }
+
+        /* تأثيرات النجمة (نتحكم في الـ r من هنا أيضاً) */
+        .star-point:hover {
+            fill: #22d3ee;
+            /* Cyan 400 */
+            filter: drop-shadow(0 0 10px rgba(34, 211, 238, 1));
+        }
+
+        .star-point.selected {
+            fill: #3b82f6;
+            /* Blue 500 */
+            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 1));
+        }
+
+        .star-point.hinted {
+            animation: pulseHint 1s infinite alternate;
+        }
+
+        @keyframes pulseHint {
+            0% {
+                fill: #facc15;
+                filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.5));
+            }
+
+            100% {
+                fill: #fef08a;
+                filter: drop-shadow(0 0 15px rgba(250, 204, 21, 1));
+            }
+        }
+
+        /* خطوط الليزر */
+        .laser-line {
+            stroke: #22d3ee;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.6));
+            pointer-events: none;
+        }
+
+        /* المضلع المكتمل */
+        .completed-shape {
+            fill: rgba(34, 211, 238, 0.2);
+            stroke: #22d3ee;
+            stroke-width: 2;
+            stroke-linejoin: round;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .shape-fill-success {
+            fill: rgba(34, 197, 94, 0.4) !important;
+            stroke: #22c55e !important;
+            filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.6));
+        }
+
+        .laser-error {
+            stroke: #ef4444 !important;
+            fill: rgba(239, 68, 68, 0.2) !important;
+            filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8));
+        }
+
+        .laser-hint-shape {
+            stroke: #eab308 !important;
+            fill: rgba(234, 179, 8, 0.1) !important;
+            stroke-dasharray: 4;
+            filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.8));
+            animation: dash 10s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        /* رسائل عائمة */
+        .floating-msg {
+            position: absolute;
+            font-weight: 900;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 2s ease-out forwards;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 50;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                margin-top: 0;
+                scale: 1;
+            }
+
+            100% {
+                opacity: 0;
+                margin-top: -60px;
+                scale: 1.2;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-white w-full h-screen flex flex-col">
+
+    <!-- الخلفيات المتحركة والثابتة -->
+    <div
+        class="fixed inset-0 z-[-1] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 pointer-events-none">
+    </div>
+    <div
+        class="fixed inset-0 z-[-2] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black pointer-events-none">
+    </div>
+
+    <!-- شاشة البداية -->
+    <div id="start-screen"
+        class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm">
+        <div
+            class="bg-slate-900/90 border border-slate-700 p-6 md:p-8 rounded-3xl flex flex-col items-center text-center max-w-md w-11/12 shadow-[0_0_50px_rgba(56,189,248,0.2)]">
+            <svg class="text-sky-400 mb-4 drop-shadow-[0_0_15px_rgba(56,189,248,0.8)] w-12 h-12 md:w-16 md:h-16"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <h1
+                class="text-3xl md:text-4xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">
+                باني الأشكال</h1>
+            <h2 class="text-lg md:text-xl text-sky-200 mb-4 font-bold">مهندس الكوكبات</h2>
+
+            <div id="high-score-display"
+                class="hidden items-center gap-2 mb-4 bg-amber-500/20 text-amber-300 px-4 py-2 rounded-full border border-amber-500/30">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                    <path d="M4 22h16" />
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                <span class="font-bold text-sm" id="high-score-val">أعلى نتيجة: 0</span>
+            </div>
+
+            <p class="text-slate-300 mb-6 leading-relaxed text-xs md:text-sm">
+                نظام الملاحة معطل! ارسم الأشكال الهندسية الصحيحة بوصل النجوم لتوجيه سفينتك الفضائية.
+                اقرأ <b>خصائص الشكل</b> المطلوبة بدقة!
+            </p>
+            <button onclick="startGame()"
+                class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-lg md:text-xl py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(56,189,248,0.4)]">
+                بدء المهمة
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة الإيقاف المؤقت -->
+    <div id="pause-screen"
+        class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md">
+        <div
+            class="bg-slate-900 border border-slate-700 p-8 rounded-3xl flex flex-col items-center text-center max-w-sm w-11/12 shadow-2xl">
+            <svg class="text-sky-400 mb-4 animate-pulse w-12 h-12" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16" />
+                <rect x="14" y="4" width="4" height="16" />
+            </svg>
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-8">النظام متوقف</h2>
+            <div class="flex flex-col gap-4 w-full">
+                <button onclick="resumeGame()"
+                    class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-6 rounded-full transition-all">متابعة
+                    العمل</button>
+                <button onclick="endGame()"
+                    class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-full transition-all">العودة
+                    للرئيسية</button>
+                <button onclick="try { window.parent.document.getElementById('endGameBtn').click(); } catch(e){}"
+                    class="bg-red-900/40 hover:bg-red-600/60 border border-red-500/30 text-red-300 hover:text-white font-bold py-3 px-6 rounded-full transition-all">الخروج
+                    للمنصة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة النهاية -->
+    <div id="game-over-screen"
+        class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md">
+        <div
+            class="bg-slate-900 border border-red-900/50 p-8 rounded-3xl flex flex-col items-center text-center max-w-sm w-11/12 shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+            <svg class="text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] w-12 h-12 md:w-16 md:h-16"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="m12 14 4-4" />
+                <path
+                    d="M3.34 7.39l5.62 5.62c-.84.46-1.59 1.2-2.15 2.15l-5.62-5.62a2 2 0 0 1 0-2.83l.71-.71a2 2 0 0 1 2.83 0Z" />
+                <path
+                    d="M16.61 20.66l5.62-5.62a2 2 0 0 0 0-2.83l-.71-.71a2 2 0 0 0-2.83 0l-5.62 5.62c.46.84 1.2 1.59 2.15 2.15Z" />
+                <path d="m14 12 4-4" />
+                <path d="m14 12-4 4" />
+            </svg>
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">فشل النظام!</h2>
+            <p class="text-slate-400 mb-6 text-sm">نفدت طاقة السفينة أو الأرواح.</p>
+            <div class="text-center mb-8">
+                <p class="text-xs text-slate-400">النقاط المكتسبة</p>
+                <p id="final-score" class="text-3xl md:text-4xl font-black text-sky-400 mb-2">0</p>
+                <p class="text-xs text-amber-400 font-bold" id="game-over-high-score"></p>
+            </div>
+            <button onclick="startGame()"
+                class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-8 rounded-full transition-all w-full shadow-lg">محاولة
+                جديدة</button>
+        </div>
+    </div>
+
+    <!-- شريط المهام العلوي (HUD) مصغر ليناسب الشاشات -->
+    <div id="hud"
+        class="hidden w-full p-1 md:p-2 flex justify-between items-start z-30 bg-gradient-to-b from-black/80 to-transparent">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 bg-slate-800/80 px-2 py-1 rounded-2xl border border-slate-700">
+                <svg class="text-sky-400 w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                <span id="score-val" class="font-black text-white font-mono text-base md:text-lg">0</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <div class="flex items-center gap-1 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700">
+                    <span id="level-val" class="text-sky-200 font-bold text-[10px] md:text-xs">مستوى 1</span>
+                </div>
+                <div id="streak-container"
+                    class="hidden items-center gap-1 bg-orange-500/20 px-2 py-0.5 rounded-full border border-orange-500/50 animate-pulse">
+                    <span id="streak-val" class="text-orange-400 font-bold text-[10px] md:text-xs">x2</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 md:gap-2">
+            <button onclick="pauseGame()"
+                class="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 rounded-full border border-slate-600 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                </svg>
+            </button>
+            <div id="lives-container"
+                class="flex items-center gap-1 bg-slate-800/80 px-2 py-1 md:py-1.5 rounded-2xl border border-slate-700">
+                <!-- Hearts JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- وسائل المساعدة والطاقة -->
+    <div id="game-ui" class="hidden w-full px-2 flex-col items-center z-20">
+        <!-- المهمة الحالية -->
+        <div
+            class="bg-sky-950/80 border-2 border-sky-500/50 px-3 py-1.5 md:py-2 rounded-2xl shadow-[0_0_20px_rgba(56,189,248,0.2)] text-center max-w-lg w-full mb-1 relative overflow-hidden">
+            <div id="energy-bar" class="absolute bottom-0 left-0 h-1 bg-sky-400 transition-all linear duration-1000"
+                style="width: 100%;"></div>
+            <p class="text-[9px] md:text-[10px] text-sky-400 font-bold tracking-widest mb-0.5 uppercase">مهمة الرادار
+            </p>
+            <p id="mission-text" class="text-sm sm:text-base md:text-lg font-bold text-white leading-snug">... تحميل
+                المهمة ...</p>
+        </div>
+
+        <!-- أزرار المساعدة -->
+        <div class="flex gap-2 md:gap-4 mt-1">
+            <button id="btn-freeze" onclick="useFreeze()"
+                class="flex items-center gap-1.5 bg-slate-800 border border-slate-600 px-3 py-1 rounded-full text-xs font-bold text-sky-300 hover:bg-slate-700 transition-all disabled:opacity-50">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m8 11 2 2-2 2" />
+                    <path d="m16 11-2 2 2 2" />
+                    <path d="M12 2v22" />
+                    <path d="M22 12H2" />
+                    <path d="m20 4-4 4" />
+                    <path d="m4 20 4-4" />
+                    <path d="m4 4 4 4" />
+                    <path d="m20 20-4-4" />
+                </svg>
+                تجميد (<span id="freeze-count">1</span>)
+            </button>
+            <button id="btn-hint" onclick="useHint()"
+                class="flex items-center gap-1.5 bg-slate-800 border border-slate-600 px-3 py-1 rounded-full text-xs font-bold text-yellow-300 hover:bg-slate-700 transition-all disabled:opacity-50">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4" />
+                    <path d="M12 8h.01" />
+                </svg>
+                تلميح (<span id="hint-count">2</span>)
+            </button>
+            <button id="btn-clear" onclick="clearDrawing()"
+                class="flex items-center gap-1.5 bg-slate-800 border border-slate-600 px-3 py-1 rounded-full text-xs font-bold text-red-400 hover:bg-slate-700 transition-all">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
+                مسح
+            </button>
+        </div>
+    </div>
+
+    <!-- منطقة اللعب (لوحة الرسم المربعة تماماً) -->
+    <div id="play-area-container"
+        class="hidden flex-1 w-full flex items-center justify-center p-1 md:p-2 min-h-0 relative">
+
+        <!-- الحاوية المربعة (Aspect-Square): تم تكبير المساحة لـ 75vh بدلاً من 55vh لتعطي مساحة أكبر للرسم -->
+        <div id="play-area"
+            class="relative aspect-square w-full rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-900/60 shadow-[0_0_30px_rgba(0,0,0,0.5)] space-grid touch-none"
+            style="max-width: min(100%, 75vh); max-height: 100%;">
+
+            <svg id="drawing-board" class="absolute inset-0 w-full h-full" viewBox="0 0 100 100"
+                preserveAspectRatio="xMidYMid meet">
+                <!-- المضلع المكتمل (أو الخاطئ) -->
+                <polygon id="completed-polygon" class="completed-shape hidden" points=""></polygon>
+
+                <!-- الخطوط المرسومة -->
+                <polyline id="fixed-lines" class="laser-line" points=""></polyline>
+
+                <!-- الخط المتحرك مع الماوس -->
+                <line id="active-line" class="laser-line hidden" x1="0" y1="0" x2="0" y2="0"></line>
+
+                <!-- النجوم سيتم حقنها هنا عبر JS -->
+                <g id="stars-container"></g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- رسائل التغذية الراجعة تظهر هنا -->
+    <div id="feedback-container" class="absolute inset-0 pointer-events-none z-40 overflow-hidden"></div>
+
+    <script>
+        const PUZZLES = [
+            // مستوى 1
+            {
+                name: "مربع", level: 1, desc: "ارسم رباعياً جميع أضلاعه متقايسة وزواياه الأربعة قائمة.", failMsg: "المربع له 4 زوايا قائمة وأضلاع متقايسة!",
+                target: [{ x: 30, y: 30, id: 't1' }, { x: 70, y: 30, id: 't2' }, { x: 70, y: 70, id: 't3' }, { x: 30, y: 70, id: 't4' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 20, y: 60, id: 'd2' }, { x: 80, y: 40, id: 'd3' }]
+            },
+
+            {
+                name: "مستطيل", level: 1, desc: "ارسم رباعياً كل ضلعين متقابلين فيه متقايسان، وزواياه قائمة.", failMsg: "المستطيل له زوايا قائمة وأضلاعه المتقابلة متقايسة.",
+                target: [{ x: 20, y: 30, id: 't1' }, { x: 80, y: 30, id: 't2' }, { x: 80, y: 70, id: 't3' }, { x: 20, y: 70, id: 't4' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 30, y: 80, id: 'd2' }, { x: 70, y: 20, id: 'd3' }]
+            },
+
+            {
+                name: "مثلث قائم", level: 1, desc: "ارسم مثلثاً يحتوي على زاوية قائمة واحدة (90 درجة).", failMsg: "يجب أن يحتوي المثلث على زاوية قائمة واحدة.",
+                target: [{ x: 30, y: 30, id: 't1' }, { x: 30, y: 70, id: 't2' }, { x: 70, y: 70, id: 't3' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 60, y: 30, id: 'd2' }, { x: 80, y: 50, id: 'd3' }, { x: 20, y: 80, id: 'd4' }]
+            },
+
+            // مستوى 2
+            {
+                name: "معين", level: 2, desc: "ارسم رباعياً جميع أضلاعه متقايسة، وزواياه ليست قائمة.", failMsg: "المعيّن أضلاعه متقايسة لكن زواياه ليست قائمة.",
+                target: [{ x: 50, y: 20, id: 't1' }, { x: 80, y: 50, id: 't2' }, { x: 50, y: 80, id: 't3' }, { x: 20, y: 50, id: 't4' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 30, y: 30, id: 'd2' }, { x: 70, y: 70, id: 'd3' }]
+            },
+
+            {
+                name: "متوازي أضلاع", level: 2, desc: "ارسم رباعياً كل ضلعين متقابلين فيه متوازيان وزواياه ليست قائمة.", failMsg: "في متوازي الأضلاع، الأضلاع المتقابلة متوازية.",
+                target: [{ x: 30, y: 30, id: 't1' }, { x: 80, y: 30, id: 't2' }, { x: 70, y: 70, id: 't3' }, { x: 20, y: 70, id: 't4' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 30, y: 50, id: 'd2' }, { x: 80, y: 50, id: 'd3' }]
+            },
+
+            {
+                name: "مثلث متساوي الساقين", level: 2, desc: "ارسم مثلثاً فيه ضلعان فقط متقايسان.", failMsg: "المثلث متساوي الساقين له ضلعان متطابقان فقط.",
+                target: [{ x: 50, y: 30, id: 't1' }, { x: 80, y: 70, id: 't2' }, { x: 20, y: 70, id: 't3' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 30, y: 40, id: 'd2' }, { x: 70, y: 40, id: 'd3' }]
+            },
+
+            // مستوى 3
+            {
+                name: "شبه منحرف قائم", level: 3, desc: "ارسم رباعياً فيه ضلعان متقابلان فقط متوازيان، وإحدى زواياه قائمة.", failMsg: "شبه المنحرف القائم له قاعدتان متوازيتان وزاوية قائمة.",
+                target: [{ x: 30, y: 30, id: 't1' }, { x: 60, y: 30, id: 't2' }, { x: 80, y: 70, id: 't3' }, { x: 30, y: 70, id: 't4' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 70, y: 40, id: 'd2' }, { x: 40, y: 80, id: 'd3' }]
+            },
+
+            {
+                name: "شبه منحرف متساوي الساقين", level: 3, desc: "ارسم رباعياً فيه ضلعان متوازيان فقط، والضلعان الآخران متقايسان.", failMsg: "شبه المنحرف متساوي الساقين ضلعاه الجانبيان متقايسان.",
+                target: [{ x: 40, y: 30, id: 't1' }, { x: 60, y: 30, id: 't2' }, { x: 80, y: 70, id: 't3' }, { x: 20, y: 70, id: 't4' }],
+                distractors: [{ x: 50, y: 50, id: 'd1' }, { x: 30, y: 50, id: 'd2' }, { x: 70, y: 50, id: 'd3' }]
+            }
+        ];
+
+        let gameState = 'START';
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let streak = 0;
+        let highScore = parseInt(localStorage.getItem('shapeBuilderHighScore')) || 0;
+        let currentPuzzle = null;
+        let timeRemaining = 100;
+        let timerInterval = null;
+        let isFrozen = false;
+
+        let powerUps = { freeze: 1, hint: 2 };
+        let puzzleBag = [];
+        let lastPuzzleName = "";
+
+        // -- إعدادات الصوت (Tone.js) --
+        let isAudioInitialized = false;
+        let laserSynth, chordSynth, errorSynth;
+
+        function initAudio() {
+            if (isAudioInitialized) return;
+
+            // مُركب صوتي لليزر (النقرات)
+            laserSynth = new Tone.Synth({
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).toDestination();
+            laserSynth.volume.value = -12; // خفض مستوى الصوت قليلاً ليكون مريحاً
+
+            // مُركب صوتي للاحتفال (النجاح)
+            chordSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.2, release: 1 }
+            }).toDestination();
+            chordSynth.volume.value = -8;
+
+            // مُركب صوتي للخطأ
+            errorSynth = new Tone.MembraneSynth().toDestination();
+            errorSynth.volume.value = -10;
+
+            isAudioInitialized = true;
+        }
+
+        function playSound(type, extra = 0) {
+            if (!isAudioInitialized) return;
+            try {
+                if (type === 'laser') {
+                    // رفع درجة الصوت تدريجياً مع كل نقطة متتالية لزيادة الحماس
+                    const notes = ["C5", "D5", "E5", "G5", "A5", "C6"];
+                    const note = notes[Math.min(extra, notes.length - 1)];
+                    laserSynth.triggerAttackRelease(note, "32n");
+                } else if (type === 'undo') {
+                    laserSynth.triggerAttackRelease("G4", "16n");
+                } else if (type === 'success') {
+                    chordSynth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "4n"); // وتر مبهج
+                } else if (type === 'error') {
+                    errorSynth.triggerAttackRelease("C2", "8n");
+                } else if (type === 'powerup') {
+                    chordSynth.triggerAttackRelease(["E5", "G5"], "16n");
+                }
+            } catch (e) { console.log("Audio play error", e); }
+        }
+
+        let selectedIDs = [];
+        let isDrawing = false;
+        let lastPoint = null;
+        let currentAllPoints = [];
+
+        const els = {
+            start: document.getElementById('start-screen'),
+            pause: document.getElementById('pause-screen'),
+            gameOver: document.getElementById('game-over-screen'),
+            hud: document.getElementById('hud'),
+            gameUi: document.getElementById('game-ui'),
+            playArea: document.getElementById('play-area-container'),
+            board: document.getElementById('drawing-board'),
+            stars: document.getElementById('stars-container'),
+            fixedLines: document.getElementById('fixed-lines'),
+            activeLine: document.getElementById('active-line'),
+            polygon: document.getElementById('completed-polygon'),
+            mission: document.getElementById('mission-text'),
+            energy: document.getElementById('energy-bar'),
+            lives: document.getElementById('lives-container'),
+            score: document.getElementById('score-val'),
+            level: document.getElementById('level-val'),
+            streakContainer: document.getElementById('streak-container'),
+            streakVal: document.getElementById('streak-val'),
+            feedback: document.getElementById('feedback-container')
+        };
+
+        // إظهار أعلى نتيجة إذا كانت موجودة في التخزين المحلي
+        if (highScore > 0) {
+            document.getElementById('high-score-display').classList.remove('hidden');
+            document.getElementById('high-score-display').classList.add('flex');
+            document.getElementById('high-score-val').textContent = `أعلى نتيجة: ${highScore}`;
+        }
+
+        function startGame() {
+            // تفعيل محرك الصوت مع أول نقرة للتلميذ (متطلب أساسي في متصفحات الويب)
+            Tone.start().then(() => {
+                initAudio();
+                playSound('success'); // لحن ترحيبي عند بدء المهمة
+            });
+
+            score = 0;
+            lives = 3;
+            level = 1;
+            streak = 0;
+            powerUps = { freeze: 1, hint: 2 };
+            puzzleBag = [];
+            updateHUD();
+            updatePowerUpUI();
+
+            els.start.classList.add('hidden');
+            els.gameOver.classList.add('hidden');
+            els.hud.classList.remove('hidden');
+            els.hud.classList.add('flex');
+            els.gameUi.classList.remove('hidden');
+            els.gameUi.classList.add('flex');
+            els.playArea.classList.remove('hidden');
+            els.playArea.classList.add('flex');
+
+            gameState = 'PLAYING';
+            loadNextPuzzle();
+        }
+
+        function loadNextPuzzle() {
+            els.stars.innerHTML = '';
+            els.fixedLines.setAttribute('points', '');
+            els.activeLine.classList.add('hidden');
+            els.polygon.classList.add('hidden');
+            els.polygon.classList.remove('laser-success', 'laser-error', 'shape-fill-success', 'laser-hint-shape');
+            selectedIDs = [];
+            isDrawing = false;
+
+            if (puzzleBag.length === 0) {
+                puzzleBag = PUZZLES.filter(p => p.level === level);
+                puzzleBag.sort(() => Math.random() - 0.5);
+            }
+
+            currentPuzzle = puzzleBag.shift();
+
+            currentAllPoints = [...currentPuzzle.target, ...currentPuzzle.distractors];
+            currentAllPoints.sort(() => Math.random() - 0.5);
+
+            currentAllPoints.forEach(pt => {
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute('cx', pt.x);
+                circle.setAttribute('cy', pt.y);
+                circle.setAttribute('r', '4');
+
+                // تحديد Hitbox معقول يمنع التداخل (بدل 30 الذي كان يغطي ثلث الشاشة)
+                circle.setAttribute('stroke', 'transparent');
+                circle.setAttribute('stroke-width', '10');
+
+                circle.setAttribute('class', 'star-point pointer-events-auto');
+                circle.setAttribute('data-id', pt.id);
+
+                circle.addEventListener('mousedown', (e) => handleStarClick(e, pt));
+                circle.addEventListener('touchstart', (e) => { e.preventDefault(); handleStarClick(e, pt); }, { passive: false });
+
+                els.stars.appendChild(circle);
+            });
+
+            els.mission.textContent = currentPuzzle.desc;
+            timeRemaining = 100;
+            els.energy.style.width = '100%';
+            els.energy.style.backgroundColor = '#38bdf8';
+            isFrozen = false;
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState !== 'PLAYING' || isFrozen) return;
+                timeRemaining -= (level === 1 ? 0.4 : 0.6);
+                els.energy.style.width = `${Math.max(0, timeRemaining)}%`;
+                if (timeRemaining < 30) els.energy.style.backgroundColor = '#ef4444';
+                if (timeRemaining <= 0) { clearInterval(timerInterval); handleFail(); }
+            }, 100);
+        }
+
+        function handleStarClick(e, pt) {
+            if (gameState !== 'PLAYING') return;
+
+            const circle = e.target;
+
+            if (selectedIDs.length === 0) {
+                selectedIDs.push(pt.id);
+                circle.classList.add('selected');
+                circle.setAttribute('r', '6');
+                lastPoint = pt;
+                isDrawing = true;
+
+                els.fixedLines.setAttribute('points', `${pt.x},${pt.y}`);
+                els.activeLine.setAttribute('x1', pt.x);
+                els.activeLine.setAttribute('y1', pt.y);
+                els.activeLine.setAttribute('x2', pt.x);
+                els.activeLine.setAttribute('y2', pt.y);
+                els.activeLine.classList.remove('hidden');
+
+                playSound('laser', 0);
+
+            } else {
+                if (pt.id === selectedIDs[0] && selectedIDs.length > 2) {
+                    isDrawing = false;
+                    els.activeLine.classList.add('hidden');
+
+                    const currentPoints = els.fixedLines.getAttribute('points');
+                    els.polygon.setAttribute('points', currentPoints);
+                    els.polygon.classList.remove('hidden');
+                    els.fixedLines.setAttribute('points', '');
+
+                    playSound('laser', selectedIDs.length);
+                    validateShape();
+
+                }
+                else if (pt.id === selectedIDs[selectedIDs.length - 1]) {
+                    // ميزة التراجع (Undo)
+                    selectedIDs.pop();
+                    circle.classList.remove('selected');
+                    circle.setAttribute('r', '4');
+
+                    playSound('undo');
+
+                    if (selectedIDs.length === 0) {
+                        // إذا تراجعنا عن كل النقاط
+                        isDrawing = false;
+                        els.activeLine.classList.add('hidden');
+                        els.fixedLines.setAttribute('points', '');
+                    } else {
+                        // التراجع خطوة واحدة وتحديث الخطوط
+                        const prevId = selectedIDs[selectedIDs.length - 1];
+                        const prevPt = currentAllPoints.find(p => p.id === prevId);
+                        lastPoint = prevPt;
+                        els.activeLine.setAttribute('x1', prevPt.x);
+                        els.activeLine.setAttribute('y1', prevPt.y);
+
+                        const newPointsStr = selectedIDs.map(id => {
+                            const p = currentAllPoints.find(p => p.id === id);
+                            return `${p.x},${p.y}`;
+                        }).join(' ');
+                        els.fixedLines.setAttribute('points', newPointsStr);
+                    }
+                }
+                else if (!selectedIDs.includes(pt.id)) {
+                    selectedIDs.push(pt.id);
+                    circle.classList.add('selected');
+                    circle.setAttribute('r', '6');
+
+                    const currentPoints = els.fixedLines.getAttribute('points');
+                    els.fixedLines.setAttribute('points', `${currentPoints} ${pt.x},${pt.y}`);
+
+                    lastPoint = pt;
+                    els.activeLine.setAttribute('x1', pt.x);
+                    els.activeLine.setAttribute('y1', pt.y);
+
+                    playSound('laser', selectedIDs.length - 1);
+                }
+            }
+            circle.classList.remove('hinted');
+        }
+
+        function updateActiveLine(clientX, clientY) {
+            if (!isDrawing || gameState !== 'PLAYING') return;
+            const rect = els.board.getBoundingClientRect();
+            const x = ((clientX - rect.left) / rect.width) * 100;
+            const y = ((clientY - rect.top) / rect.height) * 100;
+            els.activeLine.setAttribute('x2', x);
+            els.activeLine.setAttribute('y2', y);
+        }
+
+        els.board.addEventListener('mousemove', (e) => updateActiveLine(e.clientX, e.clientY));
+        els.board.addEventListener('touchmove', (e) => {
+            if (isDrawing) e.preventDefault();
+            updateActiveLine(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        function validateShape() {
+            clearInterval(timerInterval);
+
+            const targetIDs = currentPuzzle.target.map(t => t.id);
+            const userSequence = selectedIDs.join(',');
+            const isCorrectLength = selectedIDs.length === targetIDs.length;
+            const hasAllPoints = isCorrectLength && selectedIDs.every(id => targetIDs.includes(id));
+
+            if (!hasAllPoints) {
+                handleFail();
+                return;
+            }
+
+            // التحقق من أن التلميذ رسم الأضلاع بالترتيب (وليس بشكل متقاطع مثل الساعة الرملية)
+            let validSequences = [];
+            let n = targetIDs.length;
+            for (let i = 0; i < n; i++) {
+                let forward = [];
+                let backward = [];
+                for (let j = 0; j < n; j++) {
+                    forward.push(targetIDs[(i + j) % n]);
+                    backward.push(targetIDs[(i - j + n) % n]);
+                }
+                validSequences.push(forward.join(','));
+                validSequences.push(backward.join(','));
+            }
+
+            if (validSequences.includes(userSequence)) {
+                // نجاح
+                playSound('success');
+                streak++;
+                const multiplier = streak > 4 ? 3 : (streak > 2 ? 2 : 1);
+                const pointsEarned = 20 * multiplier;
+
+                els.polygon.classList.add('shape-fill-success');
+                showFloatingText(`+${pointsEarned} طاقة`, "text-green-400");
+
+                score += pointsEarned;
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('shapeBuilderHighScore', highScore);
+                }
+
+                if (score >= 200 && level < 3) {
+                    level = 3;
+                    puzzleBag = [];
+                } else if (score >= 40 && level < 2) {
+                    level = 2;
+                    puzzleBag = [];
+                }
+
+                updateHUD();
+                setTimeout(loadNextPuzzle, 1500);
+            } else {
+                // النقاط صحيحة لكن الرسم متقاطع!
+                showFloatingText("الأضلاع متقاطعة!", "text-yellow-400");
+                handleFail();
+            }
+        }
+
+        function handleFail() {
+            playSound('error');
+            streak = 0;
+            els.polygon.classList.add('laser-error');
+            lives--;
+            updateHUD();
+
+            showFloatingText("فشل المطابقة!", "text-red-400");
+            els.playArea.classList.add('translate-x-2', '-translate-y-1');
+            setTimeout(() => els.playArea.classList.remove('translate-x-2', '-translate-y-1'), 200);
+
+            setTimeout(() => {
+                const correctPointsStr = currentPuzzle.target.map(t => `${t.x},${t.y}`).join(' ');
+                els.polygon.setAttribute('points', correctPointsStr);
+                els.polygon.classList.remove('laser-error');
+                els.polygon.classList.add('laser-hint-shape');
+                els.polygon.classList.remove('hidden');
+
+                showFloatingText(currentPuzzle.failMsg, "text-yellow-400");
+            }, 800);
+
+            if (lives <= 0) {
+                setTimeout(gameOver, 3500);
+            } else {
+                setTimeout(loadNextPuzzle, 3500);
+            }
+        }
+
+        function showFloatingText(text, colorClass) {
+            const el = document.createElement('div');
+            el.className = `floating-msg ${colorClass} w-full text-center px-4`;
+            el.textContent = text;
+            els.feedback.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
+        }
+
+        function updateHUD() {
+            els.score.textContent = score;
+            els.level.textContent = `مستوى ${level}`;
+
+            // تحديث الكومبو
+            if (streak > 2) {
+                els.streakContainer.classList.remove('hidden');
+                els.streakContainer.classList.add('flex');
+                els.streakVal.textContent = `x${streak > 4 ? 3 : 2}`;
+            } else {
+                els.streakContainer.classList.add('hidden');
+                els.streakContainer.classList.remove('flex');
+            }
+
+            els.lives.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                els.lives.innerHTML += `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="${i < lives ? 'text-red-500 fill-red-500' : 'text-slate-700 fill-none'}"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
+            }
+        }
+
+        function updatePowerUpUI() {
+            document.getElementById('freeze-count').textContent = powerUps.freeze;
+            document.getElementById('hint-count').textContent = powerUps.hint;
+            document.getElementById('btn-freeze').disabled = powerUps.freeze <= 0;
+            document.getElementById('btn-hint').disabled = powerUps.hint <= 0;
+        }
+
+        function useFreeze() {
+            if (powerUps.freeze > 0 && !isFrozen && gameState === 'PLAYING') {
+                playSound('powerup');
+                powerUps.freeze--;
+                updatePowerUpUI();
+                isFrozen = true;
+                els.energy.style.backgroundColor = '#a5b4fc';
+                setTimeout(() => {
+                    isFrozen = false;
+                    els.energy.style.backgroundColor = timeRemaining < 30 ? '#ef4444' : '#38bdf8';
+                }, 5000);
+            }
+        }
+
+        function useHint() {
+            if (powerUps.hint > 0 && gameState === 'PLAYING') {
+                playSound('powerup');
+                powerUps.hint--;
+                updatePowerUpUI();
+                const targetIDs = currentPuzzle.target.map(t => t.id);
+                // تلوين كل النقاط الصحيحة المتبقية للمساعدة
+                targetIDs.forEach(id => {
+                    if (!selectedIDs.includes(id)) {
+                        const starEl = document.querySelector(`.star-point[data-id="${id}"]`);
+                        if (starEl) {
+                            starEl.classList.add('hinted');
+                            starEl.setAttribute('r', '8');
+                        }
+                    }
+                });
+            }
+        }
+
+        function clearDrawing() {
+            if (gameState !== 'PLAYING' || selectedIDs.length === 0) return;
+            playSound('undo');
+            selectedIDs.forEach(id => {
+                const circle = document.querySelector(`.star-point[data-id="${id}"]`);
+                if (circle) {
+                    circle.classList.remove('selected');
+                    circle.setAttribute('r', '4');
+                }
+            });
+            selectedIDs = [];
+            isDrawing = false;
+            els.activeLine.classList.add('hidden');
+            els.fixedLines.setAttribute('points', '');
+        }
+
+        function pauseGame() {
+            if (gameState === 'PLAYING') {
+                gameState = 'PAUSED';
+                els.pause.classList.remove('hidden');
+            }
+        }
+
+        function resumeGame() {
+            if (gameState === 'PAUSED') {
+                gameState = 'PLAYING';
+                els.pause.classList.add('hidden');
+            }
+        }
+
+        function endGame() {
+            gameState = 'START';
+            els.pause.classList.add('hidden');
+            els.hud.classList.add('hidden');
+            els.hud.classList.remove('flex');
+            els.gameUi.classList.add('hidden');
+            els.gameUi.classList.remove('flex');
+            els.playArea.classList.add('hidden');
+            els.playArea.classList.remove('flex');
+            els.start.classList.remove('hidden');
+            clearInterval(timerInterval);
+        }
+
+        function gameOver() {
+            gameState = 'GAME_OVER';
+            clearInterval(timerInterval);
+            els.gameOver.classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('game-over-high-score').textContent = `أعلى نتيجة: ${highScore}`;
+
+            // تحديث أعلى نتيجة في الشاشة الرئيسية أيضاً
+            document.getElementById('high-score-display').classList.remove('hidden');
+            document.getElementById('high-score-display').classList.add('flex');
+            document.getElementById('high-score-val').textContent = `أعلى نتيجة: ${highScore}`;
+        }
+    </script>
+</body>
+
+</html>

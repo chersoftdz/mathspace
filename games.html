@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مجرة الألعاب - فضاء الرياضيات</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Orbitron:wght@700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #04071a;
+            --bg-dark: #080d2a;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.1);
+            --cyan: #00d4ff;
+            --purple: #bf00ff;
+            --pink: #ff2d7a;
+            --orange: #ff7a00;
+            --green: #00ff88;
+            --yellow: #ffe142;
+            --blue: #4c8bff;
+            --sky: #38bdf8;
+            --text-primary: #e8f0ff;
+            --text-muted: #6b7db3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== خلفية الفضاء المتحركة ===== */
+        .space-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .nebula-1 {
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 70vw;
+            height: 70vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(76, 139, 255, 0.12) 0%, rgba(191, 0, 255, 0.07) 40%, transparent 70%);
+            animation: nebulaDrift1 25s ease-in-out infinite alternate;
+        }
+
+        .nebula-2 {
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 80vw;
+            height: 80vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.10) 0%, rgba(0, 255, 136, 0.05) 40%, transparent 70%);
+            animation: nebulaDrift2 30s ease-in-out infinite alternate;
+        }
+
+        .nebula-3 {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 45, 122, 0.07) 0%, transparent 70%);
+            animation: nebulaDrift1 20s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes nebulaDrift1 {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(5%, 3%) scale(1.1);
+            }
+        }
+
+        @keyframes nebulaDrift2 {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(-4%, 2%) scale(1.05);
+            }
+        }
+
+        /* -- نجوم متعددة الطبقات -- */
+        .stars-wrap {
+            position: absolute;
+            inset: 0;
+        }
+
+        .stars-layer {
+            position: absolute;
+            inset: 0;
+        }
+
+        .stars-layer canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: relative;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 32px;
+            background: rgba(4, 7, 26, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(76, 139, 255, 0.2);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px rgba(76, 139, 255, 0.5);
+        }
+
+        .nav-logo-text {
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #7eb5ff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            background: rgba(76, 139, 255, 0.12);
+            border: 1px solid rgba(76, 139, 255, 0.35);
+            border-radius: 50px;
+            color: #93c5fd;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(76, 139, 255, 0.25);
+            border-color: rgba(76, 139, 255, 0.7);
+            box-shadow: 0 0 18px rgba(76, 139, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 56px 20px 20px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 18px;
+            background: rgba(191, 0, 255, 0.15);
+            border: 1px solid rgba(191, 0, 255, 0.45);
+            border-radius: 50px;
+            font-size: 13px;
+            color: #d8b4fe;
+            font-weight: 700;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.6s ease both;
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto 36px;
+            line-height: 1.75;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 50px 0 28px;
+        }
+
+        .section-title-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .section-title h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .section-title p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to left, transparent, var(--border) 30%, var(--border) 70%, transparent);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        /* ===== PLANET CARDS (الألعاب المميزة) ===== */
+        .planet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .planet-card {
+            position: relative;
+            border-radius: 24px;
+            padding: 32px 28px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.4s ease;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        /* glow layer */
+        .planet-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .planet-card:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+
+        .planet-card:hover::before {
+            opacity: 1;
+        }
+
+        /* planet variants */
+        .p-blue {
+            border-color: rgba(76, 139, 255, 0.4);
+        }
+
+        .p-blue::before {
+            background: radial-gradient(ellipse at 60% 30%, rgba(76, 139, 255, 0.2), transparent 70%);
+        }
+
+        .p-blue:hover {
+            box-shadow: 0 20px 60px rgba(76, 139, 255, 0.4), 0 0 0 1px rgba(76, 139, 255, 0.5);
+        }
+
+        .p-cyan {
+            border-color: rgba(0, 212, 255, 0.4);
+        }
+
+        .p-cyan::before {
+            background: radial-gradient(ellipse at 60% 30%, rgba(0, 212, 255, 0.2), transparent 70%);
+        }
+
+        .p-cyan:hover {
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.4), 0 0 0 1px rgba(0, 212, 255, 0.5);
+        }
+
+        .p-pink {
+            border-color: rgba(255, 45, 122, 0.4);
+        }
+
+        .p-pink::before {
+            background: radial-gradient(ellipse at 60% 30%, rgba(255, 45, 122, 0.2), transparent 70%);
+        }
+
+        .p-pink:hover {
+            box-shadow: 0 20px 60px rgba(255, 45, 122, 0.4), 0 0 0 1px rgba(255, 45, 122, 0.5);
+        }
+
+        /* planet orb */
+        .planet-orb {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .planet-card:hover .planet-orb {
+            transform: scale(1.18) translateY(-6px);
+        }
+
+        .orb-blue {
+            background: radial-gradient(circle at 35% 35%, #7eb5ff, #1a3e99);
+            box-shadow: 0 0 30px rgba(76, 139, 255, 0.7), 0 0 60px rgba(76, 139, 255, 0.3);
+        }
+
+        .orb-cyan {
+            background: radial-gradient(circle at 35% 35%, #67edff, #006e8a);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.7), 0 0 60px rgba(0, 212, 255, 0.3);
+        }
+
+        .orb-pink {
+            background: radial-gradient(circle at 35% 35%, #ff82b0, #8a001e);
+            box-shadow: 0 0 30px rgba(255, 45, 122, 0.7), 0 0 60px rgba(255, 45, 122, 0.3);
+        }
+
+        /* planet rings */
+        .planet-orb::after {
+            content: '';
+            position: absolute;
+            width: 130%;
+            height: 30%;
+            border-radius: 50%;
+            border: 2px solid;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotateX(70deg);
+            opacity: 0.5;
+            transition: opacity 0.4s;
+        }
+
+        .orb-blue::after {
+            border-color: rgba(76, 139, 255, 0.8);
+        }
+
+        .orb-cyan::after {
+            border-color: rgba(0, 212, 255, 0.8);
+        }
+
+        .orb-pink::after {
+            border-color: rgba(255, 45, 122, 0.8);
+        }
+
+        .planet-card:hover .planet-orb::after {
+            opacity: 1;
+        }
+
+        /* planet content */
+        .planet-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .badge-hot {
+            background: rgba(255, 99, 0, 0.2);
+            color: #ff9a4d;
+            border: 1px solid rgba(255, 99, 0, 0.4);
+        }
+
+        .badge-new {
+            background: rgba(0, 212, 255, 0.15);
+            color: #67edff;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+        }
+
+        .badge-pro {
+            background: rgba(255, 225, 66, 0.15);
+            color: #ffe142;
+            border: 1px solid rgba(255, 225, 66, 0.4);
+        }
+
+        .planet-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .planet-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .planet-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .planet-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 3px 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .play-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #4c8bff, #1a3e99);
+            color: white;
+            box-shadow: 0 4px 20px rgba(76, 139, 255, 0.5);
+        }
+
+        .btn-cyan {
+            background: linear-gradient(135deg, #00d4ff, #006e8a);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-pink {
+            background: linear-gradient(135deg, #ff2d7a, #8a001e);
+            color: white;
+            box-shadow: 0 4px 20px rgba(255, 45, 122, 0.5);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.06);
+            filter: brightness(1.15);
+        }
+
+        /* ping dot */
+        .ping-dot {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .ping-dot::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .ping-blue {
+            background: var(--blue);
+        }
+
+        .ping-blue::after {
+            background: rgba(76, 139, 255, 0.6);
+        }
+
+        .ping-cyan {
+            background: var(--cyan);
+        }
+
+        .ping-cyan::after {
+            background: rgba(0, 212, 255, 0.6);
+        }
+
+        .ping-pink {
+            background: var(--pink);
+        }
+
+        .ping-pink::after {
+            background: rgba(255, 45, 122, 0.6);
+        }
+
+        @keyframes ping {
+
+            75%,
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        /* ===== MINI GAME CARDS (الألعاب الكلاسيكية) ===== */
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .mini-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.35s;
+            border-radius: 20px;
+        }
+
+        .mini-card:hover {
+            transform: translateY(-6px) scale(1.03);
+        }
+
+        .mini-card:hover::before {
+            opacity: 1;
+        }
+
+        .mc-blue::before {
+            background: radial-gradient(circle at 50% 0%, rgba(76, 139, 255, 0.25), transparent 70%);
+        }
+
+        .mc-blue:hover {
+            border-color: rgba(76, 139, 255, 0.6);
+            box-shadow: 0 10px 35px rgba(76, 139, 255, 0.3);
+        }
+
+        .mc-purple::before {
+            background: radial-gradient(circle at 50% 0%, rgba(191, 0, 255, 0.2), transparent 70%);
+        }
+
+        .mc-purple:hover {
+            border-color: rgba(191, 0, 255, 0.6);
+            box-shadow: 0 10px 35px rgba(191, 0, 255, 0.3);
+        }
+
+        .mc-green::before {
+            background: radial-gradient(circle at 50% 0%, rgba(0, 255, 136, 0.18), transparent 70%);
+        }
+
+        .mc-green:hover {
+            border-color: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 10px 35px rgba(0, 255, 136, 0.25);
+        }
+
+        .mc-orange::before {
+            background: radial-gradient(circle at 50% 0%, rgba(255, 122, 0, 0.2), transparent 70%);
+        }
+
+        .mc-orange:hover {
+            border-color: rgba(255, 122, 0, 0.6);
+            box-shadow: 0 10px 35px rgba(255, 122, 0, 0.3);
+        }
+
+        .mc-pink::before {
+            background: radial-gradient(circle at 50% 0%, rgba(255, 45, 122, 0.2), transparent 70%);
+        }
+
+        .mc-pink:hover {
+            border-color: rgba(255, 45, 122, 0.5);
+            box-shadow: 0 10px 35px rgba(255, 45, 122, 0.25);
+        }
+
+        .mc-cyan::before {
+            background: radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.2), transparent 70%);
+        }
+
+        .mc-cyan:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 10px 35px rgba(0, 212, 255, 0.25);
+        }
+
+        .mc-yellow::before {
+            background: radial-gradient(circle at 50% 0%, rgba(255, 225, 66, 0.15), transparent 70%);
+        }
+
+        .mc-yellow:hover {
+            border-color: rgba(255, 225, 66, 0.5);
+            box-shadow: 0 10px 35px rgba(255, 225, 66, 0.2);
+        }
+
+        .mini-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 14px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .mini-card:hover .mini-icon {
+            transform: scale(1.15) translateY(-4px);
+        }
+
+        .mi-blue {
+            background: radial-gradient(circle at 35% 35%, #7eb5ff, #1a3e8a);
+            box-shadow: 0 0 20px rgba(76, 139, 255, 0.5);
+        }
+
+        .mi-purple {
+            background: radial-gradient(circle at 35% 35%, #d984ff, #5a008a);
+            box-shadow: 0 0 20px rgba(191, 0, 255, 0.5);
+        }
+
+        .mi-green {
+            background: radial-gradient(circle at 35% 35%, #5fffb8, #006e3a);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .mi-orange {
+            background: radial-gradient(circle at 35% 35%, #ffb05a, #8a3c00);
+            box-shadow: 0 0 20px rgba(255, 122, 0, 0.5);
+        }
+
+        .mi-pink {
+            background: radial-gradient(circle at 35% 35%, #ff82b0, #8a001e);
+            box-shadow: 0 0 20px rgba(255, 45, 122, 0.5);
+        }
+
+        .mi-cyan {
+            background: radial-gradient(circle at 35% 35%, #67edff, #006e8a);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .mi-yellow {
+            background: radial-gradient(circle at 35% 35%, #fff382, #8a7200);
+            box-shadow: 0 0 20px rgba(255, 225, 66, 0.4);
+        }
+
+        .mini-name {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mini-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== LEADERBOARD ===== */
+        .leaderboard-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ===== GAME OVERLAY ===== */
+        .game-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(4, 7, 26, 0.95);
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .game-overlay.active {
+            display: flex;
+        }
+
+        .game-overlay-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            background: rgba(4, 7, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .game-overlay-title {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-overlay-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            background: rgba(255, 45, 122, 0.15);
+            border: 1px solid rgba(255, 45, 122, 0.4);
+            border-radius: 50px;
+            color: #ff82b0;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-overlay-btn:hover {
+            background: rgba(255, 45, 122, 0.3);
+            box-shadow: 0 0 20px rgba(255, 45, 122, 0.4);
+        }
+
+        .game-overlay-body {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #gameContent {
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-overlay-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            position: relative;
+            z-index: 10;
+            background: rgba(4, 7, 26, 0.8);
+            border-top: 1px solid var(--border);
+            padding: 32px 40px 24px;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .footer-col h4 {
+            font-size: 15px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .footer-col p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .footer-copy {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .float-anim {
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        /* card appear animations */
+        .planet-card {
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .planet-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .planet-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .planet-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .mini-card {
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .mini-card:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .mini-card:nth-child(2) {
+            animation-delay: 0.10s;
+        }
+
+        .mini-card:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .mini-card:nth-child(4) {
+            animation-delay: 0.20s;
+        }
+
+        .mini-card:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .mini-card:nth-child(6) {
+            animation-delay: 0.30s;
+        }
+
+        .mini-card:nth-child(7) {
+            animation-delay: 0.35s;
+        }
+
+        .mini-card:nth-child(8) {
+            animation-delay: 0.40s;
+        }
+
+        .mini-card:nth-child(9) {
+            animation-delay: 0.45s;
+        }
+
+        .mini-card:nth-child(10) {
+            animation-delay: 0.50s;
+        }
+
+        .mini-card:nth-child(11) {
+            animation-delay: 0.55s;
+        }
+
+        .mini-card:nth-child(12) {
+            animation-delay: 0.60s;
+        }
+
+        .mini-card:nth-child(13) {
+            animation-delay: 0.65s;
+        }
+
+        @media (max-width: 600px) {
+            .planet-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mini-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .navbar {
+                padding: 12px 16px;
+            }
+
+            .hero {
+                padding: 36px 16px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== خلفية الفضاء ===== -->
+    <div class="space-bg">
+        <div class="nebula-1"></div>
+        <div class="nebula-2"></div>
+        <div class="nebula-3"></div>
+        <canvas id="starsCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">🚀</div>
+            <span class="nav-logo-text">فضاء الرياضيات</span>
+        </div>
+        <a onclick="window.top.location.href='./'" class="back-btn" href="#">
+            <i class="fas fa-home"></i>
+            العودة للمنصة
+        </a>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="hero-badge float-anim">
+            <i class="fas fa-meteor"></i>
+            مجرة الألعاب التعليمية
+        </div>
+        <h1 class="hero-title">
+            العب وتعلم<br>
+            <span class="gradient-text">فضاء الألعاب ✨</span>
+        </h1>
+        <p class="hero-subtitle">
+            ألعاب تفاعلية مصممة خصيصاً لتعلم الرياضيات بطريقة ممتعة وذكية — اختر كوكبك وانطلق!
+        </p>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-number">✨</div>
+                <div class="stat-label">ألعاب متنوعة</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">🚀</div>
+                <div class="stat-label">ألعاب فضائية</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">متعة بلا حدود</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== محتوى اللعبة (Overlay) ===== -->
+    <div class="game-overlay" id="gameOverlay">
+        <div class="game-overlay-nav">
+            <div class="game-overlay-title" id="overlayTitle">🎮 اسم اللعبة</div>
+            <button class="close-overlay-btn" id="endGameBtn">
+                <i class="fas fa-times"></i> إغلاق اللعبة
+            </button>
+        </div>
+        <div class="game-overlay-body">
+            <div id="gameContent"></div>
+        </div>
+    </div>
+
+    <!-- ===== المحتوى الرئيسي ===== -->
+    <main class="main-content" id="mainContent">
+
+        <!-- === كواكب الألعاب المميزة === -->
+        <div class="section-title">
+            <div class="section-title-icon" style="background:linear-gradient(135deg,#1d4ed8,#6d28d9);">🚀</div>
+            <div>
+                <h2>ألعاب الفضاء الحصرية</h2>
+                <p>أحدث وأروع ألعاب المنصة</p>
+            </div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="planet-grid">
+
+            <!-- سباق المعادلات -->
+            <div class="planet-card p-blue" onclick="openExternalGame('equation_race.html','🚀 سباق المعادلات')">
+                <div class="ping-dot ping-blue"></div>
+                <div class="planet-orb orb-blue">🚀</div>
+                <span class="planet-badge badge-hot">🔥 شائع</span>
+                <div class="planet-title">سباق المعادلات</div>
+                <p class="planet-desc">اصطد النيازك الفضائية وأجب على معادلات الجبر قبل أن تدمر سفينتك!</p>
+                <div class="planet-footer">
+                    <div class="planet-tags">
+                        <span class="tag">جبر</span>
+                        <span class="tag">سرعة</span>
+                    </div>
+                    <button class="play-btn btn-blue">
+                        <i class="fas fa-play"></i> ابدأ
+                    </button>
+                </div>
+            </div>
+
+            <!-- صائد الكسور -->
+            <div class="planet-card p-cyan" onclick="openExternalGame('FractionHunter.html','🎯 صائد الكسور')">
+                <div class="ping-dot ping-cyan"></div>
+                <div class="planet-orb orb-cyan">🎯</div>
+                <span class="planet-badge badge-new">✨ جديد</span>
+                <div class="planet-title">صائد الكسور</div>
+                <p class="planet-desc">اصطد الفقاعات التي تحمل كسوراً مكافئة للهدف المحدد قبل أن تطير بعيداً!</p>
+                <div class="planet-footer">
+                    <div class="planet-tags">
+                        <span class="tag">كسور</span>
+                        <span class="tag">استراتيجية</span>
+                    </div>
+                    <button class="play-btn btn-cyan">
+                        <i class="fas fa-play"></i> ابدأ
+                    </button>
+                </div>
+            </div>
+
+            <!-- باني الأشكال -->
+            <div class="planet-card p-pink" onclick="openExternalGame('ShapeBuilder.html','📐 باني الأشكال')">
+                <div class="ping-dot ping-pink"></div>
+                <div class="planet-orb orb-pink">📐</div>
+                <span class="planet-badge badge-pro">🏆 متقدم</span>
+                <div class="planet-title">باني الأشكال</div>
+                <p class="planet-desc">ارسم الأشكال الهندسية بدقة لإنقاذ الكوكبات وتوجيه سفينتك في الفضاء!</p>
+                <div class="planet-footer">
+                    <div class="planet-tags">
+                        <span class="tag">هندسة</span>
+                        <span class="tag">رسم</span>
+                    </div>
+                    <button class="play-btn btn-pink">
+                        <i class="fas fa-play"></i> ابدأ
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- === الألعاب الكلاسيكية === -->
+        <div class="section-title">
+            <div class="section-title-icon" style="background:linear-gradient(135deg,#059669,#0284c7);">🎲</div>
+            <div>
+                <h2>ألعاب التدريب والمهارات</h2>
+                <p>تحديات رياضية متنوعة</p>
+            </div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="mini-grid">
+
+            <div class="mini-card mc-blue" id="startQuickMath">
+                <div class="mini-icon mi-blue"><i class="fas fa-calculator"></i></div>
+                <div class="mini-name">الحساب السريع</div>
+                <div class="mini-desc">اختبر سرعة حسابك</div>
+            </div>
+
+            <div class="mini-card mc-purple" id="startNumberSort">
+                <div class="mini-icon mi-purple"><i class="fas fa-sort-numeric-up"></i></div>
+                <div class="mini-name">ترتيب الأعداد</div>
+                <div class="mini-desc">رتب من الأصغر للأكبر</div>
+            </div>
+
+            <div class="mini-card mc-green" id="startMemoryGame">
+                <div class="mini-icon mi-green"><i class="fas fa-brain"></i></div>
+                <div class="mini-name">لعبة الذاكرة</div>
+                <div class="mini-desc">طابق المسألة ونتيجتها</div>
+            </div>
+
+            <div class="mini-card mc-orange" id="startPatternGame">
+                <div class="mini-icon mi-orange"><i class="fas fa-puzzle-piece"></i></div>
+                <div class="mini-name">إكمال النمط</div>
+                <div class="mini-desc">اكتشف وأكمل التسلسل</div>
+            </div>
+
+            <div class="mini-card mc-pink" id="startOperationsChallenge">
+                <div class="mini-icon mi-pink"><i class="fas fa-cogs"></i></div>
+                <div class="mini-name">تحدي العمليات</div>
+                <div class="mini-desc">حل مسائل العمليات</div>
+            </div>
+
+            <div class="mini-card mc-cyan" id="startBalancingEquation">
+                <div class="mini-icon mi-cyan"><i class="fas fa-balance-scale"></i></div>
+                <div class="mini-name">موازنة المعادلات</div>
+                <div class="mini-desc">أوجد قيمة X للتوازن</div>
+            </div>
+
+            <div class="mini-card mc-blue" id="startWordProblems">
+                <div class="mini-icon mi-blue"><i class="fas fa-book-open"></i></div>
+                <div class="mini-name">المسائل الكلامية</div>
+                <div class="mini-desc">حل مسائل الحياة</div>
+            </div>
+
+            <div class="mini-card mc-purple" id="startComplexProblems">
+                <div class="mini-icon mi-purple"><i class="fas fa-layer-group"></i></div>
+                <div class="mini-name">مسائل معقدة</div>
+                <div class="mini-desc">مسائل متعددة الخطوات</div>
+            </div>
+
+            <div class="mini-card mc-green" id="startGeometryAP">
+                <div class="mini-icon mi-green"><i class="fas fa-ruler-combined"></i></div>
+                <div class="mini-name">مساحة ومحيط</div>
+                <div class="mini-desc">احسب مساحتك ومحيطك</div>
+            </div>
+
+            <div class="mini-card mc-yellow" id="startFractionsGame">
+                <div class="mini-icon mi-yellow"><i class="fas fa-divide"></i></div>
+                <div class="mini-name">لعبة الكسور</div>
+                <div class="mini-desc">قارن وبسّط الكسور</div>
+            </div>
+
+            <div class="mini-card mc-cyan" id="startSudokuGame">
+                <div class="mini-icon mi-cyan"><i class="fas fa-th"></i></div>
+                <div class="mini-name">السودوكو</div>
+                <div class="mini-desc">حل لغز الشبكة</div>
+            </div>
+
+            <div class="mini-card mc-orange" id="startMagicSquareGame">
+                <div class="mini-icon mi-orange"><i class="fas fa-magic"></i></div>
+                <div class="mini-name">المربعات السحرية</div>
+                <div class="mini-desc">ألغاز رياضية سحرية</div>
+            </div>
+
+
+            <div class="mini-card mc-pink" id="startMazeGame">
+                <div class="mini-icon mi-pink"><i class="fas fa-project-diagram"></i></div>
+                <div class="mini-name">لعبة المتاهة</div>
+                <div class="mini-desc">حل المسائل لتصل النهاية</div>
+            </div>
+
+        </div>
+
+
+        <!-- === لوحة الصدارة === -->
+        <div class="section-title" style="margin-bottom: 20px;">
+            <div class="section-title-icon" style="background:linear-gradient(135deg,#f59e0b,#dc2626);">🏆</div>
+            <div>
+                <h2>لوحة الصدارة</h2>
+                <p>أفضل اللاعبين</p>
+            </div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="leaderboard-wrap">
+            <div id="leaderboard" style="padding:20px;text-align:center;color:var(--text-muted);font-size:14px;">
+                <i class="fas fa-trophy" style="font-size:2rem;margin-bottom:8px;display:block;opacity:0.25;"></i>
+                العب الألعاب لتظهر نتائجك هنا!
+            </div>
+        </div>
+
+        <div id="scoreDisplay" style="display:none;">
+            <h3 id="gameTitle"></h3>
+        </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>فضاء الرياضيات</h4>
+                <p>منصة تعليمية تفاعلية<br>للتعليم المتوسط الجزائري</p>
+            </div>
+            <div class="footer-col">
+                <h4>تواصل معنا</h4>
+                <p>الأستاذة شريفي<br>math2020amir@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-copy">© 2025 فضاء الرياضيات — جميع الحقوق محفوظة</div>
+    </footer>
+
+    <script src="games.js?v=4.10"></script>
+    <script>
+        // ===== رسم النجوم على الـ Canvas =====
+        const canvas = document.getElementById('starsCanvas');
+        const ctx = canvas.getContext('2d');
+        const stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', () => { resizeCanvas(); generateStars(); });
+
+        function generateStars() {
+            stars.length = 0;
+            const count = Math.floor((canvas.width * canvas.height) / 3000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.4 + 0.3,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.008 + 0.002,
+                    phase: Math.random() * Math.PI * 2,
+                    hue: Math.random() > 0.85 ? (Math.random() > 0.5 ? 200 : 270) : 0,
+                    sat: Math.random() > 0.85 ? 80 : 0,
+                });
+            }
+        }
+
+        generateStars();
+
+        function drawStars(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const s of stars) {
+                const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(time * s.speed + s.phase));
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                if (s.sat > 0) {
+                    ctx.fillStyle = `hsla(${s.hue},${s.sat}%,85%,${a})`;
+                } else {
+                    ctx.fillStyle = `rgba(255,255,255,${a})`;
+                }
+                ctx.fill();
+            }
+            requestAnimationFrame(drawStars);
+        }
+
+        requestAnimationFrame(drawStars);
+
+        // ===== فتح لعبة خارجية =====
+        function openExternalGame(url, title) {
+            const overlay = document.getElementById('gameOverlay');
+            document.getElementById('overlayTitle').textContent = title;
+            document.getElementById('gameContent').innerHTML =
+                `<iframe src="${url}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>`;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            document.getElementById('endGameBtn').onclick = closeGame;
+        }
+
+        function closeGame() {
+            const overlay = document.getElementById('gameOverlay');
+            overlay.classList.remove('active');
+            document.getElementById('gameContent').innerHTML = '';
+            document.body.style.overflow = '';
+        }
+
+        // إغلاق بـ Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeGame();
+        });
+    </script>
+
+</body>
+
+</html>

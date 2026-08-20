@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القاموس الرياضي - فضاء الرياضيات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: rgba(30, 41, 59, 0.7);
+            --surface-hover: rgba(51, 65, 85, 0.8);
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 15% 90%, rgba(139, 92, 246, 0.15) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transform: rotate(-5deg);
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 900;
+            background: linear-gradient(to left, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3.5rem 1rem 1.5rem;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 50px;
+            background: rgba(15, 23, 42, 0.6);
+            color: white;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .search-box input::placeholder {
+            color: #64748b;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.2rem;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .cat-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .cat-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .cat-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Grid */
+        .terms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .term-card {
+            background: var(--surface-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .term-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .term-card:hover {
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+
+        .term-card:hover::before {
+            opacity: 1;
+        }
+
+        .term-title {
+            color: #93c5fd;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .term-category {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #bfdbfe;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: inset 0 0 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .term-def {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Highlight Search match */
+        .highlight {
+            background: rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            background-image: linear-gradient(180deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 1));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1.5rem;
+            top: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            padding-left: 3rem;
+            /* Make room for close btn */
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #93c5fd;
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .modal-body {
+            color: var(--text-main);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .example-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-right: 4px solid #10b981;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            border-radius: 12px;
+            border-left: 1px solid rgba(16, 185, 129, 0.2);
+            border-top: 1px solid rgba(16, 185, 129, 0.2);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .example-box strong {
+            color: #34d399;
+            font-size: 1.15rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            color: var(--text-muted);
+            background: var(--surface-color);
+            border-radius: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--glass-border);
+            padding: 2rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        /* LTR math in glossary */
+        .math-ltr {
+            display: inline-block;
+            direction: ltr;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.15);
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin: 0 4px;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .header-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+
+            .categories {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                flex-wrap: nowrap;
+            }
+
+            .cat-btn {
+                white-space: nowrap;
+            }
+
+            .terms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="header-title">
+                <div class="header-icon"><i class="fas fa-book-open"></i></div>
+                <div>
+                    <h1>القاموس الرياضي</h1>
+                    <p>موسوعتك الشاملة لكل المصطلحات والقواعد الجبرية والهندسية</p>
+                </div>
+            </div>
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+                <span class="hidden-mobile">العودة</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content container">
+
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="ابحث عن مصطلح (مثلاً: معادلة، زاوية، الدالة...)">
+            </div>
+
+            <div class="categories" id="categoryFilters">
+                <button class="cat-btn active" data-cat="all">الكل 📚</button>
+                <button class="cat-btn" data-cat="numbers">أعداد وحساب 🔢</button>
+                <button class="cat-btn" data-cat="geometry">هندسة 📐</button>
+                <button class="cat-btn" data-cat="algebra">جبر وتناسب ✖️</button>
+                <button class="cat-btn" data-cat="stats">إحصاء ودوال 📊</button>
+            </div>
+        </div>
+
+        <div class="terms-grid" id="termsGrid">
+            <!-- Terms injected by JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p><strong>فضاء الرياضيات</strong> - المنصة التعليمية الذكية لطلاب المتوسط.</p>
+            <p style="margin-top: 0.5rem; opacity: 0.7;">إعداد وتقديم الأستاذة شريفي &copy; 2026</p>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="termModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+
+            <div class="modal-header">
+                <h2 id="modalTitle">اسم المصطلح</h2>
+                <span id="modalCategory" class="term-category"
+                    style="margin-top: 10px; display: inline-block;">تصنيف</span>
+            </div>
+
+            <div class="modal-body">
+                <p id="modalDef">التعريف يكتب هنا...</p>
+                <div id="modalExample" class="example-box" style="display: none;">
+                    <strong><i class="fas fa-lightbulb text-yellow-400"></i> مثال توضيحي:</strong>
+                    <span id="exampleText">مثال يكتب هنا...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="wiki.js"></script>
+</body>
+
+</html>

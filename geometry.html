@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المختبر الهندسي – فضاء الرياضيات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ======= RESET & BASE ======= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --border: rgba(99, 179, 237, 0.15);
+            --accent: #3b82f6;
+            --accent2: #8b5cf6;
+            --accent-g: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --text: #e6edf3;
+            --text-muted: #7d8590;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warn: #f59e0b;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ======= NAVBAR ======= */
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 16px;
+            height: 56px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 800;
+            background: var(--accent-g);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .nav-brand .brand-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--accent-g);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            -webkit-text-fill-color: white;
+            flex-shrink: 0;
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .nav-sep {
+            width: 1px;
+            height: 28px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        /* أزرار الأدوات في الشريط العلوي */
+        .tool-section {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .tool-section-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0 6px 0 2px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .tool-btn {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 15px;
+            transition: all 0.2s;
+            gap: 2px;
+        }
+
+        .tool-btn:hover {
+            background: rgba(59, 130, 246, 0.12);
+            color: #93c5fd;
+        }
+
+        .tool-btn.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.25) inset;
+        }
+
+        .tool-btn .tool-label {
+            font-size: 8.5px;
+            font-weight: 600;
+            line-height: 1;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .tool-btn.danger {
+            color: #f87171;
+        }
+
+        .tool-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        .tool-btn.warn {
+            color: #fbbf24;
+        }
+
+        .tool-btn.warn:hover {
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        /* مفتاح الوضع (إظهار/إخفاء الشبكة) */
+        .toggle-btn {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 15px;
+            transition: all 0.2s;
+            gap: 2px;
+        }
+
+        .toggle-btn:hover {
+            color: #93c5fd;
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .toggle-btn.on {
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .toggle-btn .tool-label {
+            font-size: 8.5px;
+            font-weight: 600;
+            line-height: 1;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .nav-spacer {
+            flex: 1;
+        }
+
+        /* معلومة الأداة الحالية */
+        .current-tool-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #93c5fd;
+        }
+
+        .current-tool-badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #3b82f6;
+            box-shadow: 0 0 8px #3b82f6;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        /* زر الرجوع */
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ======= WORKSPACE ======= */
+        .workspace {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        /* لوحة الجانبية (الخصائص + التعليمات) */
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-section h3 {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 10px;
+        }
+
+        /* لوحة الخصائص */
+        #propPanel {
+            display: none;
+        }
+
+        #propPanel.visible {
+            display: block;
+        }
+
+        .prop-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 12.5px;
+        }
+
+        .prop-row:last-child {
+            border-bottom: none;
+        }
+
+        .prop-key {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .prop-value {
+            font-weight: 700;
+            color: #60a5fa;
+            font-family: monospace;
+            direction: ltr;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* قسم التعليمات */
+        .instructions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .instruction-item .step {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* الكانفاس (لوحة الرسم) */
+        #canvasContainer {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            /* الشبكة */
+            background-color: #0d1117;
+            background-image:
+                linear-gradient(rgba(99, 179, 237, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 179, 237, 0.07) 1px, transparent 1px);
+            background-size: 40px 40px;
+            cursor: crosshair;
+        }
+
+        #canvasContainer.no-grid {
+            background-image: none;
+        }
+
+        #geoCanvas {
+            display: block;
+            position: absolute;
+            inset: 0;
+        }
+
+        /* رسالة البداية (عندما تكون اللوحة فارغة) */
+        .empty-hint {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0.4;
+            transition: opacity 0.4s;
+        }
+
+        .empty-hint.hidden {
+            opacity: 0;
+        }
+
+        .empty-hint .hint-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
+        }
+
+        .empty-hint p {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .empty-hint small {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        /* شريط الحالة السفلي */
+        .statusbar {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .statusbar span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .statusbar .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-dot 2s infinite;
+        }
+
+        .status-coord {
+            font-family: monospace;
+            direction: ltr;
+        }
+
+        /* tooltip محسّن */
+        .tool-btn[title]::after {
+            content: attr(title);
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 20, 30, 0.95);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 999;
+        }
+
+        .tool-btn[title]:hover::after {
+            opacity: 1;
+        }
+
+        /* ======= MOBILE ======= */
+        @media (max-width: 640px) {
+            .sidebar {
+                display: none;
+            }
+
+            .nav-brand span {
+                display: none;
+            }
+
+            .current-tool-badge span {
+                display: none;
+            }
+
+            .tool-section-label {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== شريط التنقل ===== -->
+    <nav class="navbar">
+        <!-- شعار المنصة -->
+        <div class="nav-brand">
+            <div class="brand-icon">📐</div>
+            <span>المختبر الهندسي</span>
+        </div>
+
+        <div class="nav-sep"></div>
+
+        <!-- أدوات البناء -->
+        <div class="tool-section">
+            <span class="tool-section-label">الأدوات</span>
+
+            <button class="tool-btn active" id="tool-select" title="تحريك وتحديد">
+                <i class="fas fa-mouse-pointer"></i>
+                <span class="tool-label">تحديد</span>
+            </button>
+
+            <button class="tool-btn" id="tool-point" title="إضافة نقطة">
+                <i class="fas fa-circle" style="font-size:9px;"></i>
+                <span class="tool-label">نقطة</span>
+            </button>
+
+            <button class="tool-btn" id="tool-segment" title="قطعة مستقيمة (اسحب بين نقطتين)">
+                <i class="fas fa-minus"></i>
+                <span class="tool-label">قطعة</span>
+            </button>
+
+            <button class="tool-btn" id="tool-circle" title="دائرة (اسحب من المركز للحافة)">
+                <i class="far fa-circle"></i>
+                <span class="tool-label">دائرة</span>
+            </button>
+        </div>
+
+        <!-- أدوات التعديل -->
+        <div class="tool-section">
+            <span class="tool-section-label">تعديل</span>
+
+            <button class="tool-btn warn" id="tool-trash" title="حذف العنصر المحدد">
+                <i class="fas fa-trash-alt"></i>
+                <span class="tool-label">حذف</span>
+            </button>
+
+            <button class="tool-btn danger" id="tool-clear" title="مسح كامل اللوحة">
+                <i class="fas fa-eraser"></i>
+                <span class="tool-label">مسح</span>
+            </button>
+        </div>
+
+        <!-- الشبكة -->
+        <button class="toggle-btn on" id="tool-grid" title="إظهار/إخفاء الشبكة">
+            <i class="fas fa-border-all"></i>
+            <span class="tool-label">شبكة</span>
+        </button>
+
+        <div class="nav-spacer"></div>
+
+        <!-- مؤشر الأداة الحالية -->
+        <div class="current-tool-badge" id="currentToolBadge">
+            <div class="dot"></div>
+            <span id="currentToolName">تحريك وتحديد</span>
+        </div>
+
+        <div class="nav-sep"></div>
+
+        <!-- زر الرجوع -->
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-right"></i>
+            <span>المنصة</span>
+        </a>
+    </nav>
+
+    <!-- ===== منطقة العمل ===== -->
+    <div class="workspace">
+
+        <!-- لوحة اللوحة الرئيسية -->
+        <div id="canvasContainer">
+            <canvas id="geoCanvas"></canvas>
+
+            <!-- رسالة بداية فارغة -->
+            <div class="empty-hint" id="emptyHint">
+                <div class="hint-icon">📐</div>
+                <p>لوحتك جاهزة للرسم!</p>
+                <small>اختر أداة من الأعلى وابدأ البناء الهندسي</small>
+            </div>
+        </div>
+
+        <!-- لوحة جانبية (خصائص + إرشادات) -->
+        <aside class="sidebar">
+
+            <!-- لوحة الخصائص -->
+            <div class="sidebar-section" id="propPanel">
+                <h3>🔍 خصائص العنصر</h3>
+                <div id="propContent"></div>
+            </div>
+
+            <!-- إرشادات الاستخدام -->
+            <div class="sidebar-section">
+                <h3>📖 كيفية الاستخدام</h3>
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <span class="step">1</span>
+                        <span>اختر أداة من شريط الأدوات العلوي</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step">2</span>
+                        <span>انقر على اللوحة لإضافة نقاط أو أشكال</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step">3</span>
+                        <span>للقطعة والدائرة: <b>اسحب</b> من نقطة إلى أخرى</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step">4</span>
+                        <span>بأداة <b>التحديد</b>: انقر على أي عنصر لتحريكه وعرض خصائصه</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step">5</span>
+                        <span>حدد عنصراً ثم اضغط <b>حذف</b> لإزالته</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الأدوات المتاحة -->
+            <div class="sidebar-section">
+                <h3>🛠 دليل الأدوات</h3>
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <span class="step" style="background:rgba(59,130,246,0.2);">☝</span>
+                        <span><b>تحديد:</b> اختر وحرّك الأشكال</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step" style="background:rgba(16,185,129,0.2);color:#10b981;">•</span>
+                        <span><b>نقطة:</b> انقر في أي مكان</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step" style="background:rgba(245,158,11,0.2);color:#f59e0b;">—</span>
+                        <span><b>قطعة:</b> اسحب بين نقطتين</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="step" style="background:rgba(139,92,246,0.2);color:#a78bfa;">○</span>
+                        <span><b>دائرة:</b> اسحب من المركز</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- ===== شريط الحالة ===== -->
+    <div class="statusbar">
+        <span>
+            <div class="dot"></div> جاهز
+        </span>
+        <span>📍 الموضع: <span class="status-coord" id="coordDisplay">—</span></span>
+        <span>🎯 عناصر: <span id="elementCount">0</span></span>
+    </div>
+
+    <!-- محرك الهندسة -->
+    <script src="geometry.js"></script>
+
+    <!-- JS لتحسينات الواجهة -->
+    <script>
+        // --- تحديث اسم الأداة الحالية ---
+        const toolNames = {
+            select: 'تحريك وتحديد',
+            point: 'إضافة نقطة',
+            segment: 'رسم قطعة مستقيمة',
+            circle: 'رسم دائرة',
+        };
+
+        document.querySelectorAll('.tool-btn[id^="tool-"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.id.replace('tool-', '');
+                if (toolNames[id]) {
+                    document.getElementById('currentToolName').textContent = toolNames[id];
+                }
+                // تحديث الـ active state
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // --- إظهار/إخفاء الشبكة ---
+        const gridBtn = document.getElementById('tool-grid');
+        const canvasContainer = document.getElementById('canvasContainer');
+        gridBtn.addEventListener('click', () => {
+            gridBtn.classList.toggle('on');
+            canvasContainer.classList.toggle('no-grid');
+        });
+
+        // --- تتبع موضع الماوس ---
+        canvasContainer.addEventListener('mousemove', (e) => {
+            const rect = canvasContainer.getBoundingClientRect();
+            const x = Math.round(e.clientX - rect.left);
+            const y = Math.round(e.clientY - rect.top);
+            document.getElementById('coordDisplay').textContent = `(${x}, ${y})`;
+        });
+
+        canvasContainer.addEventListener('mouseleave', () => {
+            document.getElementById('coordDisplay').textContent = '—';
+        });
+
+        // --- تحديث عداد العناصر وإخفاء تلميح البداية ---
+        function updateStatus() {
+            if (typeof app !== 'undefined') {
+                const count = app.points.length + app.segments.length + app.circles.length;
+                document.getElementById('elementCount').textContent = count;
+                const hint = document.getElementById('emptyHint');
+                if (count > 0) {
+                    hint.classList.add('hidden');
+                } else {
+                    hint.classList.remove('hidden');
+                }
+            }
+        }
+
+        // تحديث كل 500ms
+        setInterval(updateStatus, 500);
+
+        // --- إبراز لوحة الخصائص عند الظهور ---
+        const observer = new MutationObserver(() => {
+            const panel = document.getElementById('propPanel');
+            if (panel.style.display === 'block') {
+                panel.classList.add('visible');
+            } else {
+                panel.classList.remove('visible');
+            }
+        });
+        observer.observe(document.getElementById('propPanel'), { attributes: true, attributeFilter: ['style'] });
+    </script>
+
+</body>
+
+</html>
