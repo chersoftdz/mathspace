@@ -512,10 +512,48 @@
 
         async function loadDashboardData() {
             try {
-                // تحميل بيانات التلاميذ
-                const usersSnap = await getDocs(collection(db, 'users_progress'));
+                // تحميل بيانات المستخدمين والتلاميذ
+                const usersSnap = await getDocs(collection(db, 'users'));
+                const progressSnap = await getDocs(collection(db, 'users_progress'));
+                
+                const progressMap = {};
+                progressSnap.forEach(doc => { progressMap[doc.id] = doc.data(); });
+
                 allStudents = [];
-                usersSnap.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+                const currentTeacher = auth.currentUser;
+                let currentTeacherData = null;
+
+                usersSnap.forEach(doc => {
+                    const uData = doc.data();
+                    if (doc.id === currentTeacher?.uid) {
+                        currentTeacherData = uData;
+                    }
+                });
+
+                usersSnap.forEach(doc => {
+                    const uData = doc.data();
+                    if (uData.role === 'student') {
+                        // إظهار تلاميذ فصل هذا الأستاذ أو جميع التلاميذ إذا لم يتم ربطهم بعد
+                        const prog = progressMap[doc.id] || {};
+                        allStudents.push({
+                            id: doc.id,
+                            displayName: uData.name || prog.displayName || 'تلميذ',
+                            avatar: uData.avatar || '👨‍🎓',
+                            classId: uData.classId || 'class_1am',
+                            level: uData.classId === 'class_4am' ? 4 : uData.classId === 'class_3am' ? 3 : uData.classId === 'class_2am' ? 2 : 1,
+                            xp: uData.points !== undefined ? uData.points : (prog.xp || 0),
+                            tasksCompleted: prog.tasksCompleted || 0,
+                            badges: prog.badges || [],
+                            linkedTeacherId: uData.linkedTeacherId
+                        });
+                    }
+                });
+
+                // إذا كان الأستاذ لديه تلاميذ مرتبطون، يمكننا إعطاء الأولوية لتلاميذ فصله
+                const myClassStudents = allStudents.filter(s => s.linkedTeacherId === currentTeacher?.uid);
+                if (myClassStudents.length > 0) {
+                    allStudents = myClassStudents;
+                }
 
                 // تحميل بيانات الأخطاء
                 const errorsSnap = await getDocs(collection(db, 'wrong_answers'));
