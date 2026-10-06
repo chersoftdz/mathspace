@@ -1896,6 +1896,9 @@
             const [isUploadingComment, setIsUploadingComment] = useState(false);
             const commentFileInputRef = useRef(null);
             const [showLikesModal, setShowLikesModal] = useState(false);
+            const [showComments, setShowComments] = useState(false);
+            const [replyingToCommentId, setReplyingToCommentId] = useState(null);
+            const [replyText, setReplyText] = useState('');
 
             const handleCommentImageUpload = async (e) => {
                 const file = e.target.files[0];
@@ -1930,6 +1933,34 @@
             const handleLike = () => {
                 const isLiked = safeLikes.includes(currentUser.id);
                 onUpdatePost(post.id, { likes: isLiked ? safeLikes.filter(id => id !== currentUser.id) : [...safeLikes, currentUser.id] });
+            };
+
+            const handleLikeComment = (commentId) => {
+                const updatedComments = safeComments.map(c => {
+                    if (c.id === commentId) {
+                        const likes = c.likes || [];
+                        const isLiked = likes.includes(currentUser.id);
+                        const newLikes = isLiked ? likes.filter(id => id !== currentUser.id) : [...likes, currentUser.id];
+                        return { ...c, likes: newLikes };
+                    }
+                    return c;
+                });
+                onUpdatePost(post.id, { comments: updatedComments });
+            };
+
+            const handleReply = (commentId) => {
+                if (!replyText.trim() || isBanned) return;
+                const newReply = { id: Date.now().toString(), author: currentUser, text: replyText, timestamp: Date.now() };
+                const updatedComments = safeComments.map(c => {
+                    if (c.id === commentId) {
+                        const replies = c.replies || [];
+                        return { ...c, replies: [...replies, newReply] };
+                    }
+                    return c;
+                });
+                onUpdatePost(post.id, { comments: updatedComments });
+                setReplyText('');
+                setReplyingToCommentId(null);
             };
 
             const handleComment = () => {
@@ -2084,7 +2115,10 @@
                                     </button>
                                 )}
                             </div>
-                            <div className="flex items-center gap-2 text-sm font-black text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200"><span className="text-lg">💬</span> {safeComments.length > 0 && <span>{safeComments.length}</span>} التعليقات</div>
+                            </div>
+                            <button onClick={() => setShowComments(!showComments)} className={`flex items-center gap-2 text-sm font-black transition-colors btn-3d bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 ${showComments ? 'text-indigo-600 border-indigo-200' : 'text-slate-500 hover:text-slate-700'}`}>
+                                <span className="text-lg">💬</span> {safeComments.length > 0 && <span>{safeComments.length}</span>} التعليقات
+                            </button>
                             
                             {showLikesModal && (
                                 <div className="absolute bottom-full mb-2 right-0 bg-white border-2 border-slate-200 rounded-2xl shadow-xl w-64 max-h-48 overflow-y-auto z-20 animate-modal p-2">
@@ -2106,57 +2140,103 @@
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 p-5 border-t-2 border-slate-100">
-                        <div className="space-y-4 mb-4 max-h-64 overflow-y-auto pr-2">
-                            {safeComments.map(comment => (
-                                <div key={comment.id} className="flex gap-3 group items-end">
-                                    <Avatar emoji={comment.author?.avatar || '👤'} className={`w-8 h-8 text-sm ${comment.author?.color || 'bg-slate-200'}`} />
-                                    <div className="flex-1 bg-white p-3.5 rounded-2xl rounded-tr-none border-2 border-slate-200 shadow-sm relative">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-black text-xs text-slate-800">{comment.author?.name || 'مجهول'}</span>
-                                                {comment.author?.role === 'teacher' ? <span className="text-[10px] bg-indigo-100 border border-indigo-200 text-indigo-700 px-1.5 rounded font-bold shadow-sm">{comment.author.title || 'أستاذ'} 👑</span> : <span className={`text-[10px] px-1.5 rounded ${getBadge(comment.author?.points).color}`}>{getBadge(comment.author?.points).icon}</span>}
+                    {showComments && (
+                        <div className="bg-slate-50 p-5 border-t-2 border-slate-100 animate-modal">
+                            <div className="space-y-6 mb-5 max-h-80 overflow-y-auto pr-2">
+                                {safeComments.map(comment => (
+                                    <div key={comment.id} className="flex flex-col gap-1">
+                                        <div className="flex gap-3 group items-start">
+                                            <Avatar emoji={comment.author?.avatar || '👤'} className={`w-8 h-8 text-sm ${comment.author?.color || 'bg-slate-200'}`} />
+                                            <div className="flex-1">
+                                                <div className="bg-white p-3.5 rounded-2xl rounded-tr-none border-2 border-slate-200 shadow-sm relative inline-block min-w-[60%] max-w-full">
+                                                    <div className="flex items-center justify-between mb-1 gap-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-black text-xs text-slate-800">{comment.author?.name || 'مجهول'}</span>
+                                                            {comment.author?.role === 'teacher' ? <span className="text-[10px] bg-indigo-100 border border-indigo-200 text-indigo-700 px-1.5 rounded font-bold shadow-sm">{comment.author.title || 'أستاذ'} 👑</span> : <span className={`text-[10px] px-1.5 rounded ${getBadge(comment.author?.points).color}`}>{getBadge(comment.author?.points).icon}</span>}
+                                                        </div>
+                                                        {isTeacher && comment.author?.role !== 'teacher' && (
+                                                            <button onClick={() => onBanUser(comment.author.id, 3)} className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-md hover:bg-red-100 transition-colors font-bold shadow-sm" title="حظر من المشاركة لـ 3 أيام">🚫 حظر</button>
+                                                        )}
+                                                    </div>
+                                                    {comment.text && <p className="text-sm text-slate-700 math-content font-medium leading-relaxed">{comment.text}</p>}
+                                                    {comment.imageUrl && (
+                                                        <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 cursor-pointer" onClick={() => onOpenPhoto && onOpenPhoto(comment.imageUrl, comment.id)}>
+                                                            <img src={comment.imageUrl} alt="مرفق التعليق" className="max-w-full max-h-48 object-contain rounded-xl" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                
+                                                {/* أزرار الإعجاب والرد على التعليق */}
+                                                <div className="flex items-center gap-4 mt-1.5 px-2">
+                                                    <button onClick={() => handleLikeComment(comment.id)} className={`text-[11px] font-black transition-colors btn-3d ${comment.likes?.includes(currentUser.id) ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+                                                        {comment.likes?.length > 0 && <span>{comment.likes.length} </span>}
+                                                        إعجاب
+                                                    </button>
+                                                    <button onClick={() => setReplyingToCommentId(replyingToCommentId === comment.id ? null : comment.id)} className="text-[11px] font-black text-slate-500 hover:text-slate-700 transition-colors btn-3d">
+                                                        رد
+                                                    </button>
+                                                    <span className="text-[10px] font-bold text-slate-400">
+                                                        {new Date(comment.timestamp).toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'})}
+                                                    </span>
+                                                </div>
+
+                                                {/* الردود */}
+                                                {(comment.replies && comment.replies.length > 0) && (
+                                                    <div className="mt-3 pr-8 space-y-3 border-r-2 border-indigo-100">
+                                                        {comment.replies.map(reply => (
+                                                            <div key={reply.id} className="flex gap-2 group items-start mr-2">
+                                                                <Avatar emoji={reply.author?.avatar || '👤'} className={`w-6 h-6 text-xs ${reply.author?.color || 'bg-slate-200'} mt-1`} />
+                                                                <div className="flex-1 bg-white p-2.5 rounded-2xl rounded-tr-none border border-slate-200 shadow-sm relative inline-block">
+                                                                    <div className="flex items-center gap-2 mb-1">
+                                                                        <span className="font-black text-[10px] text-slate-800">{reply.author?.name || 'مجهول'}</span>
+                                                                        {reply.author?.role === 'teacher' && <span className="text-[8px] bg-indigo-100 border border-indigo-200 text-indigo-700 px-1 rounded font-bold shadow-sm">👑</span>}
+                                                                    </div>
+                                                                    <p className="text-xs text-slate-700 math-content font-medium leading-relaxed">{reply.text}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* حقل إدخال الرد */}
+                                                {replyingToCommentId === comment.id && !isBanned && (
+                                                    <div className="mt-2 pr-8 mr-2 flex gap-2 items-center animate-modal">
+                                                        <input type="text" value={replyText} onChange={e => setReplyText(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleReply(comment.id)} placeholder="اكتب رداً..." className="flex-1 bg-white border border-slate-200 px-3 py-2 text-xs font-bold rounded-xl outline-none focus:border-indigo-400 transition-colors shadow-inner" autoFocus />
+                                                        <button onClick={() => handleReply(comment.id)} disabled={!replyText.trim()} className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 text-xs font-bold rounded-xl disabled:bg-slate-300 transition-colors shadow-sm btn-3d">رد</button>
+                                                    </div>
+                                                )}
                                             </div>
-                                            {isTeacher && comment.author?.role !== 'teacher' && (
-                                                <button onClick={() => onBanUser(comment.author.id, 3)} className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-md hover:bg-red-100 transition-colors font-bold shadow-sm" title="حظر من المشاركة لـ 3 أيام">🚫 حظر</button>
-                                            )}
                                         </div>
-                                        {comment.text && <p className="text-sm text-slate-700 math-content font-medium leading-relaxed">{comment.text}</p>}
-                                        {comment.imageUrl && (
-                                            <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 cursor-pointer" onClick={() => onOpenPhoto && onOpenPhoto(comment.imageUrl, comment.id)}>
-                                                <img src={comment.imageUrl} alt="مرفق التعليق" className="max-w-full max-h-48 object-contain rounded-xl" />
-                                            </div>
-                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {isBanned ? (
+                                <div className="bg-red-50 border-2 border-red-200 p-3 rounded-2xl text-center text-sm font-bold text-red-600 shadow-sm">
+                                    🚫 تم تعليق مشاركتك مؤقتاً لمخالفة قوانين القسم.
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-2 mt-4">
+                                    {commentImageUrl && (
+                                        <div className="relative inline-block self-start bg-slate-100 p-2 rounded-xl border-2 border-slate-200 animate-modal">
+                                            <img src={commentImageUrl} alt="مرفق التعليق" className="h-20 object-contain rounded-lg" />
+                                            <button onClick={() => setCommentImageUrl('')} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md font-black hover:bg-red-600 transition-colors">✕</button>
+                                        </div>
+                                    )}
+                                    <div className="flex gap-2 items-center bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-inner">
+                                        <input type="text" value={commentText} onChange={e => setCommentText(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleComment()} placeholder="اكتب تعليقاً..." className="flex-1 bg-transparent px-4 py-3 text-sm font-bold outline-none text-slate-700" />
+                                        
+                                        <input type="file" ref={commentFileInputRef} onChange={handleCommentImageUpload} accept="image/*" className="hidden" />
+                                        <button onClick={() => commentFileInputRef.current?.click()} disabled={isUploadingComment} className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors cursor-pointer flex-shrink-0" title="إرفاق صورة">
+                                            {isUploadingComment ? <span className="animate-spin inline-block">⏳</span> : '📷'}
+                                        </button>
+
+                                        <button onClick={handleComment} disabled={(!commentText.trim() && !commentImageUrl) || isUploadingComment} className="bg-gradient-to-b from-indigo-500 to-indigo-600 text-white px-5 py-2.5 text-sm font-bold rounded-xl shadow-[0_3px_0_0_#4338ca] disabled:bg-slate-300 disabled:shadow-none hover:from-indigo-400 btn-3d mr-1 flex-shrink-0">إرسال 🚀</button>
                                     </div>
                                 </div>
-                            ))}
+                            )}
                         </div>
-
-                        {isBanned ? (
-                            <div className="bg-red-50 border-2 border-red-200 p-3 rounded-2xl text-center text-sm font-bold text-red-600 shadow-sm">
-                                🚫 تم تعليق مشاركتك مؤقتاً لمخالفة قوانين القسم.
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-2">
-                                {commentImageUrl && (
-                                    <div className="relative inline-block self-start bg-slate-100 p-2 rounded-xl border-2 border-slate-200">
-                                        <img src={commentImageUrl} alt="مرفق التعليق" className="h-20 object-contain rounded-lg" />
-                                        <button onClick={() => setCommentImageUrl('')} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md font-black hover:bg-red-600 transition-colors">✕</button>
-                                    </div>
-                                )}
-                                <div className="flex gap-2 items-center bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-inner">
-                                    <input type="text" value={commentText} onChange={e => setCommentText(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleComment()} placeholder="شارك بأفكارك..." className="flex-1 bg-transparent px-4 py-3 text-sm font-bold outline-none text-slate-700" />
-                                    
-                                    <input type="file" ref={commentFileInputRef} onChange={handleCommentImageUpload} accept="image/*" className="hidden" />
-                                    <button onClick={() => commentFileInputRef.current?.click()} disabled={isUploadingComment} className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors cursor-pointer flex-shrink-0" title="إرفاق صورة">
-                                        {isUploadingComment ? <span className="animate-spin inline-block">⏳</span> : '📷'}
-                                    </button>
-
-                                    <button onClick={handleComment} disabled={(!commentText.trim() && !commentImageUrl) || isUploadingComment} className="bg-gradient-to-b from-indigo-500 to-indigo-600 text-white px-5 py-2.5 text-sm font-bold rounded-xl shadow-[0_3px_0_0_#4338ca] disabled:bg-slate-300 disabled:shadow-none hover:from-indigo-400 btn-3d mr-1 flex-shrink-0">إرسال 🚀</button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    )}
                 </div>
             );
         };
