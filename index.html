@@ -2176,7 +2176,7 @@
                                                         رد
                                                     </button>
                                                     <span className="text-[10px] font-bold text-slate-400">
-                                                        {new Date(comment.timestamp).toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'})}
+                                                        {comment.timestamp ? new Date(comment.timestamp).toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'}) : ''}
                                                     </span>
                                                 </div>
 
